@@ -1,0 +1,9 @@
+#!/bin/bash
+
+
+RUST_THREADS=1
+export RUST_THREADS
+
+bin/test/evict
+bin/test/fsm
+
