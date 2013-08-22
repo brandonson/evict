@@ -29,13 +29,13 @@ fn printIssueVec(issues:~[~Issue], short:bool) {
 fn printIssue(issue:&Issue, short:bool) {
   io::println("");
   io::println(fmt!("\x1b[33m%s (Issue ID: %s)\x1b[0m", issue.title, issue.id));
-  io::println(fmt!("\x1b[34mReported by %s on %s\x1b[0m\n",
-                     issue.author, 
-                     issue.creationTime.strftime(issue::TIME_FORMAT)));
   if(!short){
+    io::println(fmt!("\x1b[34mReported by %s on %s\x1b[0m",
+                       issue.author, 
+                       issue.creationTime.strftime(issue::TIME_FORMAT)));
+    io::println(fmt!("Originated on branch %s\n", issue.branch)); 
     if(issue.bodyText.len() > 0){
       io::println(issue.bodyText);
-      io::println("");
     }
     if(issue.comments.len() == 0){
       io::println("    No comments on this issue.");
@@ -44,6 +44,7 @@ fn printIssue(issue:&Issue, short:bool) {
         io::println(fmt!("  \x1b[32m%s on %s\x1b[0m\n",
                          comment.author, 
                          comment.creationTime.strftime(issue::TIME_FORMAT)));
+	io::println(fmt!("  For branch %s", comment.branch));
         let text = ~"    " + comment.bodyText.replace("\n", "    \n");
         io::println(text);
       }

@@ -7,6 +7,7 @@ mod list;
 mod sync;
 mod delete;
 mod comment;
+mod merge;
 /* A command takes a list of argument strings,
  * performs some action, then returns an
  * exit code.
@@ -34,7 +35,7 @@ pub fn standardCommands() -> ~std::container::Map<~str, Command> {
   hmap.insert(~"list", list::listIssues); 
   hmap.insert(~"delete", delete::deleteIssue);
   hmap.insert(~"comment", comment::newComment); 
-  //TODO implement below commands
+  hmap.insert(~"merge", merge::mergeBranches);
   hmap.insert(~"sync", sync::syncIssues);
   hmap as ~std::container::Map<~str, Command>
 }

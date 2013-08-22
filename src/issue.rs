@@ -1,6 +1,8 @@
 use extra::{json, treemap, time};
 use evict;
 use std::int;
+use vcs_status;
+
 pub static TIME_FORMAT:&'static str = "%F %Y at %T";
 
 pub static BODY_KEY:&'static str = "bodyText";
@@ -10,12 +12,14 @@ pub static TITLE_KEY:&'static str = "title";
 pub static ID_KEY:&'static str = "id";
 pub static VERSION_KEY:&'static str = "evict-version";
 pub static COMMENTS_KEY:&'static str = "comments";
+pub static BRANCH_KEY:&'static str = "branch";
 
 #[deriving(Clone)]
 pub struct IssueComment{
   creationTime: time::Tm,
   author:~str,
-  bodyText:~str
+  bodyText:~str,
+  branch:~str
 }
 
 #[deriving(Clone)]
@@ -26,7 +30,8 @@ pub struct Issue{
 
   bodyText:~str,
   id:~str,
-  comments:~[~IssueComment]
+  comments:~[~IssueComment],
+  branch:~str
 }
 
 impl Eq for IssueComment{
@@ -72,6 +77,7 @@ impl Issue{
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
     map.insert(COMMENTS_KEY.to_owned(), json::List(do self.comments.map |c| {c.getJson()}));
+    map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
     json::Object(map)
   }
 
@@ -96,19 +102,23 @@ impl Issue{
         do bodyOpt.chain |body| {
           let authorOpt = getStringForKey(map, AUTHOR_KEY);
           do authorOpt.chain |author| {
-            let idOpt = getStringForKey(map, ID_KEY);
-            do idOpt.chain |id| {
-              let comments = map.find(&COMMENTS_KEY.to_owned()).map_default(~[],
-                                                                    Issue::loadComments);
-              let timeOpt = getStringForKey(map, TIME_KEY);
-              do timeOpt.chain |time| {
-                let timeResult = time::strptime(time,TIME_FORMAT);
-                match timeResult {
-                  Ok(tm) => Some(~Issue{title:title.clone(), bodyText:body.clone(), 
-                                      author:author.clone(), 
-                                      creationTime:tm, id:id.clone(),
-                                      comments:comments.clone()}),
-                  Err(_) => None
+            let branchOpt = getStringForKey(map, BRANCH_KEY);
+	    do branchOpt.chain |branch| {
+              let idOpt = getStringForKey(map, ID_KEY);
+              do idOpt.chain |id| {
+                let comments = map.find(&COMMENTS_KEY.to_owned()).map_default(~[],
+                                                                      Issue::loadComments);
+                let timeOpt = getStringForKey(map, TIME_KEY);
+                do timeOpt.chain |time| {
+                  let timeResult = time::strptime(time,TIME_FORMAT);
+                  match timeResult {
+                    Ok(tm) => Some(~Issue{title:title.clone(), bodyText:body.clone(), 
+                                        author:author.clone(), 
+                                        creationTime:tm, id:id.clone(),
+                                        comments:comments.clone(),
+                                        branch:branch.clone()}),
+                    Err(_) => None
+                  }
                 }
               }
     	    }
@@ -134,8 +144,9 @@ impl Issue{
   }
 
   pub fn new(title:~str, body:~str, author:~str, ident:~str) -> ~Issue{
+    let branch = vcs_status::currentBranch().unwrap_or_default(~"<unknown>");
     ~Issue{title:title, bodyText:body, author:author, id:ident, creationTime:time::now(),
-           comments:~[]}
+           comments:~[], branch:branch}
   }
   pub fn generateId() -> ~str {
     let cTime = time::get_time();
@@ -149,6 +160,7 @@ impl IssueComment{
     map.insert(TIME_KEY.to_owned(), 
                json::String(time::strftime(TIME_FORMAT, &self.creationTime)));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
+    map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
     json::Object(map) 
   }
   
@@ -164,14 +176,17 @@ impl IssueComment{
     do bodyOpt.chain |body| {
       let authorOpt = getStringForKey(map, AUTHOR_KEY);
       do authorOpt.chain |author| {
-        let timeOpt = getStringForKey(map, TIME_KEY);
-        do timeOpt.chain |time| {
-          let timeResult = time::strptime(time,TIME_FORMAT);
-          match timeResult {
-            Ok(tm) => Some(~IssueComment{bodyText:body.clone(), 
-                                  author:author.clone(), 
-                                  creationTime:tm}),
-            Err(_) => None
+        let branchOpt = getStringForKey(map, BRANCH_KEY);
+	do branchOpt.chain |branch| {
+          let timeOpt = getStringForKey(map, TIME_KEY);
+          do timeOpt.chain |time| {
+            let timeResult = time::strptime(time,TIME_FORMAT);
+            match timeResult {
+              Ok(tm) => Some(~IssueComment{bodyText:body.clone(), 
+                                    author:author.clone(), 
+                                    creationTime:tm, branch:branch.clone()}),
+              Err(_) => None
+            }
           }
         }
       }
@@ -179,7 +194,9 @@ impl IssueComment{
   }
   
   pub fn new(author:~str, body:~str) -> ~IssueComment{
-    ~IssueComment{author:author, bodyText:body, creationTime:time::now()}
+    let branch = vcs_status::currentBranch().unwrap_or_default(~"<unknown>");
+    ~IssueComment{author:author, bodyText:body, creationTime:time::now(),
+                  branch: branch}
   }
 }
 

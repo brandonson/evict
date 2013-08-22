@@ -14,18 +14,18 @@ static LOCAL_EXT:&'static str = ".ebtdlocal";
 static ACTIVE_ISSUE_FILENAME_PART:&'static str = "issues";
 static LOCAL_ISSUE_SUFFIX:&'static str = "-local";
 
-fn activeIssueFilename() -> ~str {fmt!("%s%s%s",EVICT_DIRECTORY, 
+pub fn activeIssueFilename() -> ~str {fmt!("%s%s%s",EVICT_DIRECTORY, 
                                                 ACTIVE_ISSUE_FILENAME_PART, 
                                                 EXTENSION)}
 
-fn localIssueFilename (branchname:&str) -> ~str { 
+pub fn localIssueFilename (branchname:&str) -> ~str { 
   fmt!("%s%s%s%s", EVICT_DIRECTORY,
                  branchname,
                  LOCAL_ISSUE_SUFFIX,
                  LOCAL_EXT)
 }  
 
-fn committableIssueFilename(branchname:&str) -> ~str {
+pub fn committableIssueFilename(branchname:&str) -> ~str {
   fmt!("%s%s%s", EVICT_DIRECTORY, branchname, LOCAL_EXT)
 }
 
