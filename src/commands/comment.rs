@@ -66,8 +66,8 @@ fn commentOnMatching(matching:~[~Issue]) -> Result<~Issue,int> {
       io::println("No comment body provided");
       Err(4)
     }else{
-      file_util::deleteFile(filename);
       let text = file_util::readStringFromFile(filename);
+      file_util::deleteFile(filename);
       if(text.is_none()){
         io::println("Could not read comment body from file");
 	Err(5)
