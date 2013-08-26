@@ -2,6 +2,7 @@ use extra::{json, treemap, time};
 use evict;
 use std::int;
 use vcs_status;
+use extra::json::ToJson;
 
 pub static TIME_FORMAT:&'static str = "%F %Y at %T";
 
@@ -13,7 +14,7 @@ pub static ID_KEY:&'static str = "id";
 pub static VERSION_KEY:&'static str = "evict-version";
 pub static COMMENTS_KEY:&'static str = "comments";
 pub static BRANCH_KEY:&'static str = "branch";
-
+pub static STATE_KEY:&'static str = "state";
 #[deriving(Clone)]
 pub struct IssueComment{
   creationTime: time::Tm,
@@ -21,7 +22,10 @@ pub struct IssueComment{
   bodyText:~str,
   branch:~str
 }
-
+#[deriving(Clone)]
+pub struct IssueState{
+  name:~str
+}
 #[deriving(Clone)]
 pub struct Issue{
   title:~str,
@@ -31,7 +35,8 @@ pub struct Issue{
   bodyText:~str,
   id:~str,
   comments:~[~IssueComment],
-  branch:~str
+  branch:~str,
+  state:~IssueState
 }
 
 impl Eq for IssueComment{
@@ -78,6 +83,7 @@ impl Issue{
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
     map.insert(COMMENTS_KEY.to_owned(), json::List(do self.comments.map |c| {c.getJson()}));
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
+    map.insert(STATE_KEY.to_owned(), self.state.to_json());
     json::Object(map)
   }
 
@@ -108,6 +114,10 @@ impl Issue{
               do idOpt.chain |id| {
                 let comments = map.find(&COMMENTS_KEY.to_owned()).map_default(~[],
                                                                       Issue::loadComments);
+		let state = do map.find(&STATE_KEY.to_owned())
+                                  .map_default(IssueState::default()) |json| {
+		  IssueState::from_json(*json)
+                };
                 let timeOpt = getStringForKey(map, TIME_KEY);
                 do timeOpt.chain |time| {
                   let timeResult = time::strptime(time,TIME_FORMAT);
@@ -116,7 +126,7 @@ impl Issue{
                                         author:author.clone(), 
                                         creationTime:tm, id:id.clone(),
                                         comments:comments.clone(),
-                                        branch:branch.clone()}),
+                                        branch:branch.clone(), state:~state.clone()}),
                     Err(_) => None
                   }
                 }
@@ -146,7 +156,7 @@ impl Issue{
   pub fn new(title:~str, body:~str, author:~str, ident:~str) -> ~Issue{
     let branch = vcs_status::currentBranch().unwrap_or_default(~"<unknown>");
     ~Issue{title:title, bodyText:body, author:author, id:ident, creationTime:time::now(),
-           comments:~[], branch:branch}
+           comments:~[], branch:branch, state:~IssueState::default()}
   }
   pub fn generateId() -> ~str {
     let cTime = time::get_time();
@@ -197,6 +207,21 @@ impl IssueComment{
     let branch = vcs_status::currentBranch().unwrap_or_default(~"<unknown>");
     ~IssueComment{author:author, bodyText:body, creationTime:time::now(),
                   branch: branch}
+  }
+}
+
+impl json::ToJson for IssueState{
+  fn to_json(&self) -> json::Json {
+    self.name.to_json()
+  }
+}
+
+impl IssueState {
+  fn from_json(json:&json::Json) -> IssueState {
+    IssueState{name:json.to_str()}
+  }
+  fn default() -> IssueState{
+    IssueState{name:~"<unknown>"}
   }
 }
 
