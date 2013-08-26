@@ -45,8 +45,9 @@ fn printIssue(issue:&Issue, short:bool) {
                          comment.author, 
                          comment.creationTime.strftime(issue::TIME_FORMAT)));
 	io::println(fmt!("  For branch %s", comment.branch));
-        let text = ~"    " + comment.bodyText.replace("\n", "    \n");
-        io::println(text);
+        for line in comment.bodyText.line_iter() {
+          io::println(~"    " + line);
+	}
       }
     }
   }
