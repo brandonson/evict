@@ -58,7 +58,11 @@ pub fn prompt(prompt:&str) -> ~str{
 }
 
 pub fn getAuthor() -> ~str {
-  prompt("Author: ")
+  let config = config::Config::load();
+  match config.author {
+    Some(author) => author,
+    None => prompt("Author: ")
+  }
 }
 
 pub fn editFile(filename:&str) -> bool{

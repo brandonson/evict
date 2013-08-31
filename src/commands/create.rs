@@ -56,7 +56,7 @@ pub fn createIssue(args:~[~str], _:config::Config) -> int {
   };
   let author = match finalFlags.author {
     Some(ref authorVal) => authorVal.to_owned(),
-    None => commands::prompt("Author: ")
+    None => commands::getAuthor()
   };
   let mut editedBodyFile = false;
   let bodyFile = if(finalFlags.hasBody && finalFlags.bodyFile.is_none()){
