@@ -10,6 +10,7 @@ pub mod vcs_status;
 pub mod merge;
 pub mod selection;
 pub mod config;
+pub mod status_storage;
 
 pub mod evict{
   pub static CURRENT_VERSION:uint = 1;
@@ -22,8 +23,10 @@ fn main(){
     std::io::println("No command given");
   }else{
     let cmdArgs = args.tailn(2).to_owned();
-  
+    
+    let config = config::Config::load();
+     
     let cmd = args[1];
-    commands::executeCommand(&cmd,&commands::standardCommands(),cmdArgs);
+    commands::executeCommand(&cmd,&commands::standardCommands(),cmdArgs, config);
   }
 }

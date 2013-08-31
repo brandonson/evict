@@ -1,5 +1,6 @@
 use std;
 use file_manager;
+use config;
 
 mod create;
 mod clear;
@@ -8,17 +9,20 @@ mod sync;
 mod delete;
 mod comment;
 mod merge;
+mod new_status;
+mod default_author;
+
 /* A command takes a list of argument strings,
  * performs some action, then returns an
  * exit code.
  */
-type Command = ~fn (~[~str]) -> int;
+type Command = ~fn (~[~str], config::Config) -> int;
 
 pub fn executeCommand(command:&~str, 
                       commandList:&~std::container::Map<~str, Command>, 
-                      argList: ~[~str]) -> bool{
+                      argList: ~[~str], config:config::Config) -> bool{
   match commandList.find(command) {
-    Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
+    Some(cmd) => {let exit = (*cmd)(argList, config); std::os::set_exit_status(exit); true}
     None => {
      std::io::println(fmt!("Command %s not found", *command)); 
      std::os::set_exit_status(1); 
@@ -37,10 +41,12 @@ pub fn standardCommands() -> ~std::container::Map<~str, Command> {
   hmap.insert(~"comment", comment::newComment); 
   hmap.insert(~"merge", merge::mergeBranches);
   hmap.insert(~"sync", sync::syncIssues);
+  hmap.insert(~"new-status", new_status::newStatus);
+  hmap.insert(~"default-author", default_author::defaultAuthor);
   hmap as ~std::container::Map<~str, Command>
 }
 
-pub fn init(_:~[~str]) -> int {
+pub fn init(_:~[~str], _:config::Config) -> int {
   let res = std::os::make_dir(&Path(file_manager::EVICT_DIRECTORY), 
                                     0400 | 0200 | 0040 | 0020 | 0004);
   if(res){0}else{1}

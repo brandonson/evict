@@ -4,6 +4,7 @@ use file_manager;
 use vcs_status;
 use fsm;
 use selection;
+use config;
 
 #[deriving(Clone)]
 struct Flags{
@@ -18,7 +19,7 @@ fn stdHandler(flags:&Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   }
 }
 
-pub fn deleteIssue(args:~[~str]) -> int {
+pub fn deleteIssue(args:~[~str], _:config::Config) -> int {
   let mut stateMachine = fsm::StateMachine::new(stdHandler, ~Flags{local:false, 
                                                                   issue:None});
   for arg in args.move_iter() {

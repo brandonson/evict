@@ -163,6 +163,7 @@ impl Issue{
     cTime.sec.to_str() + cTime.nsec.to_str()
   }
 }
+
 impl IssueComment{
   pub fn getJson(&self) -> json::Json {
     let mut map:~json::Object = ~treemap::TreeMap::new();
@@ -217,10 +218,13 @@ impl json::ToJson for IssueStatus{
 }
 
 impl IssueStatus {
-  fn from_json(json:&json::Json) -> IssueStatus {
-    IssueStatus{name:json.to_str()}
+  pub fn from_json(json:&json::Json) -> IssueStatus {
+    match json {
+      &json::String(ref name) => IssueStatus{name:name.to_owned()},
+      _ => IssueStatus::default()
+    }
   }
-  fn default() -> IssueStatus{
+  pub fn default() -> IssueStatus{
     IssueStatus{name:~"<unknown>"}
   }
 }

@@ -3,8 +3,9 @@ use vcs_status;
 use issue;
 use issue::Issue;
 use std::io;
+use config;
 
-pub fn listIssues(args:~[~str]) -> int{
+pub fn listIssues(args:~[~str], _:config::Config) -> int{
   let cBranch = vcs_status::currentBranch();
   if(cBranch.is_none()){
     return 1;

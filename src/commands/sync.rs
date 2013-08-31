@@ -1,7 +1,9 @@
 use file_manager::*;
 use merge::mergeIssues;
 use vcs_status;
-pub fn syncIssues(_:~[~str]) -> int {
+use config;
+
+pub fn syncIssues(_:~[~str], _:config::Config) -> int {
   let branchOpt = vcs_status::currentBranch();
   do branchOpt.map_move_default(2) |branch| {
     let incoming = readCommittedIssues();

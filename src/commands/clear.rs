@@ -1,7 +1,9 @@
 use std;
 use commands;
 use file_manager;
-pub fn clearData(_:~[~str]) -> int {
+use config;
+
+pub fn clearData(_:~[~str],_:config::Config) -> int {
   let evict_path = &std::path::Path(file_manager::EVICT_DIRECTORY);
   let res = commands::prompt(
              fmt!("Really clear everything from %s? [y/n]", 

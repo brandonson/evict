@@ -4,7 +4,9 @@ use file_manager::*;
 use file_util;
 use merge;
 use vcs_status;
-pub fn mergeBranches(args:~[~str]) -> int {
+use config;
+
+pub fn mergeBranches(args:~[~str], _:config::Config) -> int {
   if(args.len() == 0 || args.len() > 2){
     println("Usage: evict merge <from-branch> [<to-branch>]");
     1
