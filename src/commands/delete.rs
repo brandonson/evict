@@ -8,20 +8,17 @@ use config;
 
 #[deriving(Clone)]
 struct Flags{
-  local:bool,
   issue:Option<~str>
 }
 
 fn stdHandler(flags:&Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   match input {
-    ~"--local" => fsm::Continue(~Flags{local:true, .. (*flags).clone()}),
     ident => fsm::Continue(~Flags{issue:Some(ident), .. (*flags).clone()})
   }
 }
 
 pub fn deleteIssue(args:~[~str], _:config::Config) -> int {
-  let mut stateMachine = fsm::StateMachine::new(stdHandler, ~Flags{local:false, 
-                                                                  issue:None});
+  let mut stateMachine = fsm::StateMachine::new(stdHandler, ~Flags{issue:None});
   for arg in args.move_iter() {
     stateMachine.process(arg);
   }
@@ -35,21 +32,12 @@ pub fn deleteIssue(args:~[~str], _:config::Config) -> int {
     if(cBranch.is_none()){
       2
     }else{
-      if(finalFlags.local){
-        let issueIdPart = finalFlags.issue.unwrap();
-	execDelete(cBranch.unwrap(), issueIdPart,
-	           file_manager::readLocalIssues,
-		   file_manager::writeLocalIssues)
+      let issueIdPart = finalFlags.issue.unwrap();
+      let committed = checkCommitted(issueIdPart);
+      if(committed){
+        3
       }else{
-        let issueIdPart = finalFlags.issue.unwrap();
-        let committed = checkCommitted(issueIdPart);
-	if(committed){
-	  3
-	}else{
-	  execDelete(cBranch.unwrap(), issueIdPart,
-	             file_manager::readCommittableIssues,
-		     file_manager::writeCommittableIssues)
-	}
+	execDelete(cBranch.unwrap(), issueIdPart)
       }
     }
   }
@@ -66,10 +54,8 @@ fn checkCommitted(idPart:&str) -> bool {
   }
   return result;
 }
-fn execDelete(branch:~str, idPart:~str,
-              read:&fn(&str) -> ~[~Issue],
-	      write:&fn(&str, &[~Issue]) -> bool) -> int{
-  let issues = read(branch);
+fn execDelete(branch:~str, idPart:~str) -> int{
+  let issues = file_manager::readCommittableIssues(branch);
   let matching = selection::findMatchingIssues(idPart, issues);
   if(matching.len() == 0){
     println(fmt!("No issue matching %s found.", idPart));
@@ -85,7 +71,7 @@ fn execDelete(branch:~str, idPart:~str,
     }
     //We really, REALLY don't want to be deleting issues we don't expect to be
     assert!(issueCount - 1 == remaining.len());
-    write(branch, remaining);
+    file_manager::writeCommittableIssues(branch, remaining);
     println(fmt!("Issue %s (%s) deleted.", matching[0].id, matching[0].title));
     0
   }else{

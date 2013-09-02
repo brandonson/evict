@@ -10,7 +10,8 @@ fn fullStatusFilename() -> ~str {
 }
 
 pub fn readIssueStatuses() -> ~[~IssueStatus] {
-  let fullString = file_util::readStringFromFile(fullStatusFilename()).unwrap_or_default(~"");
+  let fullString = file_util::readStringFromFile(fullStatusFilename())
+                             .unwrap_or_default(~"");
   fullString.any_line_iter().map(|x| ~IssueStatus{name:x.to_owned()}).collect()
 }
 

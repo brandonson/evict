@@ -14,7 +14,6 @@ struct Flags{
   bodyFile:Option<~str>,
   title:Option<~str>,
   author:Option<~str>,
-  local:bool
 }
 
 fn stdHandler(flags:&Flags, input:~str) -> fsm::NextState<Flags,~str> {
@@ -23,7 +22,6 @@ fn stdHandler(flags:&Flags, input:~str) -> fsm::NextState<Flags,~str> {
                                          .. (*flags).clone()}),
     ~"--body-file" => fsm::ChangeState(getBodyFile, ~((*flags).clone())),
     ~"--title" => fsm::ChangeState(getTitle, ~((*flags).clone())),
-    ~"--local" => fsm::Continue(~Flags{local:true, .. (*flags).clone()}),
     ~"--author" => fsm::ChangeState(getAuthor, ~((*flags).clone())),
     _ => fsm::Continue(~((*flags).clone()))
   }
@@ -43,13 +41,11 @@ pub fn createIssue(args:~[~str], _:config::Config) -> int {
                                            ~Flags{hasBody:true, 
                                                  bodyFile:None, 
                                                  title:None,
-						 author:None,
-                                                 local:false});
+						 author:None});
   for argVal in args.iter() {
     stateMachine.process(argVal.clone());
   };
   let finalFlags = stateMachine.consumeToState();
-  let isLocal = finalFlags.local;
   let title = match finalFlags.title {
     Some(ref titleVal) => titleVal.to_owned(),
     None => commands::prompt("Title: ")
@@ -70,7 +66,7 @@ pub fn createIssue(args:~[~str], _:config::Config) -> int {
   }else{
     finalFlags.bodyFile
   };
-  let created = doIssueCreation(title, author, bodyFile, isLocal);
+  let created = doIssueCreation(title, author, bodyFile);
   if(editedBodyFile){ file_util::deleteFile(DEFAULT_ISSUE_BODY_FILE); };
   if(created.is_some()){
     io::println(fmt!("Issue %s created.", created.unwrap().id)); 
@@ -80,7 +76,7 @@ pub fn createIssue(args:~[~str], _:config::Config) -> int {
   }
 }
 
-fn doIssueCreation(title:~str, author:~str, bodyFile:Option<~str>, local:bool) -> Option<~Issue>{
+fn doIssueCreation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~Issue>{
   let issueOpt = if(bodyFile.is_none()){
                    Some(Issue::new(title, ~"", author, Issue::generateId()))
                  }else{
@@ -94,7 +90,7 @@ fn doIssueCreation(title:~str, author:~str, bodyFile:Option<~str>, local:bool) -
     None
   }else{
     let issue = issueOpt.unwrap();
-    if(writeIssue(issue.clone(), local)){
+    if(writeIssue(issue.clone())){
       Some(issue)
     }else{
       io::println("Could not write issue to file.");
@@ -103,7 +99,7 @@ fn doIssueCreation(title:~str, author:~str, bodyFile:Option<~str>, local:bool) -
   }
 }
 
-fn writeIssue(issue:~Issue, local:bool) -> bool{
+fn writeIssue(issue:~Issue) -> bool{
   let branchnameOpt = vcs_status::currentBranch();
   if(branchnameOpt.is_none()){
     io::println("Could determine current branch.  Is there an active VCS for this directory?");
@@ -111,14 +107,8 @@ fn writeIssue(issue:~Issue, local:bool) -> bool{
   }
   
   let branchname = branchnameOpt.unwrap();
-  if(!local){
-    let mut committable = file_manager::readCommittableIssues(branchname);
-    committable.push(issue);
-    file_manager::writeCommittableIssues(branchname, committable)
-  }else{
-    let mut local = file_manager::readLocalIssues(branchname);
-    local.push(issue);
-    file_manager::writeLocalIssues(branchname, local)
-  }
+  let mut committable = file_manager::readCommittableIssues(branchname);
+  committable.push(issue);
+  file_manager::writeCommittableIssues(branchname, committable)
 }
 

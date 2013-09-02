@@ -11,9 +11,7 @@ pub fn listIssues(args:~[~str], _:config::Config) -> int{
     return 1;
   }
   let short = args.contains(&~"--short") || args.contains(&~"-s");
-  if(args.contains(&~"--local")){
-    printIssueVec(file_manager::readLocalIssues(cBranch.unwrap()), short);
-  }else if (args.contains(&~"--committed")){
+  if (args.contains(&~"--committed")){
     printIssueVec(file_manager::readCommittedIssues(), short);
   }else{
     printIssueVec(file_manager::readCommittableIssues(cBranch.unwrap()), short);
@@ -31,6 +29,7 @@ fn printIssue(issue:&Issue, short:bool) {
   io::println("");
   io::println(fmt!("\x1b[33m%s (Issue ID: %s)\x1b[0m", issue.title, issue.id));
   if(!short){
+    io::println(fmt!("Current status: %s", issue.status.name));
     io::println(fmt!("\x1b[34mReported by %s on %s\x1b[0m",
                        issue.author, 
                        issue.creationTime.strftime(issue::TIME_FORMAT)));

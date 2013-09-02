@@ -10,20 +10,17 @@ use config;
 
 #[deriving(Clone)]
 struct Flags{
-  local:bool,
   issueIdPart:Option<~str>
 }
 
 fn stdHandler(flags:&Flags, arg:~str) -> fsm::NextState<Flags, ~str> {
   match arg {
-    ~"--local" => fsm::Continue(~Flags{local:true, .. (*flags).clone()}),
     idPart => fsm::Continue(~Flags{issueIdPart:Some(idPart), .. (*flags).clone()})
   }
 }
 
 pub fn newComment(args:~[~str], _:config::Config) -> int{
-  let mut stateMachine = fsm::StateMachine::new(stdHandler, ~Flags{local:false, 
-                                                              issueIdPart:None});
+  let mut stateMachine = fsm::StateMachine::new(stdHandler, ~Flags{issueIdPart:None});
   for a in args.move_iter(){
     stateMachine.process(a);
   }
@@ -39,16 +36,12 @@ pub fn newComment(args:~[~str], _:config::Config) -> int{
       2
     }else{
       let branch = branchOpt.unwrap();
-      let local = finalFlags.local;
-      let issues = if(local){
-        file_manager::readLocalIssues(branch)
-      }else{
-        file_manager::readCommittableIssues(branch)
-      };
+      let issues = file_manager::readCommittableIssues(branch);
+
       let matching = selection::findMatchingIssues(finalFlags.issueIdPart.unwrap(), 
                                                    issues);
       match commentOnMatching(matching){
-        Ok(issue) => processNewIssue(issues, issue, branch, local),
+        Ok(issue) => processNewIssue(issues, issue, branch),
 	Err(exitcode) => exitcode
       }
     }
@@ -90,7 +83,7 @@ fn commentOnMatching(matching:~[~Issue]) -> Result<~Issue,int> {
   }
 }
 
-fn processNewIssue(allIssues:~[~Issue], newIssue:~Issue, branch:~str, local:bool) -> int {
+fn processNewIssue(allIssues:~[~Issue], newIssue:~Issue, branch:~str) -> int {
   let allIssuesLen = allIssues.len();
   let mut newIssues:~[~Issue] = allIssues.move_iter().filter(
                                                      |issue| {issue.id != newIssue.id})
@@ -99,11 +92,7 @@ fn processNewIssue(allIssues:~[~Issue], newIssue:~Issue, branch:~str, local:bool
   
   newIssues.push(newIssue);
   
-  let success = if(local){
-    file_manager::writeLocalIssues(branch, newIssues)
-  }else{
-    file_manager::writeCommittableIssues(branch, newIssues)
-  };
+  let success = file_manager::writeCommittableIssues(branch, newIssues);
   if(success){
     0
   }else{

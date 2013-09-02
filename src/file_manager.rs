@@ -12,18 +12,10 @@ static EXTENSION:&'static str = ".ebtd";
 static LOCAL_EXT:&'static str = ".ebtdlocal";
 
 static ACTIVE_ISSUE_FILENAME_PART:&'static str = "issues";
-static LOCAL_ISSUE_SUFFIX:&'static str = "-local";
 
 pub fn activeIssueFilename() -> ~str {fmt!("%s%s%s",EVICT_DIRECTORY, 
                                                 ACTIVE_ISSUE_FILENAME_PART, 
                                                 EXTENSION)}
-
-pub fn localIssueFilename (branchname:&str) -> ~str { 
-  fmt!("%s%s%s%s", EVICT_DIRECTORY,
-                 branchname,
-                 LOCAL_ISSUE_SUFFIX,
-                 LOCAL_EXT)
-}  
 
 pub fn committableIssueFilename(branchname:&str) -> ~str {
   fmt!("%s%s%s", EVICT_DIRECTORY, branchname, LOCAL_EXT)
@@ -31,10 +23,6 @@ pub fn committableIssueFilename(branchname:&str) -> ~str {
 
 pub fn writeCommittableIssues(branchname:&str, issues:&[~Issue]) -> bool {
   writeIssuesToFile(issues, committableIssueFilename(branchname), true)
-}
-
-pub fn writeLocalIssues(branchname:&str, issues:&[~Issue]) -> bool {
-  writeIssuesToFile(issues, localIssueFilename(branchname), true)
 }
 
 pub fn commitIssues(issues:&[~Issue]) -> bool {
@@ -49,10 +37,6 @@ pub fn writeIssuesToFile(issues:&[~Issue], filename:&str, overwrite:bool) -> boo
 
 pub fn readCommittableIssues(branchname:&str) -> ~[~Issue] {
   readIssuesFromFile(committableIssueFilename(branchname))
-}
-
-pub fn readLocalIssues(branchname:&str) -> ~[~Issue] {
-  readIssuesFromFile(localIssueFilename(branchname))
 }
 
 pub fn readCommittedIssues() -> ~[~Issue] {
