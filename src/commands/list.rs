@@ -41,13 +41,14 @@ fn printIssue(issue:&Issue, short:bool) {
       io::println("    No comments on this issue.");
     }else{
       for comment in issue.comments.iter() {
-        io::println(fmt!("  \x1b[32m%s on %s\x1b[0m\n",
+        io::println(fmt!("  \x1b[32m%s on %s\x1b[0m",
                          comment.author, 
                          comment.creationTime.strftime(issue::TIME_FORMAT)));
 	io::println(fmt!("  For branch %s", comment.branch));
         for line in comment.bodyText.line_iter() {
           io::println(~"    " + line);
 	}
+        io::println("");
       }
     }
   }
