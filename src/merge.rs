@@ -30,7 +30,7 @@ fn mergePair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
                                     mergeInto.comments.clone());
 
     let status = if(incoming.status.lastChangeTime.to_timespec()
-                     .lt(&mergeInto.status.lastChangeTime.to_timespec())){
+                     .gt(&mergeInto.status.lastChangeTime.to_timespec())){
                       incoming.status.clone()
                  } else {
                       mergeInto.status.clone()
@@ -55,6 +55,7 @@ fn mergeComments(incoming:~[~IssueComment], mergeInto:~[~IssueComment]) -> ~[~Is
       None => {}
     }
   }
+  merged.dedup();
   merged
 }
 
