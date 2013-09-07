@@ -1,5 +1,6 @@
 use std::hashmap::HashMap;
 use issue::{Issue,IssueComment};
+
 pub fn mergeIssues(incoming:~[~Issue],mergeInto:~[~Issue]) -> ~[~Issue] {
   let mut identMap:HashMap<~str, (Option<~Issue>, Option<~Issue>)> = HashMap::new();
   for issue in incoming.move_iter() {
@@ -27,7 +28,13 @@ fn mergePair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
     let mergeInto = mergeIntoOpt.unwrap();
     let newComments = mergeComments(incoming.comments.clone(), 
                                     mergeInto.comments.clone());
-    let status = incoming.status.clone();
+
+    let status = if(incoming.status.lastChangeTime.to_timespec()
+                     .lt(&mergeInto.status.lastChangeTime.to_timespec())){
+                      incoming.status.clone()
+                 } else {
+                      mergeInto.status.clone()
+                 };
     ~Issue{comments:newComments, status:status, .. *incoming}
   }else if(incomingOpt.is_some()){
     incomingOpt.unwrap()

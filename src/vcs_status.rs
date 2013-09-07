@@ -8,7 +8,7 @@ impl VCS {
   fn currentBranchCmdOutput(&self) -> ~str{
     match self {
       &Git =>
-        str::from_bytes(run::process_output("git", [~"rev-parse", 
+        str::from_utf8(run::process_output("git", [~"rev-parse", 
                                                     ~"--abbrev-ref", 
                                                     ~"HEAD"]).output)
     }
@@ -31,3 +31,4 @@ pub fn currentBranch() -> Option<~str> {
     Some(line)
   }
 }
+

@@ -34,9 +34,9 @@ pub fn setStatus(args:~[~str], _:config::Config) -> int {
 }
 
 fn resolveNewStatus(statusIdent:&str) -> Option<~IssueStatus> {
-  let search = status_storage::readIssueStatuses();
+  let search = status_storage::readStatusOptions();
   match uint::from_str(statusIdent) {
     Some(index) => if(search.len() > index) {Some(search[index])} else {None},
     None => search.move_iter().find(|x| x.name.as_slice() == statusIdent)
-  }
+  }.map(|x| x.makeStatus())
 }

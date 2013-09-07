@@ -15,6 +15,7 @@ pub static VERSION_KEY:&'static str = "evict-version";
 pub static COMMENTS_KEY:&'static str = "comments";
 pub static BRANCH_KEY:&'static str = "branch";
 pub static STATE_KEY:&'static str = "status";
+pub static NAME_KEY:&'static str = "name";
 #[deriving(Clone)]
 pub struct IssueComment{
   creationTime: time::Tm,
@@ -22,9 +23,10 @@ pub struct IssueComment{
   bodyText:~str,
   branch:~str
 }
-#[deriving(Clone)]
+#[deriving(Clone, Eq)]
 pub struct IssueStatus{
-  name:~str
+  name:~str,
+  lastChangeTime: time::Tm
 }
 #[deriving(Clone)]
 pub struct Issue{
@@ -57,6 +59,13 @@ impl Eq for Issue{
     !self.eq(other)
   }
 }
+
+impl IssueStatus{
+  pub fn new(name:~str) -> IssueStatus {
+    IssueStatus{name:name, lastChangeTime:time::now()}
+  }
+}
+
 fn getStringForKey(map:&json::Object, key:&str) -> Option<~str>{
   let valueOpt = map.find(&key.to_owned());
   do valueOpt.chain |value| {
@@ -66,6 +75,7 @@ fn getStringForKey(map:&json::Object, key:&str) -> Option<~str>{
     }
   }
 }
+
 impl Issue{
 
   pub fn addComment(&mut self, comment:~IssueComment) {
@@ -213,19 +223,33 @@ impl IssueComment{
 
 impl json::ToJson for IssueStatus{
   fn to_json(&self) -> json::Json {
-    self.name.to_json()
+    let mut map:~treemap::TreeMap<~str, json::Json> = ~treemap::TreeMap::new();
+    map.insert(NAME_KEY.to_owned(), self.name.to_json());
+    map.insert(TIME_KEY.to_owned(), 
+               json::String(time::strftime(TIME_FORMAT, &self.lastChangeTime)));
+    json::Object(map)
   }
 }
-
-impl IssueStatus {
+impl IssueStatus{
   pub fn from_json(json:&json::Json) -> IssueStatus {
     match json {
-      &json::String(ref name) => IssueStatus{name:name.to_owned()},
+      &json::Object(ref mapRef) => {
+        let map = mapRef.clone();
+        do getStringForKey(map, NAME_KEY).chain |name| {
+          do getStringForKey(map, TIME_KEY).chain |time| {
+            match time::strptime(time, TIME_FORMAT) {
+              Ok(tm) => Some(IssueStatus{name:name.clone(), lastChangeTime:tm}),
+              Err(_) => None
+            }
+          }
+        }.unwrap_or_default(IssueStatus::default())
+      }
       _ => IssueStatus::default()
     }
   }
+
   pub fn default() -> IssueStatus{
-    IssueStatus{name:~"<unknown>"}
+    IssueStatus{name:~"<unknown>", lastChangeTime:time::empty_tm()}
   }
 }
 
