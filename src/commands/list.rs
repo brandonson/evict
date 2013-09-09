@@ -3,7 +3,17 @@ use vcs_status;
 use issue;
 use issue::Issue;
 use std::io;
+use extra::sort::Sort;
 use config;
+
+#[deriving(Clone, Eq)]
+struct TimeSortedIssue(~Issue);
+
+impl Ord for TimeSortedIssue{
+  fn lt(&self, other:&TimeSortedIssue) -> bool{
+    (*self).creationTime.to_timespec().lt(&(*other).creationTime.to_timespec())
+  }
+}
 
 pub fn listIssues(args:~[~str], _:config::Config) -> int{
   let cBranch = vcs_status::currentBranch();
@@ -20,7 +30,12 @@ pub fn listIssues(args:~[~str], _:config::Config) -> int{
 }
 
 fn printIssueVec(issues:~[~Issue], short:bool) {
-  for issue in issues.iter() {
+  let mut wrapped:~[TimeSortedIssue] = issues.move_iter()
+                                              .map(|x| TimeSortedIssue(x))
+                                              .collect();
+  wrapped.qsort();
+  let unwrapped:~[~Issue] = wrapped.move_iter().map(|x| *x).collect();
+  for issue in unwrapped.rev_iter() {
     printIssue(*issue, short);
   }
 }
