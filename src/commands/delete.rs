@@ -11,14 +11,14 @@ struct Flags{
   issue:Option<~str>
 }
 
-fn stdHandler(flags:&Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn stdHandler(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   match input {
-    ident => fsm::Continue(~Flags{issue:Some(ident), .. (*flags).clone()})
+    ident => fsm::Continue(Flags{issue:Some(ident), .. flags})
   }
 }
 
 pub fn deleteIssue(args:~[~str], _:config::Config) -> int {
-  let mut stateMachine = fsm::StateMachine::new(stdHandler, ~Flags{issue:None});
+  let mut stateMachine = fsm::StateMachine::new(stdHandler, Flags{issue:None});
   for arg in args.move_iter() {
     stateMachine.process(arg);
   }

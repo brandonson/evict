@@ -16,34 +16,34 @@ struct Flags{
   author:Option<~str>,
 }
 
-fn stdHandler(flags:&Flags, input:~str) -> fsm::NextState<Flags,~str> {
+fn stdHandler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
   match input {
-    ~"--no-body" => fsm::Continue(~Flags{hasBody:false, 
-                                         .. (*flags).clone()}),
-    ~"--body-file" => fsm::ChangeState(getBodyFile, ~((*flags).clone())),
-    ~"--title" => fsm::ChangeState(getTitle, ~((*flags).clone())),
-    ~"--author" => fsm::ChangeState(getAuthor, ~((*flags).clone())),
-    _ => fsm::Continue(~((*flags).clone()))
+    ~"--no-body" => fsm::Continue(Flags{hasBody:false, 
+                                         .. flags}),
+    ~"--body-file" => fsm::ChangeState(getBodyFile, flags),
+    ~"--title" => fsm::ChangeState(getTitle, flags),
+    ~"--author" => fsm::ChangeState(getAuthor, flags),
+    _ => fsm::Continue(flags)
   }
 }
-fn getBodyFile(flags:&Flags, input:~str) -> fsm::NextState<Flags, ~str> {
-  fsm::ChangeState(stdHandler, ~Flags{bodyFile:Some(input), .. (*flags).clone()})
+fn getBodyFile(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  fsm::ChangeState(stdHandler, Flags{bodyFile:Some(input), .. flags})
 }
-fn getTitle(flags:&Flags, input:~str) -> fsm::NextState<Flags, ~str> {
-  fsm::ChangeState(stdHandler, ~Flags{title:Some(input), .. (*flags).clone()})
+fn getTitle(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  fsm::ChangeState(stdHandler, Flags{title:Some(input), .. flags})
 }
-fn getAuthor(flags:&Flags, input:~str) -> fsm::NextState<Flags, ~str> {
-  fsm::ChangeState(stdHandler, ~Flags{author:Some(input), .. (*flags).clone()})
+fn getAuthor(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  fsm::ChangeState(stdHandler, Flags{author:Some(input), .. flags})
 }
 
 pub fn createIssue(args:~[~str], _:config::Config) -> int {
   let mut stateMachine = fsm::StateMachine::new(stdHandler, 
-                                           ~Flags{hasBody:true, 
+                                           Flags{hasBody:true, 
                                                  bodyFile:None, 
                                                  title:None,
 						 author:None});
-  for argVal in args.iter() {
-    stateMachine.process(argVal.clone());
+  for argVal in args.move_iter() {
+    stateMachine.process(argVal);
   };
   let finalFlags = stateMachine.consumeToState();
   let title = match finalFlags.title {

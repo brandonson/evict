@@ -13,14 +13,14 @@ struct Flags{
   issueIdPart:Option<~str>
 }
 
-fn stdHandler(flags:&Flags, arg:~str) -> fsm::NextState<Flags, ~str> {
+fn stdHandler(flags:Flags, arg:~str) -> fsm::NextState<Flags, ~str> {
   match arg {
-    idPart => fsm::Continue(~Flags{issueIdPart:Some(idPart), .. (*flags).clone()})
+    idPart => fsm::Continue(Flags{issueIdPart:Some(idPart), .. flags})
   }
 }
 
 pub fn newComment(args:~[~str], _:config::Config) -> int{
-  let mut stateMachine = fsm::StateMachine::new(stdHandler, ~Flags{issueIdPart:None});
+  let mut stateMachine = fsm::StateMachine::new(stdHandler, Flags{issueIdPart:None});
   for a in args.move_iter(){
     stateMachine.process(a);
   }

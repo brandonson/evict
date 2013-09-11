@@ -6,6 +6,7 @@ use extra::sort::Sort;
 use config;
 use file_util;
 use std::run;
+use fsm;
 static TMP_OUTPUT_FILE:&'static str = ".evict/LIST_TEMP_FILE";
 
 #[deriving(Clone, Eq)]
@@ -26,25 +27,59 @@ impl LinePushingString for ~str{
     self.push_str("\n");
   }
 }
+
 pub fn listIssues(args:~[~str], _:config::Config) -> int{
   let cBranch = vcs_status::currentBranch();
   if(cBranch.is_none()){
     return 1;
   }
-  let short = args.contains(&~"--short") || args.contains(&~"-s");
-  let resultStr = if (args.contains(&~"--committed")){
-    printIssueVec(file_manager::readCommittedIssues(), short)
+  
+  let mut stateMachine = fsm::StateMachine::new(stdHandler,
+                                                Flags{short:false,
+                                                      committed:false,
+                                                      statuses:~[],
+                                                      noComments:false});
+
+  for argVal in args.move_iter(){
+    stateMachine.process(argVal);
+  }
+  let finalFlags = stateMachine.consumeToState();
+  
+  let resultStr = if (finalFlags.committed){
+    printIssueVec(file_manager::readCommittedIssues(), &finalFlags)
   }else{
-    printIssueVec(file_manager::readCommittableIssues(cBranch.unwrap()), short)
+    printIssueVec(file_manager::readCommittableIssues(cBranch.unwrap()), &finalFlags)
   };
-  println(resultStr);
   file_util::writeStringToFile(resultStr, TMP_OUTPUT_FILE, true);
-  run::process_status("less", &[~"-rXF", TMP_OUTPUT_FILE.to_owned()]);
+  run::process_status("less", &[~"-RXF", TMP_OUTPUT_FILE.to_owned()]);
   file_util::deleteFile(TMP_OUTPUT_FILE);
   0
 }
 
-fn printIssueVec(issues:~[~Issue], short:bool) -> ~str{
+struct Flags{
+  short:bool,
+  committed: bool,
+  statuses: ~[~str],
+  noComments: bool
+}
+
+fn stdHandler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
+  match input {
+    ~"--short" => fsm::Continue(Flags{short:true, .. flags}),
+    ~"-s" => fsm::Continue(Flags{short:true, .. flags}),
+    ~"--committed" => fsm::Continue(Flags{committed:true, .. flags}),
+    ~"--status" => fsm::ChangeState(getStatus, flags),
+    ~"--nocomment" => fsm::Continue(Flags{noComments:true, .. flags}),
+    _ => fsm::Continue(flags)
+  }
+}
+
+fn getStatus(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  flags.statuses.push(input);
+  fsm::ChangeState(stdHandler, flags)
+}
+
+fn printIssueVec(issues:~[~Issue], flags:&Flags) -> ~str{
   let mut wrapped:~[TimeSortedIssue] = issues.move_iter()
                                               .map(|x| TimeSortedIssue(x))
                                               .collect();
@@ -52,15 +87,18 @@ fn printIssueVec(issues:~[~Issue], short:bool) -> ~str{
   let unwrapped:~[~Issue] = wrapped.move_iter().map(|x| *x).collect();
   let mut resultStr = ~"";
   for issue in unwrapped.rev_iter() {
-    resultStr = printIssue(*issue, short, resultStr);
+    if (flags.statuses.len() == 0 ||
+        flags.statuses.contains(&issue.status.name)){
+      resultStr = printIssue(*issue, flags, resultStr);
+    }
   }
   resultStr
 }
 
-fn printIssue(issue:&Issue, short:bool, mut resultStr:~str) -> ~str {
+fn printIssue(issue:&Issue, flags:&Flags, mut resultStr:~str) -> ~str {
   resultStr.push_strln("");
   resultStr.push_strln(fmt!("\x1b[33m%s (Issue ID: %s)\x1b[0m", issue.title, issue.id));
-  if(!short){
+  if(!flags.short){
     resultStr.push_strln(fmt!("Current status: %s", issue.status.name));
     resultStr.push_strln(fmt!("\x1b[34mReported by %s on %s\x1b[0m",
                        issue.author, 
@@ -69,18 +107,20 @@ fn printIssue(issue:&Issue, short:bool, mut resultStr:~str) -> ~str {
     if(issue.bodyText.len() > 0){
       resultStr.push_strln(issue.bodyText);
     }
-    if(issue.comments.len() == 0){
-      resultStr.push_strln("    No comments on this issue.");
-    }else{
-      for comment in issue.comments.iter() {
-        resultStr.push_strln(fmt!("  \x1b[32m%s on %s\x1b[0m",
-                         comment.author, 
-                         comment.creationTime.strftime(issue::TIME_FORMAT)));
-	resultStr.push_strln(fmt!("  For branch %s", comment.branch));
-        for line in comment.bodyText.line_iter() {
-          resultStr.push_strln(~"    " + line);
-	}
-        resultStr.push_strln("");
+    if(!flags.noComments){
+      if(issue.comments.len() == 0){
+        resultStr.push_strln("    No comments on this issue.");
+      }else{
+        for comment in issue.comments.iter() {
+          resultStr.push_strln(fmt!("  \x1b[32m%s on %s\x1b[0m",
+                           comment.author, 
+                           comment.creationTime.strftime(issue::TIME_FORMAT)));
+	  resultStr.push_strln(fmt!("  For branch %s", comment.branch));
+          for line in comment.bodyText.line_iter() {
+            resultStr.push_strln(~"    " + line);
+	  }
+          resultStr.push_strln("");
+        }
       }
     }
   }

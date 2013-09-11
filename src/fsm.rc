@@ -1,25 +1,28 @@
 #[link(name = "fsm", vers="0.1", author="Brandon")];
 #[crate_type="lib"];
 pub enum NextState<S,I>{
-  ChangeState(Executor<S,I>, ~S),
-  Continue(~S),
-  End(~S)
+  ChangeState(Executor<S,I>, S),
+  Continue(S),
+  End(S)
 }
 
-pub type Executor<S,I> = ~fn(&S, I) -> NextState<S,I>;
+pub type Executor<S,I> = ~fn(S, I) -> NextState<S,I>;
 
 pub struct StateMachine<S, I> {
   priv nextExecutor:Option<Executor<S,I>>,
-  priv currentState:~S
+  ///State should only ever be None when the process
+  ///method is running.
+  priv currentState:Option<S>
 }
 
 impl<S,I> StateMachine<S,I>{
   pub fn process(&mut self, pVal:I){
     let mut nStateOpt:Option<NextState<S,I>> = None;
+    let oldState = self.currentState.take_unwrap();
     match self.nextExecutor {
       None => {} 
       Some(ref executor) => 
-        nStateOpt = Some((*executor)(self.currentState,pVal))
+        nStateOpt = Some((*executor)(oldState,pVal))
     };
     match nStateOpt {
       None => {}
@@ -27,13 +30,13 @@ impl<S,I> StateMachine<S,I>{
         match nState{
           ChangeState(exec, state) => {
               self.nextExecutor = Some(exec);
-              self.currentState = state;
+              self.currentState = Some(state);
             }
           Continue(state) => 
-            self.currentState = state,
+            self.currentState = Some(state),
           End(state) => {
             self.nextExecutor = None;
-            self.currentState = state;
+            self.currentState = Some(state);
           } 
         }
     }
@@ -41,18 +44,18 @@ impl<S,I> StateMachine<S,I>{
   pub fn isComplete(&self) -> bool{
     self.nextExecutor.is_none()
   }
-  pub fn consumeToState(self) -> ~S {
-    self.currentState
+  pub fn consumeToState(self) -> S {
+    self.currentState.unwrap()
   }
-  pub fn new(exec:Executor<S,I>, state:~S) -> StateMachine<S,I>{
-    StateMachine{nextExecutor:Some(exec), currentState:state}
+  pub fn new(exec:Executor<S,I>, state:S) -> StateMachine<S,I>{
+    StateMachine{nextExecutor:Some(exec), currentState:Some(state)}
   }
 }
 //provide a way to get state out while processing
 //if state is cloneable
 impl<S:Clone, I> StateMachine<S,I>{
-  pub fn copyCurrentState(&self) -> ~S {
-    self.currentState.clone()
+  pub fn copyCurrentState(&self) -> S {
+    self.currentState.clone().unwrap()
   }
 }
 
