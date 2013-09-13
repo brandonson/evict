@@ -7,6 +7,8 @@ use config;
 use file_util;
 use std::run;
 use fsm;
+use selection;
+
 static TMP_OUTPUT_FILE:&'static str = ".evict/LIST_TEMP_FILE";
 
 #[deriving(Clone, Eq)]
@@ -38,18 +40,26 @@ pub fn listIssues(args:~[~str], _:config::Config) -> int{
                                                 Flags{short:false,
                                                       committed:false,
                                                       statuses:~[],
-                                                      noComments:false});
+                                                      noComments:false,
+                                                      id:None});
 
   for argVal in args.move_iter(){
     stateMachine.process(argVal);
   }
   let finalFlags = stateMachine.consumeToState();
   
-  let resultStr = if (finalFlags.committed){
-    printIssueVec(file_manager::readCommittedIssues(), &finalFlags)
+  let mut issues = if (finalFlags.committed){
+    file_manager::readCommittedIssues()
   }else{
-    printIssueVec(file_manager::readCommittableIssues(cBranch.unwrap()), &finalFlags)
+    file_manager::readCommittableIssues(cBranch.unwrap())
   };
+
+  for id in finalFlags.id.iter() {
+    issues = selection::findMatchingIssues(id.as_slice(), issues);
+  }
+
+  let resultStr = printIssueVec(issues, &finalFlags);
+
   file_util::writeStringToFile(resultStr, TMP_OUTPUT_FILE, true);
   run::process_status("less", &[~"-RXF", TMP_OUTPUT_FILE.to_owned()]);
   file_util::deleteFile(TMP_OUTPUT_FILE);
@@ -60,7 +70,8 @@ struct Flags{
   short:bool,
   committed: bool,
   statuses: ~[~str],
-  noComments: bool
+  noComments: bool,
+  id:Option<~str>
 }
 
 fn stdHandler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
@@ -70,12 +81,18 @@ fn stdHandler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
     ~"--committed" => fsm::Continue(Flags{committed:true, .. flags}),
     ~"--status" => fsm::ChangeState(getStatus, flags),
     ~"--nocomment" => fsm::Continue(Flags{noComments:true, .. flags}),
+    ~"--id" => fsm::ChangeState(getId, flags),
     _ => fsm::Continue(flags)
   }
 }
 
 fn getStatus(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   flags.statuses.push(input);
+  fsm::ChangeState(stdHandler, flags)
+}
+
+fn getId(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  flags.id = Some(input);
   fsm::ChangeState(stdHandler, flags)
 }
 
