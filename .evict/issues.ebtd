@@ -1,6 +1,54 @@
 [
   {
     "author": "Brandon Sanderson",
+    "bodyText": "The order of issues currently changes every time an\nissue changes in any way.  They should be ordered in\nsome way, probably newest to oldest.  Possibly with\na cutoff?\n",
+    "branch": "master",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "list now orders issues from newest to oldest.\n",
+        "branch": "list-options",
+        "time": "2013-09-11 2013 at 03:26:09"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1378272368275278886",
+    "status": {
+      "name": "closed",
+      "time": "2013-09-11 2013 at 03:27:39"
+    },
+    "time": "2013-09-03 2013 at 22:26:08",
+    "title": "List in order by date"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "The list command needs ways to filter output.  Definitely need\nfiltering by status, also possibly by author/creation date?\n",
+    "branch": "list-options",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Now have filtering based on status.\n",
+        "branch": "list-options",
+        "time": "2013-09-11 2013 at 03:27:22"
+      },
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Need to add ability to print just a single issue.\n",
+        "branch": "master",
+        "time": "2013-09-11 2013 at 12:00:10"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1378895227961807189",
+    "status": {
+      "name": "open",
+      "time": "2013-09-11 2013 at 03:27:59"
+    },
+    "time": "2013-09-11 2013 at 03:27:07",
+    "title": "List filtering"
+  },
+  {
+    "author": "Brandon Sanderson",
     "bodyText": "",
     "branch": "list-options",
     "comments": [
@@ -67,47 +115,6 @@
   },
   {
     "author": "Brandon Sanderson",
-    "bodyText": "",
-    "branch": "master",
-    "comments": [],
-    "evict-version": "1",
-    "id": "1378895528148572929",
-    "status": {
-      "name": "low-pri",
-      "time": "2013-09-11 2013 at 03:32:20"
-    },
-    "time": "2013-09-11 2013 at 03:32:08",
-    "title": "Rework list coloring and indentation"
-  },
-  {
-    "author": "Brandon Sanderson",
-    "bodyText": "The list command needs ways to filter output.  Definitely need\nfiltering by status, also possibly by author/creation date?\n",
-    "branch": "list-options",
-    "comments": [
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Now have filtering based on status.\n",
-        "branch": "list-options",
-        "time": "2013-09-11 2013 at 03:27:22"
-      },
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Need to add ability to print just a single issue.\n",
-        "branch": "master",
-        "time": "2013-09-11 2013 at 12:00:10"
-      }
-    ],
-    "evict-version": "1",
-    "id": "1378895227961807189",
-    "status": {
-      "name": "open",
-      "time": "2013-09-11 2013 at 03:27:59"
-    },
-    "time": "2013-09-11 2013 at 03:27:07",
-    "title": "List filtering"
-  },
-  {
-    "author": "Brandon Sanderson",
     "bodyText": "Need a way to change issue status.  (Open, Assigned (?), Closed, etc.)\n",
     "branch": "master",
     "comments": [
@@ -135,23 +142,16 @@
   },
   {
     "author": "Brandon Sanderson",
-    "bodyText": "The order of issues currently changes every time an\nissue changes in any way.  They should be ordered in\nsome way, probably newest to oldest.  Possibly with\na cutoff?\n",
+    "bodyText": "",
     "branch": "master",
-    "comments": [
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "list now orders issues from newest to oldest.\n",
-        "branch": "list-options",
-        "time": "2013-09-11 2013 at 03:26:09"
-      }
-    ],
+    "comments": [],
     "evict-version": "1",
-    "id": "1378272368275278886",
+    "id": "1378895528148572929",
     "status": {
-      "name": "closed",
-      "time": "2013-09-11 2013 at 03:27:39"
+      "name": "low-pri",
+      "time": "2013-09-11 2013 at 03:32:20"
     },
-    "time": "2013-09-03 2013 at 22:26:08",
-    "title": "List in order by date"
+    "time": "2013-09-11 2013 at 03:32:08",
+    "title": "Rework list coloring and indentation"
   }
 ]
