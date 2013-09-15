@@ -1,33 +1,6 @@
 [
   {
     "author": "Brandon Sanderson",
-    "bodyText": "Need a way to change issue status.  (Open, Assigned (?), Closed, etc.)\n",
-    "branch": "master",
-    "comments": [
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Going to allow arbitrary user-defined states.\n\nNeed to decide what defaults to include for 'evict init',\nif any.\n",
-        "branch": "issue-status",
-        "time": "2013-08-22 2013 at 17:17:57"
-      },
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Now that statuses exist, need to add them to the init command.\n",
-        "branch": "proper-merge",
-        "time": "2013-09-03 2013 at 22:23:25"
-      }
-    ],
-    "evict-version": "1",
-    "id": "1377211624517830828",
-    "status": {
-      "name": "open",
-      "time": "2013-09-07 2013 at 00:53:55"
-    },
-    "time": "2013-08-22 2013 at 15:47:04",
-    "title": "Add Issue Status"
-  },
-  {
-    "author": "Brandon Sanderson",
     "bodyText": "Currently the merge function in src/merge.rs just takes the incoming issue\nif there are two issues with the same ID.  It needs to actually merge them.\nThis means merging comments based on time, and somehow deciding on current status.\n",
     "branch": "proper-merge",
     "comments": [
@@ -73,6 +46,103 @@
   },
   {
     "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "list-options",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "list now has the --nocomment option.\n",
+        "branch": "list-options",
+        "time": "2013-09-11 2013 at 03:29:02"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1378895309528680784",
+    "status": {
+      "name": "closed",
+      "time": "2013-09-11 2013 at 03:29:10"
+    },
+    "time": "2013-09-11 2013 at 03:28:29",
+    "title": "Allow listing without comments"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "The order of issues currently changes every time an\nissue changes in any way.  They should be ordered in\nsome way, probably newest to oldest.  Possibly with\na cutoff?\n",
+    "branch": "master",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "list now orders issues from newest to oldest.\n",
+        "branch": "list-options",
+        "time": "2013-09-11 2013 at 03:26:09"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1378272368275278886",
+    "status": {
+      "name": "closed",
+      "time": "2013-09-11 2013 at 03:27:39"
+    },
+    "time": "2013-09-03 2013 at 22:26:08",
+    "title": "List in order by date"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Need a way to change issue status.  (Open, Assigned (?), Closed, etc.)\n",
+    "branch": "master",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Going to allow arbitrary user-defined states.\n\nNeed to decide what defaults to include for 'evict init',\nif any.\n",
+        "branch": "issue-status",
+        "time": "2013-08-22 2013 at 17:17:57"
+      },
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Now that statuses exist, need to add them to the init command.\n",
+        "branch": "proper-merge",
+        "time": "2013-09-03 2013 at 22:23:25"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1377211624517830828",
+    "status": {
+      "name": "open",
+      "time": "2013-09-07 2013 at 00:53:55"
+    },
+    "time": "2013-08-22 2013 at 15:47:04",
+    "title": "Add Issue Status"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1379228591574109404",
+    "status": {
+      "name": "open",
+      "time": "2013-09-15 2013 at 00:03:23"
+    },
+    "time": "2013-09-15 2013 at 00:03:11",
+    "title": "Add help command and documentation"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1378895528148572929",
+    "status": {
+      "name": "low-pri",
+      "time": "2013-09-11 2013 at 03:32:20"
+    },
+    "time": "2013-09-11 2013 at 03:32:08",
+    "title": "Rework list coloring and indentation"
+  },
+  {
+    "author": "Brandon Sanderson",
     "bodyText": "The list command needs ways to filter output.  Definitely need\nfiltering by status, also possibly by author/creation date?\n",
     "branch": "list-options",
     "comments": [
@@ -110,54 +180,12 @@
     "branch": "master",
     "comments": [],
     "evict-version": "1",
-    "id": "1378895528148572929",
+    "id": "1379228656458843526",
     "status": {
-      "name": "low-pri",
-      "time": "2013-09-11 2013 at 03:32:20"
+      "name": "<unknown>",
+      "time": "1900-01-00 1900 at 00:00:00"
     },
-    "time": "2013-09-11 2013 at 03:32:08",
-    "title": "Rework list coloring and indentation"
-  },
-  {
-    "author": "Brandon Sanderson",
-    "bodyText": "The order of issues currently changes every time an\nissue changes in any way.  They should be ordered in\nsome way, probably newest to oldest.  Possibly with\na cutoff?\n",
-    "branch": "master",
-    "comments": [
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "list now orders issues from newest to oldest.\n",
-        "branch": "list-options",
-        "time": "2013-09-11 2013 at 03:26:09"
-      }
-    ],
-    "evict-version": "1",
-    "id": "1378272368275278886",
-    "status": {
-      "name": "closed",
-      "time": "2013-09-11 2013 at 03:27:39"
-    },
-    "time": "2013-09-03 2013 at 22:26:08",
-    "title": "List in order by date"
-  },
-  {
-    "author": "Brandon Sanderson",
-    "bodyText": "",
-    "branch": "list-options",
-    "comments": [
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "list now has the --nocomment option.\n",
-        "branch": "list-options",
-        "time": "2013-09-11 2013 at 03:29:02"
-      }
-    ],
-    "evict-version": "1",
-    "id": "1378895309528680784",
-    "status": {
-      "name": "closed",
-      "time": "2013-09-11 2013 at 03:29:10"
-    },
-    "time": "2013-09-11 2013 at 03:28:29",
-    "title": "Allow listing without comments"
+    "time": "2013-09-15 2013 at 00:04:16",
+    "title": "Add command to set default status"
   }
 ]
