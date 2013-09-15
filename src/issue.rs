@@ -46,17 +46,11 @@ impl Eq for IssueComment{
     return self.author == other.author
            && self.bodyText == other.bodyText;
   }
-  fn ne(&self, other:&IssueComment) -> bool {
-    !self.eq(other)
-  }
 }
 
 impl Eq for Issue{
   fn eq(&self, other:&Issue) -> bool {
     return self.id == other.id;
-  }
-  fn ne(&self, other:&Issue) -> bool {
-    !self.eq(other)
   }
 }
 

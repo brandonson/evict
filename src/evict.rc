@@ -11,6 +11,7 @@ pub mod merge;
 pub mod selection;
 pub mod config;
 pub mod status_storage;
+pub mod date_sort;
 
 pub mod evict{
   pub static CURRENT_VERSION:uint = 1;

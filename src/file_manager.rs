@@ -2,6 +2,8 @@ use extra;
 use issue::Issue;
 use file_util;
 use extra::json;
+use date_sort;
+
 #[cfg(not(test))]
 pub static EVICT_DIRECTORY:&'static str = ".evict/";
 #[cfg(test)]
@@ -30,7 +32,8 @@ pub fn commitIssues(issues:&[~Issue]) -> bool {
 }
 
 pub fn writeIssuesToFile(issues:&[~Issue], filename:&str, overwrite:bool) -> bool {
-  let jsonList = do issues.map |issue| {issue.getJson()};
+  let sortedIssues = date_sort::sortByTime(issues);
+  let jsonList = do sortedIssues.map |issue| {issue.getJson()};
   let strval = json::List(jsonList).to_pretty_str();
   file_util::writeStringToFile(strval, filename, overwrite)
 }

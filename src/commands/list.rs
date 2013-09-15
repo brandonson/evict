@@ -2,12 +2,12 @@ use file_manager;
 use vcs_status;
 use issue;
 use issue::Issue;
-use extra::sort::Sort;
 use config;
 use file_util;
 use std::run;
 use fsm;
 use selection;
+use date_sort;
 
 static TMP_OUTPUT_FILE:&'static str = ".evict/LIST_TEMP_FILE";
 
@@ -97,13 +97,11 @@ fn getId(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
 }
 
 fn printIssueVec(issues:~[~Issue], flags:&Flags) -> ~str{
-  let mut wrapped:~[TimeSortedIssue] = issues.move_iter()
-                                              .map(|x| TimeSortedIssue(x))
-                                              .collect();
-  wrapped.qsort();
-  let unwrapped:~[~Issue] = wrapped.move_iter().map(|x| *x).collect();
+  let dateSorted = date_sort::sortByTime(issues);
   let mut resultStr = ~"";
-  for issue in unwrapped.rev_iter() {
+  //reverse because they're sorted in ascending order
+  //and we want descending
+  for issue in dateSorted.rev_iter() {
     if (flags.statuses.len() == 0 ||
         flags.statuses.contains(&issue.status.name)){
       resultStr = printIssue(*issue, flags, resultStr);
