@@ -113,7 +113,7 @@ Passing `--status <status-name>` lists issues with the status <status-name>.
 
 Passing `--id <issue-id>` lists issues which have an id ending in <issue-id>.
 
- #### comment
+#### comment
 
 `evict comment <issue-id>` launches an editor to write a comment for the specified issue.  Takes only
 a single issue.
