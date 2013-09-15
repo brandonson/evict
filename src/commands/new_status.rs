@@ -7,7 +7,7 @@ pub fn newStatus(args:~[~str], _:config::Config) -> int {
     1
   }else{
     let mut newStatuses = status_storage::readStatusOptions();
-    newStatuses.push(~status_storage::StatusOption{name:args[0]});
+    newStatuses.push(status_storage::StatusOption{name:args[0]});
     status_storage::writeStatusOptions(newStatuses);
     0
   }

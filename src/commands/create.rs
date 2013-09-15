@@ -6,6 +6,7 @@ use file_util;
 use vcs_status;
 use commands;
 use config;
+use status_storage;
 
 static DEFAULT_ISSUE_BODY_FILE:&'static str = "ISSUE_MSG";
 #[deriving(Clone)]
@@ -89,7 +90,8 @@ fn doIssueCreation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~Is
     io::println(fmt!("Could not open body file."));
     None
   }else{
-    let issue = issueOpt.unwrap();
+    let mut issue = issueOpt.unwrap();
+    issue.status = status_storage::readDefaultStatus().makeStatus();
     if(writeIssue(issue.clone())){
       Some(issue)
     }else{

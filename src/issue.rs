@@ -3,7 +3,7 @@ use evict;
 use std::int;
 use vcs_status;
 use extra::json::ToJson;
-
+use status_storage::DEFAULT_STATUS_NAME;
 pub static TIME_FORMAT:&'static str = "%F %Y at %T";
 
 pub static BODY_KEY:&'static str = "bodyText";
@@ -249,7 +249,7 @@ impl IssueStatus{
   }
 
   pub fn default() -> IssueStatus{
-    IssueStatus{name:~"<unknown>", lastChangeTime:time::empty_tm()}
+    IssueStatus{name:DEFAULT_STATUS_NAME.to_owned(), lastChangeTime:time::empty_tm()}
   }
 }
 

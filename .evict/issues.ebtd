@@ -1,6 +1,66 @@
 [
   {
     "author": "Brandon Sanderson",
+    "bodyText": "Need a way to change issue status.  (Open, Assigned (?), Closed, etc.)\n",
+    "branch": "master",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Going to allow arbitrary user-defined states.\n\nNeed to decide what defaults to include for 'evict init',\nif any.\n",
+        "branch": "issue-status",
+        "time": "2013-08-22 2013 at 17:17:57"
+      },
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Now that statuses exist, need to add them to the init command.\n",
+        "branch": "proper-merge",
+        "time": "2013-09-03 2013 at 22:23:25"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1377211624517830828",
+    "status": {
+      "name": "open",
+      "time": "2013-09-07 2013 at 00:53:55"
+    },
+    "time": "2013-08-22 2013 at 15:47:04",
+    "title": "Add Issue Status"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "The list command needs ways to filter output.  Definitely need\nfiltering by status, also possibly by author/creation date?\n",
+    "branch": "list-options",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Now have filtering based on status.\n",
+        "branch": "list-options",
+        "time": "2013-09-11 2013 at 03:27:22"
+      },
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Need to add ability to print just a single issue.\n",
+        "branch": "master",
+        "time": "2013-09-11 2013 at 12:00:10"
+      },
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "list now accepts --id <issue-id>, and prints issues based on\nstandard selection.\n",
+        "branch": "list-options",
+        "time": "2013-09-13 2013 at 15:51:58"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1378895227961807189",
+    "status": {
+      "name": "open",
+      "time": "2013-09-11 2013 at 03:27:59"
+    },
+    "time": "2013-09-11 2013 at 03:27:07",
+    "title": "List filtering"
+  },
+  {
+    "author": "Brandon Sanderson",
     "bodyText": "Currently the merge function in src/merge.rs just takes the incoming issue\nif there are two issues with the same ID.  It needs to actually merge them.\nThis means merging comments based on time, and somehow deciding on current status.\n",
     "branch": "proper-merge",
     "comments": [
@@ -47,6 +107,41 @@
   {
     "author": "Brandon Sanderson",
     "bodyText": "",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1378895528148572929",
+    "status": {
+      "name": "low-pri",
+      "time": "2013-09-11 2013 at 03:32:20"
+    },
+    "time": "2013-09-11 2013 at 03:32:08",
+    "title": "Rework list coloring and indentation"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "master",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Can now use 'evict default-status' to set default status.\n",
+        "branch": "default-status",
+        "time": "2013-09-15 2013 at 00:40:12"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1379228656458843526",
+    "status": {
+      "name": "open",
+      "time": "2013-09-15 2013 at 00:26:40"
+    },
+    "time": "2013-09-15 2013 at 00:04:16",
+    "title": "Add command to set default status"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
     "branch": "list-options",
     "comments": [
       {
@@ -64,6 +159,20 @@
     },
     "time": "2013-09-11 2013 at 03:28:29",
     "title": "Allow listing without comments"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1379228591574109404",
+    "status": {
+      "name": "open",
+      "time": "2013-09-15 2013 at 00:03:23"
+    },
+    "time": "2013-09-15 2013 at 00:03:11",
+    "title": "Add help command and documentation"
   },
   {
     "author": "Brandon Sanderson",
@@ -85,107 +194,5 @@
     },
     "time": "2013-09-03 2013 at 22:26:08",
     "title": "List in order by date"
-  },
-  {
-    "author": "Brandon Sanderson",
-    "bodyText": "Need a way to change issue status.  (Open, Assigned (?), Closed, etc.)\n",
-    "branch": "master",
-    "comments": [
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Going to allow arbitrary user-defined states.\n\nNeed to decide what defaults to include for 'evict init',\nif any.\n",
-        "branch": "issue-status",
-        "time": "2013-08-22 2013 at 17:17:57"
-      },
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Now that statuses exist, need to add them to the init command.\n",
-        "branch": "proper-merge",
-        "time": "2013-09-03 2013 at 22:23:25"
-      }
-    ],
-    "evict-version": "1",
-    "id": "1377211624517830828",
-    "status": {
-      "name": "open",
-      "time": "2013-09-07 2013 at 00:53:55"
-    },
-    "time": "2013-08-22 2013 at 15:47:04",
-    "title": "Add Issue Status"
-  },
-  {
-    "author": "Brandon Sanderson",
-    "bodyText": "",
-    "branch": "master",
-    "comments": [],
-    "evict-version": "1",
-    "id": "1379228591574109404",
-    "status": {
-      "name": "open",
-      "time": "2013-09-15 2013 at 00:03:23"
-    },
-    "time": "2013-09-15 2013 at 00:03:11",
-    "title": "Add help command and documentation"
-  },
-  {
-    "author": "Brandon Sanderson",
-    "bodyText": "",
-    "branch": "master",
-    "comments": [],
-    "evict-version": "1",
-    "id": "1378895528148572929",
-    "status": {
-      "name": "low-pri",
-      "time": "2013-09-11 2013 at 03:32:20"
-    },
-    "time": "2013-09-11 2013 at 03:32:08",
-    "title": "Rework list coloring and indentation"
-  },
-  {
-    "author": "Brandon Sanderson",
-    "bodyText": "The list command needs ways to filter output.  Definitely need\nfiltering by status, also possibly by author/creation date?\n",
-    "branch": "list-options",
-    "comments": [
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Now have filtering based on status.\n",
-        "branch": "list-options",
-        "time": "2013-09-11 2013 at 03:27:22"
-      },
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Need to add ability to print just a single issue.\n",
-        "branch": "master",
-        "time": "2013-09-11 2013 at 12:00:10"
-      },
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "list now accepts --id <issue-id>, and prints issues based on\nstandard selection.\n",
-        "branch": "list-options",
-        "time": "2013-09-13 2013 at 15:51:58"
-      }
-    ],
-    "evict-version": "1",
-    "id": "1378895227961807189",
-    "status": {
-      "name": "open",
-      "time": "2013-09-11 2013 at 03:27:59"
-    },
-    "time": "2013-09-11 2013 at 03:27:07",
-    "title": "List filtering"
-  },
-  {
-    "author": "Brandon Sanderson",
-    "bodyText": "",
-    "branch": "master",
-    "comments": [],
-    "evict-version": "1",
-    "id": "1379228656458843526",
-    "status": {
-      "name": "<unknown>",
-      "time": "1900-01-00 1900 at 00:00:00"
-    },
-    "time": "2013-09-15 2013 at 00:04:16",
-    "title": "Add command to set default status"
   }
 ]
