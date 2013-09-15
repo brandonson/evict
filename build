@@ -2,11 +2,7 @@
 
 BUILD='rustc --out-dir bin'
 
-$BUILD src/fsm.rc
-echo 
+$BUILD src/fsm.rs
 echo Built fsm
-echo
-$BUILD -L ./bin src/evict.rc
-echo
+$BUILD -L ./bin src/evict.rs
 echo Built evict
-echo

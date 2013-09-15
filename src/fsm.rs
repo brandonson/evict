@@ -61,19 +61,19 @@ impl<S:Clone, I> StateMachine<S,I>{
 
 #[test]
 fn simpleStorage(){
-  let storer:Executor<Option<int>, int> = |state:&Option<int>, input:int| -> NextState<Option<int>,int>{
+  let storer:Executor<Option<int>, int> = |state:Option<int>, input:int| -> NextState<Option<int>,int>{
     if (input == 0){
-      End(~((*state).clone()))
+      End(state)
     }else if(input < 0){
-      Continue(~None)
+      Continue(None)
     }else{
-      Continue(~Some(input))
+      Continue(Some(input))
     }
   };
-  let mut stateM:StateMachine<Option<int>, int> = StateMachine::new(storer, ~None);
-  assert!(*stateM.copyCurrentState() == None);
+  let mut stateM:StateMachine<Option<int>, int> = StateMachine::new(storer, None);
+  assert!(stateM.copyCurrentState() == None);
   stateM.process(2);
-  assert!(*stateM.copyCurrentState() == Some(2));
+  assert!(stateM.copyCurrentState() == Some(2));
   stateM.process(0);
   assert!(stateM.isComplete());
 }

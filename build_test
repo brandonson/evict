@@ -3,5 +3,5 @@
 BUILD='rustc --out-dir bin/test --test'
 
 ./build
-$BUILD -L./bin src/evict.rc
-$BUILD src/fsm.rc
+$BUILD -L./bin src/evict.rs
+$BUILD src/fsm.rs
