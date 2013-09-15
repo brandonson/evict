@@ -53,7 +53,7 @@ it)
 
 Commands
 --------
- #### General
+#### General
 
 All commands will ignore unknown arguments, except the default-xxx commands
 which take only 0 or 1 argument.
@@ -63,14 +63,14 @@ digits of an issue id.  If an issue requires a single id and the given digits
 match more than one issue, the matching issues will be listed with their titles
 and no action will be taken.
 
- #### init/clear
+#### init/clear
 
 `evict init` and `evict clear` create/delete all folders/files  needed for 
 Evict-BT to work in a given directory.
 
 Currently, all this means is creating the `.evict` directory.
 
- #### create
+#### create
 
 `evict create` creates a new issue.  It prompts for a title, an author if needed
 and then opens a file for editing using the text editor specified by the EDITOR environment variable.
@@ -93,12 +93,12 @@ desired body in a file named `ISSUE_MSG` in the directory where evict will be ru
 The editor will still be launched, but should already have the desired issue body.
 (Note: `ISSUE_MSG` is deleted each time `evict create` runs)
 
- #### delete
+#### delete
 
 `evict delete <issue-id>` deletes the issue specified by <issue-id>, if that issue
 has not yet been committed.
 
- #### list
+#### list
 
 `evict list` lists all issues for the current branch, or a subset of those as specified by options.
 
@@ -118,22 +118,22 @@ Passing `--id <issue-id>` lists issues which have an id ending in <issue-id>.
 `evict comment <issue-id>` launches an editor to write a comment for the specified issue.  Takes only
 a single issue.
 
- #### default-author
+#### default-author
 
 `evict default-author [author-name]` prints the current default author if no [author-name] argument is
 given, and sets the default to [author-name] otherwise.  This is global for the current user, not evict
 repository based.
 
- #### new-status
+#### new-status
 
 `evict new-status <status-name>` creates a new status that can be used for issues
 
- #### set-status
+#### set-status
 
 `evict set-status <issue-id> <status-name>` sets the status of the given issue to the given status.  The status
 given must have been created using `evict new-status`.
 
- #### default-status
+#### default-status
 
 `evict default-status [status-name]` print the current default status if no [status-name] argument is
 given, and sets the default to [status-name] otherwise.  This is local to the current repo.  [status-name] must
