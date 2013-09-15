@@ -4,3 +4,4 @@ bin/
 *.ebtdlocal
 *.swp
 .evict/config
+.DS_Store
