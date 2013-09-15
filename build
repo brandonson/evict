@@ -1,6 +1,11 @@
 #!/bin/bash
 
-BUILD='rustc --out-dir bin'
+BINDIR='bin'
+BUILD="rustc --out-dir $BINDIR"
+
+if [ ! -d "$BINDIR" ]; then
+    mkdir $BINDIR
+fi
 
 $BUILD src/fsm.rs
 echo Built fsm
