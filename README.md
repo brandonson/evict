@@ -40,9 +40,16 @@ is on the system path.
 Clone the git repository into a location of your choice.  Then cd into the root directory
 of the repo.
 
-Run the `build` script.  The evict binary should now be located in <current-dir>/bin.
+There are two methods of installing Evict-BT.  The first uses rustpkg, and should probably
+only be used if you're familiar with rustpkg, as it is currently limited and has several
+bugs.  `rustpkg install evict` will install Evict-BT according to your RUST_PATH and rustpkg
+settings.
 
-Run the `install` script.  This copies the binary into /usr/local/bin and therefore
+The other method of installation uses shell scripts located at the root of the repository.
+
+Run the `make` script.  The evict binary should now be located in <current-dir>/bin.
+
+Run the `make_install` script.  This copies the binary into /usr/local/bin and therefore
 probably needs root user privileges.  (It doesn't seem to print anything if it fails,
 either, which needs looking into)
 

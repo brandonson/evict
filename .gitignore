@@ -1,6 +1,9 @@
 *.so
 *.exe
+build/
+lib/
 bin/
+rustpkg_db.json
 *.ebtdlocal
 *.swp
 .evict/config

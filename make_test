@@ -2,6 +2,6 @@
 
 BUILD='rustc --test'
 
-./build
+./make
 $BUILD -L./bin -o bin/test/evict src/evict/main.rs
 $BUILD -o bin/test/fsm src/fsm/lib.rs
