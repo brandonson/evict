@@ -66,7 +66,7 @@ fn mergeComments(incoming:~[~IssueComment], mergeInto:~[~IssueComment]) -> ~[~Is
   let mut merged:~[~IssueComment] = ~[];
   while(joined.len() > 0) {
     match joined.iter().min_by(|icomment| icomment.creationTime.to_timespec())
-                       .chain(|minimum| joined.position_elem(minimum)) {
+                       .and_then(|minimum| joined.position_elem(minimum)) {
       Some(pos) => {
         merged.push(joined.swap_remove(pos));
       }

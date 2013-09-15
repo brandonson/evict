@@ -1,4 +1,4 @@
-#[link(name = "fsm", vers="0.1", author="Brandon")];
+#[link(name = "fsm", vers="0.1", author="Brandon Sanderson")];
 #[crate_type="lib"];
 pub enum NextState<S,I>{
   ChangeState(Executor<S,I>, S),

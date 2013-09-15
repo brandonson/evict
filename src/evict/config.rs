@@ -55,7 +55,7 @@ impl Config{
   
   fn readRepoConf() -> Config {
     let jsonStr = file_util::readStringFromFile(CONFIG_FILE);
-    let jsonOpt = do jsonStr.chain |string| {
+    let jsonOpt = do jsonStr.and_then |string| {
                     match json::from_str(string){
                       Ok(json) => Some(json),
                       Err(_) => None
@@ -67,7 +67,7 @@ impl Config{
   fn jsonToConfig(json:json::Json) -> Config {
     match json {
       json::Object(map) => Config{author:map.find(&AUTHOR_KEY.to_owned())
-                                            .chain(|x| extractString(x)),
+                                            .and_then(|x| extractString(x)),
                            },
       _ => Config::default()
     }
