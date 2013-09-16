@@ -18,7 +18,6 @@
  */
 use extra::{json, treemap, time};
 use evict;
-use std::int;
 use vcs_status;
 use extra::json::ToJson;
 use status_storage::DEFAULT_STATUS_NAME;
@@ -121,7 +120,7 @@ impl Issue{
     let version:int = if(versionOpt.is_none()){
                     fail!("No version on json for an issue.");
                   }else{
-                    int::from_str(versionOpt.unwrap()).unwrap()
+                    from_str(versionOpt.unwrap()).unwrap()
 		  };
     if (version == 1) {
       let titleOpt = getStringForKey(map, TITLE_KEY);
