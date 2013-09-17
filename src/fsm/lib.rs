@@ -71,9 +71,9 @@ fn simple_storage(){
     }
   };
   let mut stateM:StateMachine<Option<int>, int> = StateMachine::new(storer, None);
-  assert!(stateM.copyCurrentState() == None);
+  assert!(stateM.copy_state() == None);
   stateM.process(2);
-  assert!(stateM.copyCurrentState() == Some(2));
+  assert!(stateM.copy_state() == Some(2));
   stateM.process(0);
-  assert!(stateM.isComplete());
+  assert!(stateM.is_complete());
 }
