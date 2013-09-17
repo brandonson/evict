@@ -245,13 +245,19 @@
         "bodyText": "Closing in favor of #1379392130388570208 which makes the second reason\ninvalid, and as our current command-run method of making this work works,\nthere's no need to change as of now.\n",
         "branch": "master",
         "time": "2013-09-16 2013 at 21:30:51"
+      },
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "After some thought, it turns out the issue mentioned above will\nrequire libgit integration to achieve merges.  Therefore, this has been\nreopened.\n",
+        "branch": "master",
+        "time": "2013-09-17 2013 at 00:38:15"
       }
     ],
     "evict-version": "1",
     "id": "1379243813485155921",
     "status": {
-      "name": "closed",
-      "time": "2013-09-16 2013 at 21:30:59"
+      "name": "open",
+      "time": "2013-09-17 2013 at 00:37:12"
     },
     "time": "2013-09-15 2013 at 04:16:53",
     "title": "Move to libgit2(-rs?)"
@@ -337,7 +343,14 @@
     "author": "Brandon Sanderson",
     "bodyText": "",
     "branch": "master",
-    "comments": [],
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "To achieve 1 file = 1 issue, we need a method of merging.  The best way to achieve this\nseems to be that each issue filename has the format <issue-id>-<current-branch>.ebtd.\nThis way, we can have `evict merge` look for issue files which have the same ID but are\nfor a different branch, then merge such files, removing the files for the incoming branch.\nThen, it would rename all the files for the incoming branch that had not yet been merged.\n\nThroughout all this, we would also have to make sure that the removals are tracked properly by the VCS,\nas the user should never have to use any non-evict command excepting perhaps '<vcs> add .evict'.\n",
+        "branch": "master",
+        "time": "2013-09-17 2013 at 00:44:53"
+      }
+    ],
     "evict-version": "1",
     "id": "1379392130388570208",
     "status": {
