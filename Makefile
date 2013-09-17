@@ -18,7 +18,7 @@ bin/test: bin
 	mkdir bin/test
 
 test: default bin/test src/evict/main.rs src/fsm/lib.rs
-	rustc --test -L./bin -o bin/test/evict src/evict/main.rs
+	rustc --test -L./lib -o bin/test/evict src/evict/main.rs
 	rustc --test -o bin/test/fsm src/fsm/lib.rs
 	./bin/test/fsm
 	./bin/test/evict

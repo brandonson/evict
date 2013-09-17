@@ -17,9 +17,9 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std;
-use file_manager;
 use config;
 
+mod init;
 mod create;
 mod clear;
 mod list;
@@ -55,7 +55,7 @@ pub fn standard_commands() -> ~std::container::Map<~str, Command> {
   let mut hmap:~std::hashmap::HashMap<~str, Command> = ~std::hashmap::HashMap::new();
   hmap.insert(~"create", create::create_issue);
   hmap.insert(~"clear", clear::clear_data);
-  hmap.insert(~"init", init);
+  hmap.insert(~"init", init::initialize);
   hmap.insert(~"list", list::list_issues); 
   hmap.insert(~"delete", delete::delete_issue);
   hmap.insert(~"comment", comment::new_comment); 
@@ -66,12 +66,6 @@ pub fn standard_commands() -> ~std::container::Map<~str, Command> {
   hmap.insert(~"set-status", set_status::set_status);
   hmap.insert(~"default-status", default_status::default_status);
   hmap as ~std::container::Map<~str, Command>
-}
-
-pub fn init(_:~[~str], _:config::Config) -> int {
-  let res = std::os::make_dir(&Path(file_manager::EVICT_DIRECTORY), 
-                                    0400 | 0200 | 0040 | 0020 | 0004);
-  if(res){0}else{1}
 }
 
 pub fn prompt(prompt:&str) -> ~str{
