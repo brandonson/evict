@@ -42,19 +42,13 @@ of the repo.
 
 There are two methods of installing Evict-BT.  The first uses rustpkg, and should probably
 only be used if you're familiar with rustpkg, as it is currently limited and has several
-bugs.  `rustpkg install evict` will install Evict-BT according to your RUST_PATH and rustpkg
-settings.
+bugs.  `rustpkg install evict` will install Evict-BT according to your rustpkg config.
 
-The other method of installation uses shell scripts located at the root of the repository.
+The other, more standard method, is  to use `make`.  Then `make install`, and everything
+should work great.
 
-Run the `make` script.  The evict binary should now be located in <current-dir>/bin.
-
-Run the `make_install` script.  This copies the binary into /usr/local/bin and therefore
-probably needs root user privileges.  (It doesn't seem to print anything if it fails,
-either, which needs looking into)
-
-Run `evict list`.  If you get a bunch of output that looks like issues, then you've
-got a working install.  (Evict-BT uses `less` to paginate input, so hit q to terminate
+To test your install, run `evict sync` and then `evict list`.  If you get a bunch of output that looks like issues, 
+then you've got a working install.  (Evict-BT uses `less` to paginate output, so hit q to terminate
 it)
 
 
@@ -145,4 +139,18 @@ given must have been created using `evict new-status`.
 `evict default-status [status-name]` print the current default status if no [status-name] argument is
 given, and sets the default to [status-name] otherwise.  This is local to the current repo.  [status-name] must
 have been created using `evict new-status`.
+
+#### merge
+
+`evict merge <branch-A> [branch-B]` takes one or two git branches as arguments.  If given a single branch,
+that branch's issues are merged into the current branch's issues.  Otherwise, the first branch's issues
+are merged into the second branch's issues.
+
+#### sync
+
+`evict sync` synchronizes the current branch's issues with those in the git repository.  This should be run before
+every commit and after each pull/merge.  (NOTE: git will likely find conflicts in .evict/issues.ebtd during merges.  These should be
+fixed by running `evict merge` for the incoming branch and then `evict sync`. Be sure to run `evict merge` before `evict sync`, 
+or issues from the incoming branch will be removed from the repositorry.  They can still be re-added by running 
+`evict merge <branch>`, `evict sync`, and then committing to git but this would require an issue-only commit.)
 
