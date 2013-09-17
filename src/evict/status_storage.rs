@@ -31,50 +31,50 @@ pub struct StatusOption{
 }
 
 impl StatusOption{
-  pub fn makeStatus(&self) -> ~IssueStatus {
+  pub fn make_status(&self) -> ~IssueStatus {
     ~IssueStatus::new(self.name.to_owned())
   }
 }
 
-fn fullStatusFilename() -> ~str {
+fn full_status_filename() -> ~str {
   fmt!("%s%s", file_manager::EVICT_DIRECTORY, STATUS_FILE)
 }
 
-fn fullDefaultStatusFilename() -> ~str {
+fn full_default_status_filename() -> ~str {
   fmt!("%s%s", file_manager::EVICT_DIRECTORY, DEF_STATUS_FILE)
 }
 
-pub fn readStatusOptions() -> ~[StatusOption] {
-  let fullString = file_util::readStringFromFile(fullStatusFilename())
+pub fn read_status_options() -> ~[StatusOption] {
+  let fullString = file_util::read_string_from_file(full_status_filename())
                              .unwrap_or(~"");
   fullString.any_line_iter().map(|x| StatusOption{name:x.to_owned()}).collect()
 }
 
-pub fn writeStatusOptions(statuses:~[StatusOption]) -> bool {
+pub fn write_status_options(statuses:~[StatusOption]) -> bool {
   let stringVec:~[~str] = statuses.move_iter().map(|x| x.name).collect();
   let fullString = stringVec.connect("\n");
-  file_util::writeStringToFile(fullString, fullStatusFilename(), true)
+  file_util::write_string_to_file(fullString, full_status_filename(), true)
 }
 
-pub fn readDefaultStatus() -> StatusOption {
-  let fullFile = file_util::readStringFromFile(fullDefaultStatusFilename())
+pub fn read_default_status() -> StatusOption {
+  let fullFile = file_util::read_string_from_file(full_default_status_filename())
                            .unwrap_or(DEFAULT_STATUS_NAME.to_owned());
   let lineVec:~[&str] = fullFile.any_line_iter().collect();
   let firstLine = lineVec.head_opt().unwrap_or(&DEFAULT_STATUS_NAME);
   
   let statusOption = StatusOption{name:firstLine.to_owned()};
-  if(!readStatusOptions().contains(&statusOption)){
+  if(!read_status_options().contains(&statusOption)){
     StatusOption{name:DEFAULT_STATUS_NAME.to_owned()}
   }else{
     statusOption
   }
 }
 
-pub fn writeDefaultStatus(status:&StatusOption) -> Result<bool, ~str> {
-  let isOption = readStatusOptions().contains(status);
+pub fn write_default_status(status:&StatusOption) -> Result<bool, ~str> {
+  let isOption = read_status_options().contains(status);
   if(!isOption){
     Err(fmt!("%s is not a status option", status.name))
   }else{
-    Ok(file_util::writeStringToFile(status.name, fullDefaultStatusFilename(), true))
+    Ok(file_util::write_string_to_file(status.name, full_default_status_filename(), true))
   }
 }

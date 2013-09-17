@@ -42,8 +42,8 @@ impl ToJson for Config{
 
 impl Config{
   pub fn load() -> Config {
-    if(file_util::fileExists(CONFIG_FILE)){
-      Config::readRepoConf()
+    if(file_util::file_exists(CONFIG_FILE)){
+      Config::read_repo_config()
     }else{
       Config::default()
     }
@@ -53,21 +53,21 @@ impl Config{
     Config{author:None}
   }
   
-  fn readRepoConf() -> Config {
-    let jsonStr = file_util::readStringFromFile(CONFIG_FILE);
+  fn read_repo_config() -> Config {
+    let jsonStr = file_util::read_string_from_file(CONFIG_FILE);
     let jsonOpt = do jsonStr.and_then |string| {
                     match json::from_str(string){
                       Ok(json) => Some(json),
                       Err(_) => None
                     }
                   };
-    jsonOpt.map_move_default(Config::default(), Config::jsonToConfig)
+    jsonOpt.map_move_default(Config::default(), Config::from_json)
   }
   
-  fn jsonToConfig(json:json::Json) -> Config {
+  fn from_json(json:json::Json) -> Config {
     match json {
       json::Object(map) => Config{author:map.find(&AUTHOR_KEY.to_owned())
-                                            .and_then(|x| extractString(x)),
+                                            .and_then(|x| extract_string(x)),
                            },
       _ => Config::default()
     }
@@ -75,11 +75,11 @@ impl Config{
 
   pub fn save(&self){
     let jsonStr = self.to_json().to_pretty_str();
-    file_util::writeStringToFile(jsonStr, CONFIG_FILE, true);
+    file_util::write_string_to_file(jsonStr, CONFIG_FILE, true);
   }
 }
 
-fn extractString(json:&json::Json) -> Option<~str> {
+fn extract_string(json:&json::Json) -> Option<~str> {
   match json {
     &json::String(ref string) => Some(string.to_owned()),
     _ => None

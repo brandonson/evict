@@ -30,7 +30,7 @@ impl<'self> Eq for TimeSortedIssue<'self>{
     *(*self) == *(*other)
   }
 }
-pub fn sortByTime<'a>(issues:&'a [~Issue]) -> ~[&'a Issue]{
+pub fn sort_by_time<'a>(issues:&'a [~Issue]) -> ~[&'a Issue]{
   let mut wrapped:~[TimeSortedIssue<'a>] = 
                              issues.iter().map(|x| TimeSortedIssue(&**x)).collect();
 

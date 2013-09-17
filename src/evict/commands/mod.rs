@@ -38,7 +38,7 @@ mod default_status;
  */
 type Command = ~fn (~[~str], config::Config) -> int;
 
-pub fn executeCommand(command:&~str, 
+pub fn execute_command(command:&~str, 
                       commandList:&~std::container::Map<~str, Command>, 
                       argList: ~[~str], config:config::Config) -> bool{
   match commandList.find(command) {
@@ -51,20 +51,20 @@ pub fn executeCommand(command:&~str,
   }
 }
 
-pub fn standardCommands() -> ~std::container::Map<~str, Command> {
+pub fn standard_commands() -> ~std::container::Map<~str, Command> {
   let mut hmap:~std::hashmap::HashMap<~str, Command> = ~std::hashmap::HashMap::new();
-  hmap.insert(~"create", create::createIssue);
-  hmap.insert(~"clear", clear::clearData);
+  hmap.insert(~"create", create::create_issue);
+  hmap.insert(~"clear", clear::clear_data);
   hmap.insert(~"init", init);
-  hmap.insert(~"list", list::listIssues); 
-  hmap.insert(~"delete", delete::deleteIssue);
-  hmap.insert(~"comment", comment::newComment); 
-  hmap.insert(~"merge", merge::mergeBranches);
-  hmap.insert(~"sync", sync::syncIssues);
-  hmap.insert(~"new-status", new_status::newStatus);
-  hmap.insert(~"default-author", default_author::defaultAuthor);
-  hmap.insert(~"set-status", set_status::setStatus);
-  hmap.insert(~"default-status", default_status::defaultStatus);
+  hmap.insert(~"list", list::list_issues); 
+  hmap.insert(~"delete", delete::delete_issue);
+  hmap.insert(~"comment", comment::new_comment); 
+  hmap.insert(~"merge", merge::merge_branches);
+  hmap.insert(~"sync", sync::sync_issues);
+  hmap.insert(~"new-status", new_status::new_status);
+  hmap.insert(~"default-author", default_author::default_author);
+  hmap.insert(~"set-status", set_status::set_status);
+  hmap.insert(~"default-status", default_status::default_status);
   hmap as ~std::container::Map<~str, Command>
 }
 
@@ -79,7 +79,7 @@ pub fn prompt(prompt:&str) -> ~str{
   std::io::stdin().read_line()
 }
 
-pub fn getAuthor() -> ~str {
+pub fn get_author() -> ~str {
   let config = config::Config::load();
   match config.author {
     Some(author) => author,
@@ -87,7 +87,7 @@ pub fn getAuthor() -> ~str {
   }
 }
 
-pub fn editFile(filename:&str) -> bool{
+pub fn edit_file(filename:&str) -> bool{
   match std::os::getenv("EDITOR") {
     Some(editorName) => {
       std::run::process_status(editorName, &[filename.to_owned()]);

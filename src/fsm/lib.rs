@@ -41,10 +41,10 @@ impl<S,I> StateMachine<S,I>{
         }
     }
   }
-  pub fn isComplete(&self) -> bool{
+  pub fn is_complete(&self) -> bool{
     self.nextExecutor.is_none()
   }
-  pub fn consumeToState(self) -> S {
+  pub fn move_state(self) -> S {
     self.currentState.unwrap()
   }
   pub fn new(exec:Executor<S,I>, state:S) -> StateMachine<S,I>{
@@ -54,13 +54,13 @@ impl<S,I> StateMachine<S,I>{
 //provide a way to get state out while processing
 //if state is cloneable
 impl<S:Clone, I> StateMachine<S,I>{
-  pub fn copyCurrentState(&self) -> S {
+  pub fn copy_state(&self) -> S {
     self.currentState.clone().unwrap()
   }
 }
 
 #[test]
-fn simpleStorage(){
+fn simple_storage(){
   let storer:Executor<Option<int>, int> = |state:Option<int>, input:int| -> NextState<Option<int>,int>{
     if (input == 0){
       End(state)

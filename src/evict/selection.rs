@@ -18,7 +18,7 @@
  */
 use issue::Issue;
 
-pub fn findMatchingIssues(idEndPart:&str, searchIn:&[~Issue]) -> ~[~Issue] {
+pub fn find_matching_issues(idEndPart:&str, searchIn:&[~Issue]) -> ~[~Issue] {
   let mut matching:~[~Issue] = ~[];
   for issue in searchIn.iter() {
     if issue.id.ends_with(idEndPart) {
@@ -28,9 +28,9 @@ pub fn findMatchingIssues(idEndPart:&str, searchIn:&[~Issue]) -> ~[~Issue] {
   matching
 }
 
-pub fn updateIssue(idEndPart:&str, searchIn:~[~Issue],update:&fn(~Issue) -> ~Issue) 
+pub fn update_issue(idEndPart:&str, searchIn:~[~Issue],update:&fn(~Issue) -> ~Issue) 
   -> ~[~Issue] {
-  let matching  = findMatchingIssues(idEndPart, searchIn);
+  let matching  = find_matching_issues(idEndPart, searchIn);
   if(matching.len() > 1){
     println("Multiple matching issues found:");
     for issue in matching.iter() {

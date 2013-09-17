@@ -28,6 +28,6 @@ fn main(){
     let config = config::Config::load();
      
     let cmd = args[1];
-    commands::executeCommand(&cmd,&commands::standardCommands(),cmdArgs, config);
+    commands::execute_command(&cmd,&commands::standard_commands(),cmdArgs, config);
   }
 }

@@ -78,7 +78,7 @@ impl IssueStatus{
   }
 }
 
-fn getStringForKey(map:&json::Object, key:&str) -> Option<~str>{
+fn get_string_for_key(map:&json::Object, key:&str) -> Option<~str>{
   let valueOpt = map.find(&key.to_owned());
   do valueOpt.and_then |value| {
     match value {
@@ -90,11 +90,11 @@ fn getStringForKey(map:&json::Object, key:&str) -> Option<~str>{
 
 impl Issue{
 
-  pub fn addComment(&mut self, comment:~IssueComment) {
+  pub fn add_comment(&mut self, comment:~IssueComment) {
     self.comments.push(comment)
   }
 
-  pub fn getJson(&self) -> json::Json {
+  pub fn to_json(&self) -> json::Json {
     let mut map:~json::Object = ~treemap::TreeMap::new();
     map.insert(VERSION_KEY.to_owned(), json::String(evict::CURRENT_VERSION.to_str()));
     map.insert(TITLE_KEY.to_owned(), json::String(self.title.to_owned()));
@@ -103,44 +103,44 @@ impl Issue{
                json::String(time::strftime(TIME_FORMAT, &self.creationTime)));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
-    map.insert(COMMENTS_KEY.to_owned(), json::List(do self.comments.map |c| {c.getJson()}));
+    map.insert(COMMENTS_KEY.to_owned(), json::List(do self.comments.map |c| {c.to_json()}));
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
     map.insert(STATE_KEY.to_owned(), self.status.to_json());
     json::Object(map)
   }
 
-  pub fn fromJson(json:&json::Json) -> Option<~Issue> {
+  pub fn from_json(json:&json::Json) -> Option<~Issue> {
     match json {
-      &json::Object(ref map) => Issue::readFromMap(map.clone()),
+      &json::Object(ref map) => Issue::read_from_map(map.clone()),
       _ => None
     }
   }
 
-  fn readFromMap(map:~json::Object) -> Option<~Issue>{
-    let versionOpt = getStringForKey(map, VERSION_KEY);
+  fn read_from_map(map:~json::Object) -> Option<~Issue>{
+    let versionOpt = get_string_for_key(map, VERSION_KEY);
     let version:int = if(versionOpt.is_none()){
                     fail!("No version on json for an issue.");
                   }else{
                     int::from_str(versionOpt.unwrap()).unwrap()
 		  };
     if (version == 1) {
-      let titleOpt = getStringForKey(map, TITLE_KEY);
+      let titleOpt = get_string_for_key(map, TITLE_KEY);
       do titleOpt.and_then |title| {
-        let bodyOpt = getStringForKey(map, BODY_KEY);
+        let bodyOpt = get_string_for_key(map, BODY_KEY);
         do bodyOpt.and_then |body| {
-          let authorOpt = getStringForKey(map, AUTHOR_KEY);
+          let authorOpt = get_string_for_key(map, AUTHOR_KEY);
           do authorOpt.and_then |author| {
-            let branchOpt = getStringForKey(map, BRANCH_KEY);
+            let branchOpt = get_string_for_key(map, BRANCH_KEY);
 	    do branchOpt.and_then |branch| {
-              let idOpt = getStringForKey(map, ID_KEY);
+              let idOpt = get_string_for_key(map, ID_KEY);
               do idOpt.and_then |id| {
                 let comments = map.find(&COMMENTS_KEY.to_owned()).map_default(~[],
-                                                                      Issue::loadComments);
+                                                                      Issue::load_comments);
 		let status = do map.find(&STATE_KEY.to_owned())
                                   .map_default(IssueStatus::default()) |json| {
 		  IssueStatus::from_json(*json)
                 };
-                let timeOpt = getStringForKey(map, TIME_KEY);
+                let timeOpt = get_string_for_key(map, TIME_KEY);
                 do timeOpt.and_then |time| {
                   let timeResult = time::strptime(time,TIME_FORMAT);
                   match timeResult {
@@ -162,12 +162,12 @@ impl Issue{
     }
   }
 
-  fn loadComments(json:& &json::Json) -> ~[~IssueComment] {
+  fn load_comments(json:& &json::Json) -> ~[~IssueComment] {
     match *json {
       &json::List(ref list) => {
 	                         let commentJsonOpts = list.clone();
                                  let mut commentJson = commentJsonOpts.map(
-                                                                   IssueComment::fromJson);
+                                                                   IssueComment::from_json);
                                  commentJson.retain(|comment| {comment.is_some()});
                                  commentJson.map(|comment| {comment.clone().unwrap()})
                                }
@@ -176,18 +176,18 @@ impl Issue{
   }
 
   pub fn new(title:~str, body:~str, author:~str, ident:~str) -> ~Issue{
-    let branch = vcs_status::currentBranch().unwrap_or(~"<unknown>");
+    let branch = vcs_status::current_branch().unwrap_or(~"<unknown>");
     ~Issue{title:title, bodyText:body, author:author, id:ident, creationTime:time::now(),
            comments:~[], branch:branch, status:~IssueStatus::default()}
   }
-  pub fn generateId() -> ~str {
+  pub fn generate_id() -> ~str {
     let cTime = time::get_time();
     cTime.sec.to_str() + cTime.nsec.to_str()
   }
 }
 
 impl IssueComment{
-  pub fn getJson(&self) -> json::Json {
+  pub fn to_json(&self) -> json::Json {
     let mut map:~json::Object = ~treemap::TreeMap::new();
     map.insert(BODY_KEY.to_owned(), json::String(self.bodyText.to_owned()));
     map.insert(TIME_KEY.to_owned(), 
@@ -197,21 +197,21 @@ impl IssueComment{
     json::Object(map) 
   }
   
-  pub fn fromJson(json:&json::Json) -> Option<~IssueComment> {
+  pub fn from_json(json:&json::Json) -> Option<~IssueComment> {
     match json {
-      &json::Object(ref map) => IssueComment::readFromMap(map.clone()),
+      &json::Object(ref map) => IssueComment::read_from_map(map.clone()),
       _ => None
     }
   }
 
-  fn readFromMap(map:~json::Object) -> Option<~IssueComment> {
-    let bodyOpt = getStringForKey(map, BODY_KEY);
+  fn read_from_map(map:~json::Object) -> Option<~IssueComment> {
+    let bodyOpt = get_string_for_key(map, BODY_KEY);
     do bodyOpt.and_then |body| {
-      let authorOpt = getStringForKey(map, AUTHOR_KEY);
+      let authorOpt = get_string_for_key(map, AUTHOR_KEY);
       do authorOpt.and_then |author| {
-        let branchOpt = getStringForKey(map, BRANCH_KEY);
+        let branchOpt = get_string_for_key(map, BRANCH_KEY);
 	do branchOpt.and_then |branch| {
-          let timeOpt = getStringForKey(map, TIME_KEY);
+          let timeOpt = get_string_for_key(map, TIME_KEY);
           do timeOpt.and_then |time| {
             let timeResult = time::strptime(time,TIME_FORMAT);
             match timeResult {
@@ -227,7 +227,7 @@ impl IssueComment{
   }
   
   pub fn new(author:~str, body:~str) -> ~IssueComment{
-    let branch = vcs_status::currentBranch().unwrap_or(~"<unknown>");
+    let branch = vcs_status::current_branch().unwrap_or(~"<unknown>");
     ~IssueComment{author:author, bodyText:body, creationTime:time::now(),
                   branch: branch}
   }
@@ -247,8 +247,8 @@ impl IssueStatus{
     match json {
       &json::Object(ref mapRef) => {
         let map = mapRef.clone();
-        do getStringForKey(map, NAME_KEY).and_then |name| {
-          do getStringForKey(map, TIME_KEY).and_then |time| {
+        do get_string_for_key(map, NAME_KEY).and_then |name| {
+          do get_string_for_key(map, TIME_KEY).and_then |time| {
             match time::strptime(time, TIME_FORMAT) {
               Ok(tm) => Some(IssueStatus{name:name.clone(), lastChangeTime:tm}),
               Err(_) => None
@@ -287,9 +287,9 @@ pub fn writeReadIssue(){
 			  author.to_owned(), 
                           ident.to_owned());
 
-  let json = issue.getJson();
+  let json = issue.to_json();
 
-  let readResult = Issue::fromJson(&json);
+  let readResult = Issue::from_json(&json);
 
   assert!(readResult.is_some());
 

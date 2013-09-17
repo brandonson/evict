@@ -48,13 +48,13 @@ impl LinePushingString for ~str{
   }
 }
 
-pub fn listIssues(args:~[~str], _:config::Config) -> int{
-  let cBranch = vcs_status::currentBranch();
+pub fn list_issues(args:~[~str], _:config::Config) -> int{
+  let cBranch = vcs_status::current_branch();
   if(cBranch.is_none()){
     return 1;
   }
   
-  let mut stateMachine = fsm::StateMachine::new(stdHandler,
+  let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{short:false,
                                                       committed:false,
                                                       statuses:~[],
@@ -64,23 +64,23 @@ pub fn listIssues(args:~[~str], _:config::Config) -> int{
   for argVal in args.move_iter(){
     stateMachine.process(argVal);
   }
-  let finalFlags = stateMachine.consumeToState();
+  let finalFlags = stateMachine.move_state();
   
   let mut issues = if (finalFlags.committed){
-    file_manager::readCommittedIssues()
+    file_manager::read_committed_issues()
   }else{
-    file_manager::readCommittableIssues(cBranch.unwrap())
+    file_manager::read_committable_issues(cBranch.unwrap())
   };
 
   for id in finalFlags.id.iter() {
-    issues = selection::findMatchingIssues(id.as_slice(), issues);
+    issues = selection::find_matching_issues(id.as_slice(), issues);
   }
 
-  let resultStr = printIssueVec(issues, &finalFlags);
+  let resultStr = print_issue_vec(issues, &finalFlags);
 
-  file_util::writeStringToFile(resultStr, TMP_OUTPUT_FILE, true);
+  file_util::write_string_to_file(resultStr, TMP_OUTPUT_FILE, true);
   run::process_status("less", &[~"-RXF", TMP_OUTPUT_FILE.to_owned()]);
-  file_util::deleteFile(TMP_OUTPUT_FILE);
+  file_util::delete_file(TMP_OUTPUT_FILE);
   0
 }
 
@@ -92,43 +92,43 @@ struct Flags{
   id:Option<~str>
 }
 
-fn stdHandler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
+fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
   match input {
     ~"--short" => fsm::Continue(Flags{short:true, .. flags}),
     ~"-s" => fsm::Continue(Flags{short:true, .. flags}),
     ~"--committed" => fsm::Continue(Flags{committed:true, .. flags}),
-    ~"--status" => fsm::ChangeState(getStatus, flags),
+    ~"--status" => fsm::ChangeState(get_status, flags),
     ~"--nocomment" => fsm::Continue(Flags{noComments:true, .. flags}),
-    ~"--id" => fsm::ChangeState(getId, flags),
+    ~"--id" => fsm::ChangeState(get_id, flags),
     _ => fsm::Continue(flags)
   }
 }
 
-fn getStatus(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn get_status(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   flags.statuses.push(input);
-  fsm::ChangeState(stdHandler, flags)
+  fsm::ChangeState(std_handler, flags)
 }
 
-fn getId(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn get_id(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   flags.id = Some(input);
-  fsm::ChangeState(stdHandler, flags)
+  fsm::ChangeState(std_handler, flags)
 }
 
-fn printIssueVec(issues:~[~Issue], flags:&Flags) -> ~str{
-  let dateSorted = date_sort::sortByTime(issues);
+fn print_issue_vec(issues:~[~Issue], flags:&Flags) -> ~str{
+  let dateSorted = date_sort::sort_by_time(issues);
   let mut resultStr = ~"";
   //reverse because they're sorted in ascending order
   //and we want descending
   for issue in dateSorted.rev_iter() {
     if (flags.statuses.len() == 0 ||
         flags.statuses.contains(&issue.status.name)){
-      resultStr = printIssue(*issue, flags, resultStr);
+      resultStr = print_issue(*issue, flags, resultStr);
     }
   }
   resultStr
 }
 
-fn printIssue(issue:&Issue, flags:&Flags, mut resultStr:~str) -> ~str {
+fn print_issue(issue:&Issue, flags:&Flags, mut resultStr:~str) -> ~str {
   resultStr.push_strln("");
   resultStr.push_strln(fmt!("\x1b[33m%s (Issue ID: %s)\x1b[0m", issue.title, issue.id));
   if(!flags.short){

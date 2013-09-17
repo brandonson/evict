@@ -19,8 +19,8 @@
 use std::*;
 
 
-pub fn writeStringToFile(content:&str, filename:&str, overwrite:bool) -> bool {
-  if(!overwrite && fileExists(filename)){
+pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool {
+  if(!overwrite && file_exists(filename)){
     false
   }else{
     let path = Path(filename);
@@ -32,51 +32,51 @@ pub fn writeStringToFile(content:&str, filename:&str, overwrite:bool) -> bool {
   }
  
 }
-pub fn readStringFromFile(filename:&str) -> Option<~str> {
+pub fn read_string_from_file(filename:&str) -> Option<~str> {
   match io::read_whole_file_str(&Path(filename)){
     result::Ok(result) => Some(result),
     result::Err(_) => None
   }
 }
-pub fn fileExists(name:&str) -> bool {
+pub fn file_exists(name:&str) -> bool {
   match io::file_reader(&Path(name)){
     result::Ok(_) => true,
     _ => false,
   }
 }
-pub fn createEmpty(name:&str) -> bool{
-  writeStringToFile("", name, false)
+pub fn create_empty(name:&str) -> bool{
+  write_string_to_file("", name, false)
 }
 
-pub fn deleteFile(name:&str) -> bool{
+pub fn delete_file(name:&str) -> bool{
   os::remove_file(&Path(name))
 }
 
 #[test]
-pub fn createDeleteAndExistence(){
+pub fn create_delete_and_existence(){
   let testname = ~"file_util_testCDAE";
 
-  assert!(createEmpty(testname));
-  assert!(fileExists(testname));
-  assert!(deleteFile(testname));
-  assert!(!fileExists(testname));
+  assert!(create_empty(testname));
+  assert!(file_exists(testname));
+  assert!(delete_file(testname));
+  assert!(!file_exists(testname));
 }
 
 #[test]
-pub fn createEmptyIsEmpty(){
+pub fn create_empty_is_empty(){
   let testname = ~"file_util_testCEIE";
   
-  assert!(createEmpty(testname));
-  assert!(readStringFromFile(testname) == Some(~""));
-  assert!(deleteFile(testname));
+  assert!(create_empty(testname));
+  assert!(read_string_from_file(testname) == Some(~""));
+  assert!(delete_file(testname));
 }
 
 #[test]
-pub fn writeReadStr(){
+pub fn write_read_str(){
   let testname = ~"file_util_testWRS";
   let testString = ~"This is a test string";
 
-  assert!(writeStringToFile(testString, testname, false));
-  assert!(readStringFromFile(testname) == Some(testString));
-  assert!(deleteFile(testname));
+  assert!(write_string_to_file(testString, testname, false));
+  assert!(read_string_from_file(testname) == Some(testString));
+  assert!(delete_file(testname));
 }

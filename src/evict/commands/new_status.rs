@@ -19,14 +19,14 @@
 use config;
 use status_storage;
 
-pub fn newStatus(args:~[~str], _:config::Config) -> int {
+pub fn new_status(args:~[~str], _:config::Config) -> int {
   if(args.len() != 1){
     println("new-status usage: evict new-status <status-name>");
     1
   }else{
-    let mut newStatuses = status_storage::readStatusOptions();
+    let mut newStatuses = status_storage::read_status_options();
     newStatuses.push(status_storage::StatusOption{name:args[0]});
-    status_storage::writeStatusOptions(newStatuses);
+    status_storage::write_status_options(newStatuses);
     0
   }
 }

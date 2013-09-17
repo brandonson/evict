@@ -19,7 +19,7 @@
 use std::hashmap::HashMap;
 use issue::{Issue,IssueComment};
 
-pub fn mergeIssues(incoming:~[~Issue],mergeInto:~[~Issue]) -> ~[~Issue] {
+pub fn merge_issues(incoming:~[~Issue],mergeInto:~[~Issue]) -> ~[~Issue] {
   let mut identMap:HashMap<~str, (Option<~Issue>, Option<~Issue>)> = HashMap::new();
   for issue in incoming.move_iter() {
     identMap.insert(issue.id.to_owned(), (Some(issue), None));
@@ -34,17 +34,17 @@ pub fn mergeIssues(incoming:~[~Issue],mergeInto:~[~Issue]) -> ~[~Issue] {
   merged.reserve(identMap.len());
 
   for (_, value) in identMap.move_iter() {
-    merged.push(mergePair(value));
+    merged.push(merge_pair(value));
   }
   merged
 }
 
-fn mergePair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
+fn merge_pair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
   let (incomingOpt, mergeIntoOpt) = issues;
   if(incomingOpt.is_some() && mergeIntoOpt.is_some()){
     let incoming = incomingOpt.unwrap();
     let mergeInto = mergeIntoOpt.unwrap();
-    let newComments = mergeComments(incoming.comments.clone(), 
+    let new_comments = merge_comments(incoming.comments.clone(), 
                                     mergeInto.comments.clone());
 
     let status = if(incoming.status.lastChangeTime.to_timespec()
@@ -53,7 +53,7 @@ fn mergePair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
                  } else {
                       mergeInto.status.clone()
                  };
-    ~Issue{comments:newComments, status:status, .. *incoming}
+    ~Issue{comments:new_comments, status:status, .. *incoming}
   }else if(incomingOpt.is_some()){
     incomingOpt.unwrap()
   }else{
@@ -61,7 +61,7 @@ fn mergePair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
   }
 }
 
-fn mergeComments(incoming:~[~IssueComment], mergeInto:~[~IssueComment]) -> ~[~IssueComment] {
+fn merge_comments(incoming:~[~IssueComment], mergeInto:~[~IssueComment]) -> ~[~IssueComment] {
   let mut joined = incoming + mergeInto;
   let mut merged:~[~IssueComment] = ~[];
   while(joined.len() > 0) {

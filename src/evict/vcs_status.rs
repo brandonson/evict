@@ -23,7 +23,7 @@ enum VCS{
 }
 
 impl VCS {
-  fn currentBranchCmdOutput(&self) -> ~str{
+  fn current_branch_cmd_output(&self) -> ~str{
     match self {
       &Git =>
         str::from_utf8(run::process_output("git", [~"rev-parse", 
@@ -31,13 +31,14 @@ impl VCS {
                                                     ~"HEAD"]).output)
     }
   }
-}
-fn currentVCS() -> VCS{
-  Git //TODO actually detect a VCS
+
+  fn current() -> VCS {
+    Git  //TODO actually detect a VCS
+  }
 }
 
-pub fn currentBranch() -> Option<~str> {
-  let output = currentVCS().currentBranchCmdOutput(); 
+pub fn current_branch() -> Option<~str> {
+  let output = VCS::current().current_branch_cmd_output(); 
   let mut line:~str = ~"";
   for branch in output.any_line_iter() {
     line = branch.to_owned();

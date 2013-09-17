@@ -31,55 +31,55 @@ struct Flags{
   issueIdPart:Option<~str>
 }
 
-fn stdHandler(flags:Flags, arg:~str) -> fsm::NextState<Flags, ~str> {
+fn std_handler(flags:Flags, arg:~str) -> fsm::NextState<Flags, ~str> {
   match arg {
     idPart => fsm::Continue(Flags{issueIdPart:Some(idPart), .. flags})
   }
 }
 
-pub fn newComment(args:~[~str], _:config::Config) -> int{
-  let mut stateMachine = fsm::StateMachine::new(stdHandler, Flags{issueIdPart:None});
+pub fn new_comment(args:~[~str], _:config::Config) -> int{
+  let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issueIdPart:None});
   for a in args.move_iter(){
     stateMachine.process(a);
   }
 
-  let finalFlags = stateMachine.consumeToState();
+  let finalFlags = stateMachine.move_state();
   if(finalFlags.issueIdPart.is_none()){
     io::println("The id for the issue, or an end section of it must be provided.");
     1
   }else{
-    let branchOpt = vcs_status::currentBranch();
+    let branchOpt = vcs_status::current_branch();
     if(branchOpt.is_none()){
       io::println("Could not resolve current branch.");
       2
     }else{
       let branch = branchOpt.unwrap();
-      let issues = file_manager::readCommittableIssues(branch);
+      let issues = file_manager::read_committable_issues(branch);
 
-      let matching = selection::findMatchingIssues(finalFlags.issueIdPart.unwrap(), 
+      let matching = selection::find_matching_issues(finalFlags.issueIdPart.unwrap(), 
                                                    issues);
-      match commentOnMatching(matching){
-        Ok(issue) => processNewIssue(issues, issue, branch),
+      match comment_on_matching(matching){
+        Ok(issue) => process_new_issue(issues, issue, branch),
 	Err(exitcode) => exitcode
       }
     }
   }
 }
 
-fn commentOnMatching(matching:~[~Issue]) -> Result<~Issue,int> {
+fn comment_on_matching(matching:~[~Issue]) -> Result<~Issue,int> {
   if(matching.len() == 0){
     io::println("No issue matching the given id found.");
     Err(3)
   }else if(matching.len() == 1){
-    let author = commands::getAuthor();
+    let author = commands::get_author();
     let filename = fmt!("COMMENT_ON_%s",matching[0].id);
-    let edited = commands::editFile(filename);
+    let edited = commands::edit_file(filename);
     if(!edited){
       io::println("No comment body provided");
       Err(4)
     }else{
-      let text = file_util::readStringFromFile(filename);
-      file_util::deleteFile(filename);
+      let text = file_util::read_string_from_file(filename);
+      file_util::delete_file(filename);
       if(text.is_none()){
         io::println("Could not read comment body from file");
 	Err(5)
@@ -101,7 +101,7 @@ fn commentOnMatching(matching:~[~Issue]) -> Result<~Issue,int> {
   }
 }
 
-fn processNewIssue(allIssues:~[~Issue], newIssue:~Issue, branch:~str) -> int {
+fn process_new_issue(allIssues:~[~Issue], newIssue:~Issue, branch:~str) -> int {
   let allIssuesLen = allIssues.len();
   let mut newIssues:~[~Issue] = allIssues.move_iter().filter(
                                                      |issue| {issue.id != newIssue.id})
@@ -110,7 +110,7 @@ fn processNewIssue(allIssues:~[~Issue], newIssue:~Issue, branch:~str) -> int {
   
   newIssues.push(newIssue);
   
-  let success = file_manager::writeCommittableIssues(branch, newIssues);
+  let success = file_manager::write_committable_issues(branch, newIssues);
   if(success){
     0
   }else{

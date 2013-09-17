@@ -33,69 +33,69 @@ static LOCAL_EXT:&'static str = ".ebtdlocal";
 
 static ACTIVE_ISSUE_FILENAME_PART:&'static str = "issues";
 
-pub fn activeIssueFilename() -> ~str {fmt!("%s%s%s",EVICT_DIRECTORY, 
+pub fn active_issue_filename() -> ~str {fmt!("%s%s%s",EVICT_DIRECTORY, 
                                                 ACTIVE_ISSUE_FILENAME_PART, 
                                                 EXTENSION)}
 
-pub fn committableIssueFilename(branchname:&str) -> ~str {
+pub fn committable_issue_filename(branchname:&str) -> ~str {
   fmt!("%s%s%s", EVICT_DIRECTORY, branchname, LOCAL_EXT)
 }
 
-pub fn writeCommittableIssues(branchname:&str, issues:&[~Issue]) -> bool {
-  writeIssuesToFile(issues, committableIssueFilename(branchname), true)
+pub fn write_committable_issues(branchname:&str, issues:&[~Issue]) -> bool {
+  write_issues_to_file(issues, committable_issue_filename(branchname), true)
 }
 
-pub fn commitIssues(issues:&[~Issue]) -> bool {
-  writeIssuesToFile(issues, activeIssueFilename(), true)
+pub fn commit_issues(issues:&[~Issue]) -> bool {
+  write_issues_to_file(issues, active_issue_filename(), true)
 }
 
-pub fn writeIssuesToFile(issues:&[~Issue], filename:&str, overwrite:bool) -> bool {
-  let sortedIssues = date_sort::sortByTime(issues);
-  let jsonList = do sortedIssues.map |issue| {issue.getJson()};
+pub fn write_issues_to_file(issues:&[~Issue], filename:&str, overwrite:bool) -> bool {
+  let sorted_issues = date_sort::sort_by_time(issues);
+  let jsonList = do sorted_issues.map |issue| {issue.to_json()};
   let strval = json::List(jsonList).to_pretty_str();
-  file_util::writeStringToFile(strval, filename, overwrite)
+  file_util::write_string_to_file(strval, filename, overwrite)
 }
 
-pub fn readCommittableIssues(branchname:&str) -> ~[~Issue] {
-  readIssuesFromFile(committableIssueFilename(branchname))
+pub fn read_committable_issues(branchname:&str) -> ~[~Issue] {
+  read_issues_from_file(committable_issue_filename(branchname))
 }
 
-pub fn readCommittedIssues() -> ~[~Issue] {
-  readIssuesFromFile(activeIssueFilename())
+pub fn read_committed_issues() -> ~[~Issue] {
+  read_issues_from_file(active_issue_filename())
 }
 
-pub fn readIssuesFromFile(filename:&str) -> ~[~Issue] {
-  let strvalOpt = file_util::readStringFromFile(filename);
+pub fn read_issues_from_file(filename:&str) -> ~[~Issue] {
+  let strvalOpt = file_util::read_string_from_file(filename);
   match strvalOpt{
-    Some(strval) => readIssuesFromString(strval),
+    Some(strval) => read_issues_from_string(strval),
     None => ~[]
   }
 }
 
-fn readIssuesFromString(strval:&str) -> ~[~Issue] {
+fn read_issues_from_string(strval:&str) -> ~[~Issue] {
   let json = extra::json::from_str(strval);
   match json {
-    Ok(jsonVal) => readIssuesFromJson(jsonVal),
+    Ok(jsonVal) => read_issues_from_json(jsonVal),
     Err(_) => ~[]
   }
 }
 
-fn readIssuesFromJson(json:extra::json::Json) -> ~[~Issue] {
+fn read_issues_from_json(json:extra::json::Json) -> ~[~Issue] {
   match json {
     extra::json::List(ref jsonVals) => 
       do jsonVals.iter().filter_map |jsval| {
-        Issue::fromJson(jsval)
+        Issue::from_json(jsval)
       }.collect(),
     _ => ~[]
   }
 }
 
 #[test]
-pub fn writeReadIssueFile(){
+pub fn write_read_issue_file(){
   let testName = ~"writeReadIssueFileTest";
   let issues = ~[Issue::new(~"A", ~"B", ~"C", ~"D")];
-  writeIssuesToFile(issues, testName, false);
-  let read = readIssuesFromFile(testName);
-  file_util::deleteFile(testName);
+  write_issues_to_file(issues, testName, false);
+  let read = read_issues_from_file(testName);
+  file_util::delete_file(testName);
   assert!(issues == read);
 }

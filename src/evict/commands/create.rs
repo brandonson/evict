@@ -35,28 +35,28 @@ struct Flags{
   author:Option<~str>,
 }
 
-fn stdHandler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
+fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
   match input {
     ~"--no-body" => fsm::Continue(Flags{hasBody:false, 
                                          .. flags}),
-    ~"--body-file" => fsm::ChangeState(getBodyFile, flags),
-    ~"--title" => fsm::ChangeState(getTitle, flags),
-    ~"--author" => fsm::ChangeState(getAuthor, flags),
+    ~"--body-file" => fsm::ChangeState(get_body_file, flags),
+    ~"--title" => fsm::ChangeState(get_title, flags),
+    ~"--author" => fsm::ChangeState(get_author, flags),
     _ => fsm::Continue(flags)
   }
 }
-fn getBodyFile(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
-  fsm::ChangeState(stdHandler, Flags{bodyFile:Some(input), .. flags})
+fn get_body_file(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  fsm::ChangeState(std_handler, Flags{bodyFile:Some(input), .. flags})
 }
-fn getTitle(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
-  fsm::ChangeState(stdHandler, Flags{title:Some(input), .. flags})
+fn get_title(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  fsm::ChangeState(std_handler, Flags{title:Some(input), .. flags})
 }
-fn getAuthor(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
-  fsm::ChangeState(stdHandler, Flags{author:Some(input), .. flags})
+fn get_author(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  fsm::ChangeState(std_handler, Flags{author:Some(input), .. flags})
 }
 
-pub fn createIssue(args:~[~str], _:config::Config) -> int {
-  let mut stateMachine = fsm::StateMachine::new(stdHandler, 
+pub fn create_issue(args:~[~str], _:config::Config) -> int {
+  let mut stateMachine = fsm::StateMachine::new(std_handler, 
                                            Flags{hasBody:true, 
                                                  bodyFile:None, 
                                                  title:None,
@@ -64,18 +64,18 @@ pub fn createIssue(args:~[~str], _:config::Config) -> int {
   for argVal in args.move_iter() {
     stateMachine.process(argVal);
   };
-  let finalFlags = stateMachine.consumeToState();
+  let finalFlags = stateMachine.move_state();
   let title = match finalFlags.title {
     Some(ref titleVal) => titleVal.to_owned(),
     None => commands::prompt("Title: ")
   };
   let author = match finalFlags.author {
     Some(ref authorVal) => authorVal.to_owned(),
-    None => commands::getAuthor()
+    None => commands::get_author()
   };
   let mut editedBodyFile = false;
   let bodyFile = if(finalFlags.hasBody && finalFlags.bodyFile.is_none()){
-    editedBodyFile =  commands::editFile(DEFAULT_ISSUE_BODY_FILE);
+    editedBodyFile =  commands::edit_file(DEFAULT_ISSUE_BODY_FILE);
     if(!editedBodyFile){
       return 2;
     }
@@ -85,8 +85,8 @@ pub fn createIssue(args:~[~str], _:config::Config) -> int {
   }else{
     finalFlags.bodyFile
   };
-  let created = doIssueCreation(title, author, bodyFile);
-  if(editedBodyFile){ file_util::deleteFile(DEFAULT_ISSUE_BODY_FILE); };
+  let created = do_issue_creation(title, author, bodyFile);
+  if(editedBodyFile){ file_util::delete_file(DEFAULT_ISSUE_BODY_FILE); };
   if(created.is_some()){
     io::println(fmt!("Issue %s created.", created.unwrap().id)); 
     0
@@ -95,13 +95,13 @@ pub fn createIssue(args:~[~str], _:config::Config) -> int {
   }
 }
 
-fn doIssueCreation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~Issue>{
+fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~Issue>{
   let issueOpt = if(bodyFile.is_none()){
-                   Some(Issue::new(title, ~"", author, Issue::generateId()))
+                   Some(Issue::new(title, ~"", author, Issue::generate_id()))
                  }else{
-                   let bodyTextOpt = file_util::readStringFromFile(bodyFile.unwrap());
+                   let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap());
                    do bodyTextOpt.map_move |text| {
-                     Issue::new(title.clone(), text, author.clone(), Issue::generateId())
+                     Issue::new(title.clone(), text, author.clone(), Issue::generate_id())
 		   }
                  };
   if(issueOpt.is_none()){
@@ -109,8 +109,8 @@ fn doIssueCreation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~Is
     None
   }else{
     let mut issue = issueOpt.unwrap();
-    issue.status = status_storage::readDefaultStatus().makeStatus();
-    if(writeIssue(issue.clone())){
+    issue.status = status_storage::read_default_status().make_status();
+    if(write_issue(issue.clone())){
       Some(issue)
     }else{
       io::println("Could not write issue to file.");
@@ -119,16 +119,16 @@ fn doIssueCreation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~Is
   }
 }
 
-fn writeIssue(issue:~Issue) -> bool{
-  let branchnameOpt = vcs_status::currentBranch();
+fn write_issue(issue:~Issue) -> bool{
+  let branchnameOpt = vcs_status::current_branch();
   if(branchnameOpt.is_none()){
     io::println("Could determine current branch.  Is there an active VCS for this directory?");
     return false;
   }
   
   let branchname = branchnameOpt.unwrap();
-  let mut committable = file_manager::readCommittableIssues(branchname);
+  let mut committable = file_manager::read_committable_issues(branchname);
   committable.push(issue);
-  file_manager::writeCommittableIssues(branchname, committable)
+  file_manager::write_committable_issues(branchname, committable)
 }
 
