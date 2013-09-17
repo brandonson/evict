@@ -22,7 +22,7 @@ use file_manager;
 use vcs_status;
 use fsm;
 use selection;
-use config;
+
 
 #[deriving(Clone)]
 struct Flags{
@@ -35,7 +35,7 @@ fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   }
 }
 
-pub fn delete_issue(args:~[~str], _:config::Config) -> int {
+pub fn delete_issue(args:~[~str]) -> int {
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issue:None});
   for arg in args.move_iter() {
     stateMachine.process(arg);

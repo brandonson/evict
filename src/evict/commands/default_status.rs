@@ -16,10 +16,10 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use config;
+
 use status_storage;
 
-pub fn default_status(args:~[~str], _:config::Config) -> int {
+pub fn default_status(args:~[~str]) -> int {
   if(args.len() > 1){
     println ("default-status usage: evict default-status [new-status]");
     1

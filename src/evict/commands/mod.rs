@@ -36,13 +36,13 @@ mod default_status;
  * performs some action, then returns an
  * exit code.
  */
-type Command = ~fn (~[~str], config::Config) -> int;
+type Command = ~fn (~[~str]) -> int;
 
 pub fn execute_command(command:&~str, 
                       commandList:&~std::container::Map<~str, Command>, 
-                      argList: ~[~str], config:config::Config) -> bool{
+                      argList: ~[~str]) -> bool{
   match commandList.find(command) {
-    Some(cmd) => {let exit = (*cmd)(argList, config); std::os::set_exit_status(exit); true}
+    Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
     None => {
      std::io::println(fmt!("Command %s not found", *command)); 
      std::os::set_exit_status(1); 

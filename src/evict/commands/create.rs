@@ -23,7 +23,7 @@ use file_manager;
 use file_util;
 use vcs_status;
 use commands;
-use config;
+
 use status_storage;
 
 static DEFAULT_ISSUE_BODY_FILE:&'static str = "ISSUE_MSG";
@@ -55,7 +55,7 @@ fn get_author(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   fsm::ChangeState(std_handler, Flags{author:Some(input), .. flags})
 }
 
-pub fn create_issue(args:~[~str], _:config::Config) -> int {
+pub fn create_issue(args:~[~str]) -> int {
   let mut stateMachine = fsm::StateMachine::new(std_handler, 
                                            Flags{hasBody:true, 
                                                  bodyFile:None, 

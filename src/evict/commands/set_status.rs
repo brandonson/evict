@@ -18,12 +18,12 @@
  */
 use selection;
 use vcs_status;
-use config;
+
 use file_manager;
 use status_storage;
 use issue::IssueStatus;
 
-pub fn set_status(args:~[~str], _:config::Config) -> int {
+pub fn set_status(args:~[~str]) -> int {
   if(args.len() != 2){
     println("set-status usage: evict set-status <issue-id> <status>");
     println("    Where <status> is either the full name of a status");

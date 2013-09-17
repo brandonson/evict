@@ -21,9 +21,9 @@ use file_manager::*;
 use file_util;
 use merge;
 use vcs_status;
-use config;
 
-pub fn merge_branches(args:~[~str], _:config::Config) -> int {
+
+pub fn merge_branches(args:~[~str]) -> int {
   if(args.len() == 0 || args.len() > 2){
     println("Usage: evict merge <from-branch> [<to-branch>]");
     1

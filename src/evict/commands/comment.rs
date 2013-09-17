@@ -24,7 +24,7 @@ use std::io;
 use file_util;
 use commands;
 use selection;
-use config;
+
 
 #[deriving(Clone)]
 struct Flags{
@@ -37,7 +37,7 @@ fn std_handler(flags:Flags, arg:~str) -> fsm::NextState<Flags, ~str> {
   }
 }
 
-pub fn new_comment(args:~[~str], _:config::Config) -> int{
+pub fn new_comment(args:~[~str]) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issueIdPart:None});
   for a in args.move_iter(){
     stateMachine.process(a);

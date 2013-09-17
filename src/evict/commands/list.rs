@@ -20,7 +20,7 @@ use file_manager;
 use vcs_status;
 use issue;
 use issue::Issue;
-use config;
+
 use file_util;
 use std::run;
 use fsm;
@@ -48,7 +48,7 @@ impl LinePushingString for ~str{
   }
 }
 
-pub fn list_issues(args:~[~str], _:config::Config) -> int{
+pub fn list_issues(args:~[~str]) -> int{
   let cBranch = vcs_status::current_branch();
   if(cBranch.is_none()){
     return 1;

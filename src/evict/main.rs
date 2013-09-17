@@ -25,9 +25,8 @@ fn main(){
   }else{
     let cmdArgs = args.tailn(2).to_owned();
     
-    let config = config::Config::load();
      
     let cmd = args[1];
-    commands::execute_command(&cmd,&commands::standard_commands(),cmdArgs, config);
+    commands::execute_command(&cmd, &commands::standard_commands(), cmdArgs);
   }
 }

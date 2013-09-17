@@ -1,11 +1,11 @@
 use file_manager;
-use config;
+
 use status_storage::{StatusOption, 
                      write_status_options, 
                      write_default_status};
 use std;
 
-pub fn initialize(_:~[~str], _:config::Config) -> int {
+pub fn initialize(_:~[~str]) -> int {
   let res = std::os::make_dir(&Path(file_manager::EVICT_DIRECTORY), 
                                     0400 | 0200 | 0040 | 0020 | 0004);
   if(res){
