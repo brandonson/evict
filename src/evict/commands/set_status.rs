@@ -21,7 +21,6 @@ use vcs_status;
 use config;
 use file_manager;
 use status_storage;
-use std::uint;
 use issue::IssueStatus;
 
 pub fn setStatus(args:~[~str], _:config::Config) -> int {
@@ -53,7 +52,7 @@ pub fn setStatus(args:~[~str], _:config::Config) -> int {
 
 fn resolveNewStatus(statusIdent:&str) -> Option<~IssueStatus> {
   let search = status_storage::readStatusOptions();
-  match uint::from_str(statusIdent) {
+  match from_str::<uint>(statusIdent) {
     Some(index) => if(search.len() > index) {Some(search[index])} else {None},
     None => search.move_iter().find(|x| x.name.as_slice() == statusIdent)
   }.map(|x| x.makeStatus())
