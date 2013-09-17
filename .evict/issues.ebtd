@@ -125,8 +125,8 @@
     "evict-version": "1",
     "id": "1378895227961807189",
     "status": {
-      "name": "open",
-      "time": "2013-09-11 2013 at 03:27:59"
+      "name": "low-pri",
+      "time": "2013-09-16 2013 at 21:27:26"
     },
     "time": "2013-09-11 2013 at 03:27:07",
     "title": "List filtering"
@@ -234,5 +234,131 @@
     },
     "time": "2013-09-15 2013 at 00:47:36",
     "title": "Write issues in a consistent order"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Possibly use the rust bindings at https://github.com/huonw/git2-rs/ \non the rustc-* branch. \n(master branch of that repo is not up-to-date with rust master)\n\nIn any case, the move to libgit2 will make it easier to get the\ncurrent branch, and allow sync or a new command to delete\nold .evict/*.ebtdlocal files.\n",
+    "branch": "master",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Closing in favor of #1379392130388570208 which makes the second reason\ninvalid, and as our current command-run method of making this work works,\nthere's no need to change as of now.\n",
+        "branch": "master",
+        "time": "2013-09-16 2013 at 21:30:51"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1379243813485155921",
+    "status": {
+      "name": "closed",
+      "time": "2013-09-16 2013 at 21:30:59"
+    },
+    "time": "2013-09-15 2013 at 04:16:53",
+    "title": "Move to libgit2(-rs?)"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1379243848449243763",
+    "status": {
+      "name": "open",
+      "time": "2013-09-15 2013 at 04:17:28"
+    },
+    "time": "2013-09-15 2013 at 04:17:28",
+    "title": "Document merge and sync in README.md"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "master",
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Completed with ec34\n\n",
+        "branch": "master",
+        "time": "2013-09-16 2013 at 21:22:14"
+      }
+    ],
+    "evict-version": "1",
+    "id": "1379285695780218287",
+    "status": {
+      "name": "closed",
+      "time": "2013-09-16 2013 at 21:22:27"
+    },
+    "time": "2013-09-15 2013 at 15:54:55",
+    "title": "Update method names to to snake_case"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Need to add comments to most of the code.\n\nCould possibly leave the command modules out for now,\nthough they really need comments too.\n",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1379285778291233837",
+    "status": {
+      "name": "open",
+      "time": "2013-09-15 2013 at 15:56:18"
+    },
+    "time": "2013-09-15 2013 at 15:56:18",
+    "title": "Add comments to improve readability"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "snake-case",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1379390590774640618",
+    "status": {
+      "name": "open",
+      "time": "2013-09-16 2013 at 21:03:10"
+    },
+    "time": "2013-09-16 2013 at 21:03:10",
+    "title": "Make comment command use selection::update_issue"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Current docs say only to build, install, then run 'evict list'. Needs 'evict sync' before\nthat in order to show any issues.\n",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "137939201441526916",
+    "status": {
+      "name": "open",
+      "time": "2013-09-16 2013 at 21:26:54"
+    },
+    "time": "2013-09-16 2013 at 21:26:54",
+    "title": "Update install docs to include sync command"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1379392130388570208",
+    "status": {
+      "name": "open",
+      "time": "2013-09-16 2013 at 21:28:50"
+    },
+    "time": "2013-09-16 2013 at 21:28:50",
+    "title": "Move to single issue per file, rather than single file total"
+  },
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "",
+    "branch": "master",
+    "comments": [],
+    "evict-version": "1",
+    "id": "1379392337960818899",
+    "status": {
+      "name": "open",
+      "time": "2013-09-16 2013 at 21:32:17"
+    },
+    "time": "2013-09-16 2013 at 21:32:17",
+    "title": "Add default statuses closed and open to new repos"
   }
 ]
