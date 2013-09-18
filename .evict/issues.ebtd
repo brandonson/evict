@@ -251,13 +251,19 @@
         "bodyText": "After some thought, it turns out the issue mentioned above will\nrequire libgit integration to achieve merges.  Therefore, this has been\nreopened.\n",
         "branch": "master",
         "time": "2013-09-17 2013 at 00:38:15"
+      },
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "libgit2 seems more complex than is strictly necessary.  Closing once again.\n",
+        "branch": "master",
+        "time": "2013-09-17 2013 at 21:44:34"
       }
     ],
     "evict-version": "1",
     "id": "1379243813485155921",
     "status": {
-      "name": "open",
-      "time": "2013-09-17 2013 at 00:37:12"
+      "name": "closed",
+      "time": "2013-09-17 2013 at 21:44:42"
     },
     "time": "2013-09-15 2013 at 04:16:53",
     "title": "Move to libgit2(-rs?)"
