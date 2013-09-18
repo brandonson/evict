@@ -315,12 +315,19 @@
     "author": "Brandon Sanderson",
     "bodyText": "",
     "branch": "snake-case",
-    "comments": [],
+    "comments": [
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Comment now uses update_issue rather than find_matching_issues.\n",
+        "branch": "master",
+        "time": "2013-09-17 2013 at 21:27:19"
+      }
+    ],
     "evict-version": "1",
     "id": "1379390590774640618",
     "status": {
-      "name": "open",
-      "time": "2013-09-16 2013 at 21:03:10"
+      "name": "closed",
+      "time": "2013-09-17 2013 at 21:27:31"
     },
     "time": "2013-09-16 2013 at 21:03:10",
     "title": "Make comment command use selection::update_issue"

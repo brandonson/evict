@@ -56,48 +56,39 @@ pub fn new_comment(args:~[~str]) -> int{
       let branch = branchOpt.unwrap();
       let issues = file_manager::read_committable_issues(branch);
 
-      let matching = selection::find_matching_issues(finalFlags.issueIdPart.unwrap(), 
-                                                   issues);
-      match comment_on_matching(matching){
-        Ok(issue) => process_new_issue(issues, issue, branch),
-	Err(exitcode) => exitcode
+      let updated = selection::update_issue(finalFlags.issueIdPart.unwrap(), 
+                                            issues,
+                                            comment_on_matching);
+      if(file_manager::write_committable_issues(branch,updated)){
+        0
+      }else{
+        1
       }
     }
   }
 }
 
-fn comment_on_matching(matching:~[~Issue]) -> Result<~Issue,int> {
-  if(matching.len() == 0){
-    io::println("No issue matching the given id found.");
-    Err(3)
-  }else if(matching.len() == 1){
-    let author = commands::get_author();
-    let filename = fmt!("COMMENT_ON_%s",matching[0].id);
-    let edited = commands::edit_file(filename);
-    if(!edited){
-      io::println("No comment body provided");
-      Err(4)
-    }else{
-      let text = file_util::read_string_from_file(filename);
-      file_util::delete_file(filename);
-      if(text.is_none()){
-        io::println("Could not read comment body from file");
-	Err(5)
-      }else{
-        let newComment = IssueComment::new(author, text.unwrap());
-        let mut newComments = matching[0].comments.clone();
-        newComments.push(newComment);
-        let newIssue = ~Issue{comments:newComments,
-                              .. *matching[0]};
-        Ok(newIssue)
-      }
-    }
+fn comment_on_matching(matching:~Issue) -> ~Issue {
+  let author = commands::get_author();
+  let filename = fmt!("COMMENT_ON_%s",matching.id);
+  let edited = commands::edit_file(filename);
+  if(!edited){
+    io::println("No comment body provided");
+    matching 
   }else{
-    io::println("Multiple matching issues");
-    for issue in matching.iter() {
-      io::println(fmt!("%s (%s)", issue.id, issue.title));
+    let text = file_util::read_string_from_file(filename);
+    file_util::delete_file(filename);
+    if(text.is_none()){
+      io::println("Could not read comment body from file");
+      matching
+    }else{
+      let newComment = IssueComment::new(author, text.unwrap());
+      let mut newComments = matching.comments.clone();
+      newComments.push(newComment);
+      let newIssue = ~Issue{comments:newComments,
+                            .. *matching};
+      newIssue
     }
-    Err(6)
   }
 }
 

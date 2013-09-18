@@ -31,8 +31,8 @@ pub fn find_matching_issues(idEndPart:&str, searchIn:&[~Issue]) -> ~[~Issue] {
 pub fn update_issue(idEndPart:&str, searchIn:~[~Issue],update:&fn(~Issue) -> ~Issue) 
   -> ~[~Issue] {
   let matching  = find_matching_issues(idEndPart, searchIn);
-  if(matching.len() > 1){
-    println("Multiple matching issues found:");
+  if(matching.len() != 1){
+    println("Found 0 or >1 matching issues:");
     for issue in matching.iter() {
       println(fmt!("%s (%s)", issue.id, issue.title));
     }
