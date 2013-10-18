@@ -22,10 +22,11 @@ use file_manager;
 
 
 pub fn clear_data(_:~[~str]) -> int {
-  let evictPath = &std::path::Path(file_manager::EVICT_DIRECTORY);
+  let evictPath = &std::path::Path::new(file_manager::EVICT_DIRECTORY);
+  let absolute = std::os::make_absolute(evictPath);
   let res = commands::prompt(
-             fmt!("Really clear everything from %s? [y/n]", 
-                  std::os::make_absolute(evictPath).to_str()));
+             format!("Really clear everything from {}? [y/n]", 
+                     absolute.display()));
   if(res == ~"y"){
     let delResult = std::os::remove_dir_recursive(evictPath);
     if(delResult){0}else{1}

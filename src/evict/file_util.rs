@@ -16,14 +16,15 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use std::*;
-
-
+use std::io;
+use std::path::Path;
+use std::os;
+use std::result;
 pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool {
   if(!overwrite && file_exists(filename)){
     false
   }else{
-    let path = Path(filename);
+    let path = Path::new(filename);
     let flags = &[io::Truncate, io::Create];
     match io::file_writer(&path, flags){
       result::Ok(writer) => {writer.write_str(content); true}
@@ -33,23 +34,26 @@ pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool
  
 }
 pub fn read_string_from_file(filename:&str) -> Option<~str> {
-  match io::read_whole_file_str(&Path(filename)){
+  match io::read_whole_file_str(&Path::new(filename)){
     result::Ok(result) => Some(result),
     result::Err(_) => None
   }
 }
+
 pub fn file_exists(name:&str) -> bool {
-  match io::file_reader(&Path(name)){
-    result::Ok(_) => true,
-    _ => false,
-  }
+  os::path_exists(&Path::new(name))
 }
+
 pub fn create_empty(name:&str) -> bool{
   write_string_to_file("", name, false)
 }
 
+pub fn create_directory(name:&str) -> bool {
+  os::make_dir(&Path::new(name), 0400 | 0200 | 0040 | 0020 | 0004)
+}
+
 pub fn delete_file(name:&str) -> bool{
-  os::remove_file(&Path(name))
+  os::remove_file(&Path::new(name))
 }
 
 #[test]

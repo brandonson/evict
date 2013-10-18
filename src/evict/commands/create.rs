@@ -97,11 +97,11 @@ pub fn create_issue(args:~[~str]) -> int {
 
 fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~Issue>{
   let issueOpt = if(bodyFile.is_none()){
-                   Some(Issue::new(title, ~"", author, Issue::generate_id()))
+                   Some(Issue::new(title, ~"", author))
                  }else{
                    let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap());
-                   do bodyTextOpt.map_move |text| {
-                     Issue::new(title.clone(), text, author.clone(), Issue::generate_id())
+                   do bodyTextOpt.map |text| {
+                     Issue::new(title.clone(), text, author.clone())
 		   }
                  };
   if(issueOpt.is_none()){

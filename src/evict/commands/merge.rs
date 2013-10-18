@@ -17,7 +17,7 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std::io::{println};
-use file_manager::*;
+use file_manager;
 use file_util;
 use merge;
 use vcs_status;
@@ -28,26 +28,26 @@ pub fn merge_branches(args:~[~str]) -> int {
     println("Usage: evict merge <from-branch> [<to-branch>]");
     1
   }else{
-    let fromFile = committable_issue_filename(args[0]);
+    let fromFile = file_manager::committable_issue_filename(args[0]);
     let toFile = if(args.len() == 2) { 
-                   committable_issue_filename(args[1])
+                   file_manager::committable_issue_filename(args[1])
                  } else {
                    let branchName = vcs_status::current_branch();
                    if(branchName.is_none()){
                      println("Could not determine current branch");
                      return 2;
                    }
-                   committable_issue_filename(branchName.unwrap())
+                   file_manager::committable_issue_filename(branchName.unwrap())
                  };
 
     if(!file_util::file_exists(fromFile)){
       println(fmt!("There are no issues for %s", args[0]));
       3
     }else{
-      let fromIssues = read_issues_from_file(fromFile);
-      let toIssues = read_issues_from_file(toFile);
+      let fromIssues = file_manager::read_issues_from_file(fromFile);
+      let toIssues = file_manager::read_issues_from_file(toFile);
       let merged = merge::merge_issues(fromIssues,toIssues);
-      let success = write_issues_to_file(merged, toFile, true);
+      let success = file_manager::write_issues_to_file(merged, toFile, true);
       if(success) {0} else {println("Could not write issues to file"); 4}
     }
   }

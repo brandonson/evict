@@ -1,13 +1,11 @@
 use file_manager;
-
 use status_storage::{StatusOption, 
                      write_status_options, 
                      write_default_status};
-use std;
+use file_util;
 
 pub fn initialize(_:~[~str]) -> int {
-  let res = std::os::make_dir(&Path(file_manager::EVICT_DIRECTORY), 
-                                    0400 | 0200 | 0040 | 0020 | 0004);
+  let res = file_util::create_directory(file_manager::EVICT_DIRECTORY);
   if(res){
     let defaultStatus = StatusOption{name:~"open"};
     let statusOpts = ~[defaultStatus.clone(), StatusOption{name:~"closed"}];

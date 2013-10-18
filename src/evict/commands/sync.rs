@@ -16,21 +16,21 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use file_manager::*;
+use file_manager;
 use merge::merge_issues;
 use vcs_status;
 
 
 pub fn sync_issues(_:~[~str]) -> int {
   let branchOpt = vcs_status::current_branch();
-  do branchOpt.map_move_default(2) |branch| {
-    let incoming = read_committed_issues();
-    let mergeInto = read_committable_issues(branch);
+  do branchOpt.map_default(2) |branch| {
+    let incoming = file_manager::read_committed_issues();
+    let mergeInto = file_manager::read_committable_issues(branch);
     
     let merged = merge_issues(incoming, mergeInto);
 
-    let success1 = write_committable_issues(branch, merged);
-    let success2 = commit_issues(merged);
+    let success1 = file_manager::write_committable_issues(branch, merged);
+    let success2 = file_manager::commit_issues(merged);
     if(success1 && success2){0}else{1}
   }
 }

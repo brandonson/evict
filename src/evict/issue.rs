@@ -38,7 +38,8 @@ pub struct IssueComment{
   creationTime: time::Tm,
   author:~str,
   bodyText:~str,
-  branch:~str
+  branch:~str,
+  id:~str
 }
 #[deriving(Clone, Eq)]
 pub struct IssueStatus{
@@ -108,6 +109,20 @@ impl Issue{
     json::Object(map)
   }
 
+  pub fn no_comment_json(&self) -> json::Json {
+    let mut map:~json::Object = ~treemap::TreeMap::new();
+    map.insert(VERSION_KEY.to_owned(), json::String(evict::CURRENT_VERSION.to_str()));
+    map.insert(TITLE_KEY.to_owned(), json::String(self.title.to_owned()));
+    map.insert(BODY_KEY.to_owned(), json::String(self.bodyText.to_owned()));
+    map.insert(TIME_KEY.to_owned(), 
+               json::String(time::strftime(TIME_FORMAT, &self.creationTime)));
+    map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
+    map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
+    map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
+    map.insert(STATE_KEY.to_owned(), self.status.to_json());
+    json::Object(map)
+  }
+
   pub fn from_json(json:&json::Json) -> Option<~Issue> {
     match json {
       &json::Object(ref map) => Issue::read_from_map(map.clone()),
@@ -137,7 +152,7 @@ impl Issue{
                                                                       Issue::load_comments);
 		let status = do map.find(&STATE_KEY.to_owned())
                                   .map_default(IssueStatus::default()) |json| {
-		  IssueStatus::from_json(*json)
+		  IssueStatus::from_json(json)
                 };
                 let timeOpt = get_string_for_key(map, TIME_KEY);
                 do timeOpt.and_then |time| {
@@ -161,9 +176,9 @@ impl Issue{
     }
   }
 
-  fn load_comments(json:& &json::Json) -> ~[~IssueComment] {
+  fn load_comments(json:&json::Json) -> ~[~IssueComment] {
     match *json {
-      &json::List(ref list) => {
+      json::List(ref list) => {
 	                         let commentJsonOpts = list.clone();
                                  let mut commentJson = commentJsonOpts.map(
                                                                    IssueComment::from_json);
@@ -174,15 +189,18 @@ impl Issue{
     }
   }
 
-  pub fn new(title:~str, body:~str, author:~str, ident:~str) -> ~Issue{
+  pub fn new(title:~str, body:~str, author:~str) -> ~Issue{
     let branch = vcs_status::current_branch().unwrap_or(~"<unknown>");
-    ~Issue{title:title, bodyText:body, author:author, id:ident, creationTime:time::now(),
-           comments:~[], branch:branch, status:~IssueStatus::default()}
+    ~Issue{title:title,
+           bodyText:body,
+           author:author,
+           id:generate_id(),
+           creationTime:time::now(),
+           comments:~[],
+           branch:branch,
+           status:~IssueStatus::default()}
   }
-  pub fn generate_id() -> ~str {
-    let cTime = time::get_time();
-    cTime.sec.to_str() + cTime.nsec.to_str()
-  }
+
 }
 
 impl IssueComment{
@@ -214,9 +232,12 @@ impl IssueComment{
           do timeOpt.and_then |time| {
             let timeResult = time::strptime(time,TIME_FORMAT);
             match timeResult {
-              Ok(tm) => Some(~IssueComment{bodyText:body.clone(), 
-                                    author:author.clone(), 
-                                    creationTime:tm, branch:branch.clone()}),
+              Ok(tm) => Some(~IssueComment{bodyText:body.clone(),
+                                    author:author.clone(),
+                                    creationTime:tm,
+                                    branch:branch.clone(),
+                                    id:get_string_for_key(map, ID_KEY)
+                                          .unwrap_or(generate_id())}),
               Err(_) => None
             }
           }
@@ -228,7 +249,7 @@ impl IssueComment{
   pub fn new(author:~str, body:~str) -> ~IssueComment{
     let branch = vcs_status::current_branch().unwrap_or(~"<unknown>");
     ~IssueComment{author:author, bodyText:body, creationTime:time::now(),
-                  branch: branch}
+                  branch: branch, id:generate_id()}
   }
 }
 
@@ -262,6 +283,11 @@ impl IssueStatus{
   pub fn default() -> IssueStatus{
     IssueStatus{name:DEFAULT_STATUS_NAME.to_owned(), lastChangeTime:time::empty_tm()}
   }
+}
+
+pub fn generate_id() -> ~str {
+  let cTime = time::get_time();
+  cTime.sec.to_str() + cTime.nsec.to_str()
 }
 
 #[test]

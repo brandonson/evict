@@ -61,7 +61,7 @@ impl Config{
                       Err(_) => None
                     }
                   };
-    jsonOpt.map_move_default(Config::default(), Config::from_json)
+    jsonOpt.map_default(Config::default(), Config::from_json)
   }
   
   fn from_json(json:json::Json) -> Config {
