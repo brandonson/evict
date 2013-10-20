@@ -37,11 +37,11 @@ impl StatusOption{
 }
 
 fn full_status_filename() -> ~str {
-  fmt!("%s%s", file_manager::EVICT_DIRECTORY, STATUS_FILE)
+  fmt!("%s/%s", file_manager::EVICT_DIRECTORY, STATUS_FILE)
 }
 
 fn full_default_status_filename() -> ~str {
-  fmt!("%s%s", file_manager::EVICT_DIRECTORY, DEF_STATUS_FILE)
+  fmt!("%s/%s", file_manager::EVICT_DIRECTORY, DEF_STATUS_FILE)
 }
 
 pub fn read_status_options() -> ~[StatusOption] {

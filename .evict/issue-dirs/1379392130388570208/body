@@ -5,8 +5,8 @@
   "evict-version": "1",
   "id": "1379392130388570208",
   "status": {
-    "name": "open",
-    "time": "2013-09-16 2013 at 21:28:50"
+    "name": "closed",
+    "time": "2013-10-20 2013 at 01:58:29"
   },
   "time": "2013-09-16 2013 at 21:28:50",
   "title": "Move to single issue per file, rather than single file total"

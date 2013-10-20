@@ -39,7 +39,7 @@ pub fn set_status(args:~[~str]) -> int {
         file_manager::write_issues(edited);
         0
       }
-      None => {println("Could not read current branch"); 2}
+      None => {println("Given status does not exist"); 2}
     }
   }
 }

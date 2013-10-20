@@ -19,47 +19,68 @@
 use issue::{Issue,IssueComment};
 use extra::sort;
 use extra::time;
+use std::util::swap;
 
-priv struct TimeSortedIssue(~Issue);
-priv struct TimeSortedComment(~IssueComment);
-
-priv trait CreationTimeTracker {
-  fn creation(&self) -> &time::Tm;
+priv enum TimeSorted{
+  TimeSortedIssue(~Issue),
+  TimeSortedComment(~IssueComment)
 }
 
-impl CreationTimeTracker for TimeSortedIssue {
-  fn creation(&self) -> &time::Tm {(*self).creationTime}
-}
-impl CreationTimeTracker for TimeSortedComment{
-  fn creation(&self) -> &time::Tm {(*self).creationTime}
+impl TimeSorted{
+  fn creation<'x>(&'x self) -> &'x time::Tm {
+    match self {
+      &TimeSortedIssue(ref issue) => &issue.creationTime,
+      &TimeSortedComment(ref comment) => &comment.creationTime
+    }
+  }
+  
+  fn unwrap_to_issue(self) -> ~Issue {
+    match self {
+      TimeSortedIssue(i) => i,
+      _ => fail!("Tried to get issue from something that wasn't a TimeSortedIssue")
+    }
+  }
+
+  fn unwrap_to_comment(self) -> ~IssueComment{
+    match self {
+      TimeSortedComment(c) => c,
+      _ => fail!("Tried to get comment from something that wasn't a TimeSortedComment")
+    }
+  }
 }
 
-impl<T:CreationTimeTracker> Ord for T{
-  fn lt(&self, other:&T) -> bool{
+impl Ord for TimeSorted{
+  fn lt(&self, other:&TimeSorted) -> bool{
     (*self).creation().to_timespec().lt(&(*other).creation().to_timespec())
   }
 }
 
-impl<T:CreationTimeTracker> Eq for T{
-  fn eq(&self, other:&T) -> bool {
+impl Eq for TimeSorted{
+  fn eq(&self, other:&TimeSorted) -> bool {
     (*self).creation().to_timespec() == (*other).creation().to_timespec()
   }
 }
 
-fn ctt_sort_le<T:CreationTimeTracker>(a:&T, b:&T) -> bool {
+fn sort_le(a:&TimeSorted, b:&TimeSorted) -> bool {
   a.le(b)
 }
 
 pub fn sort_by_time(issues:~[~Issue]) -> ~[~Issue]{
-  let mut wrapped:~[TimeSortedIssue] = 
+  let mut wrapped:~[TimeSorted] = 
                              issues.move_iter().map(|x| TimeSortedIssue(x)).collect();
 
-  sort::quick_sort(wrapped, ctt_sort_le);
+  sort::quick_sort(wrapped, sort_le);
   
-  let mut sorted:~[~Issue] = wrapped.move_iter().map(|x| *x).collect();
+  let mut sorted:~[~Issue] = wrapped.move_iter().map(|x| x.unwrap_to_issue()).collect();
   
   for x in sorted.mut_iter() {
-    sort::quick_sort(x.comments);
+    let mut comments:~[~IssueComment] = ~[];
+    swap(&mut comments, &mut x.comments);
+    
+    let mut wrappedComments:~[TimeSorted] = comments.move_iter().map(|x| TimeSortedComment(x)).collect();
+    sort::quick_sort(wrappedComments, sort_le);
+    comments = wrappedComments.move_iter().map(|x| x.unwrap_to_comment()).collect();
+    swap(&mut comments, &mut x.comments);
   }
   sorted
 }
