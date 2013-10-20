@@ -19,13 +19,15 @@
 use extra;
 use issue::{Issue, IssueComment};
 use file_util;
-use extra::json;
-use date_sort;
+use std::os;
+use std::option::IntoOption;
 
 #[cfg(not(test))]
-pub static EVICT_DIRECTORY:&'static str = ".evict/";
+pub static EVICT_DIRECTORY:&'static str = ".evict";
 #[cfg(test)]
-pub static EVICT_DIRECTORY:&'static str = ".evict-test/";
+pub static EVICT_DIRECTORY:&'static str = ".evict-test";
+
+static ISSUE_DIRECTORY:&'static str = "issue-dirs";
 
 static BODY_FILENAME:&'static str = "body";
 
@@ -35,40 +37,19 @@ static LOCAL_EXT:&'static str = ".ebtdlocal";
 
 static ACTIVE_ISSUE_FILENAME_PART:&'static str = "issues";
 
-pub fn active_issue_filename() -> ~str {fmt!("%s%s%s",EVICT_DIRECTORY, 
-                                                ACTIVE_ISSUE_FILENAME_PART, 
-                                                EXTENSION)}
-
-pub fn branch_issue_dir(branchname:&str) -> ~str {
-  format!("{}{}", EVICT_DIRECTORY, branchname)
-}
+fn issue_directory_path() -> Path {Path::new(format!("{}/{}",
+                                                     EVICT_DIRECTORY,
+                                                     ISSUE_DIRECTORY))}
 
 pub fn single_issue_filename(issue:&Issue) -> ~str {
-  format!("{}{}", EVICT_DIRECTORY, issue.id)
+  format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id)
 }
 
-pub fn committable_issue_filename(branchname:&str) -> ~str {
-  fmt!("%s%s%s", EVICT_DIRECTORY, branchname, LOCAL_EXT)
+pub fn write_issues(issues:&[~Issue]) -> bool {
+  write_issues_to_file(issues)
 }
 
-pub fn write_committable_issues(branchname:&str, issues:&[~Issue]) -> bool {
-  write_issues_to_file(issues, committable_issue_filename(branchname), true);
-  write_single_issues_to_file(issues)
-}
-
-pub fn commit_issues(issues:&[~Issue]) -> bool {
-  write_issues_to_file(issues, active_issue_filename(), true);
-  write_single_issues_to_file(issues)
-}
-
-pub fn write_issues_to_file(issues:&[~Issue], filename:&str, overwrite:bool) -> bool {
-  let sorted_issues = date_sort::sort_by_time(issues);
-  let jsonList = do sorted_issues.map |issue| {issue.to_json()};
-  let strval = json::List(jsonList).to_pretty_str();
-  file_util::write_string_to_file(strval, filename, overwrite)
-}
-
-fn write_single_issues_to_file(issues:&[~Issue]) -> bool {
+pub fn write_issues_to_file(issues:&[~Issue]) -> bool {
   let mut allSuccess = true;
   for i in issues.iter() {
     allSuccess = allSuccess && write_single_issue(*i);
@@ -92,7 +73,7 @@ fn write_issue_body(issue:&Issue) -> bool {
 }
 
 fn issue_body_filename(issue:&Issue) -> ~str {
-  format!("{}{}/{}", EVICT_DIRECTORY, issue.id, BODY_FILENAME)
+  format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id, BODY_FILENAME)
 }
 
 fn write_issue_comment(issueId:&str, comment:&IssueComment) -> bool{
@@ -102,41 +83,68 @@ fn write_issue_comment(issueId:&str, comment:&IssueComment) -> bool{
 }
 
 fn issue_comment_filename(issueId:&str, comment:&IssueComment) -> ~str {
-  format!("{}{}/{}", EVICT_DIRECTORY, issueId, comment.id)
+  format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issueId, comment.id)
 }
 
-pub fn read_committable_issues(branchname:&str) -> ~[~Issue] {
-  read_issues_from_file(committable_issue_filename(branchname))
+pub fn read_issues() -> ~[~Issue] {
+  read_issues_from_folders()
 }
 
-pub fn read_committed_issues() -> ~[~Issue] {
-  read_issues_from_file(active_issue_filename())
+fn read_issues_from_folders() -> ~[~Issue] {
+  /*! Reads all issues from the folders located in the
+   *  folder returned by full_issue_directory.
+   *  If a folder/file in the issue directory does not parse
+   *  into an issue, it is ignored.
+   */ 
+  let issueDirs = os::list_dir(&issue_directory_path());
+  let issueOptions = do issueDirs.move_iter().map |path| {
+    read_issue_from_dir(path)
+  };
+  //clear all None values and unwrap Some(issue) to just issue
+  issueOptions.filter_map(|x| x).collect()
 }
 
-pub fn read_issues_from_file(filename:&str) -> ~[~Issue] {
-  let strvalOpt = file_util::read_string_from_file(filename);
-  match strvalOpt{
-    Some(strval) => read_issues_from_string(strval),
-    None => ~[]
+
+fn read_issue_from_dir(dir:Path) -> Option<~Issue> {
+  let issueBasePath = issue_directory_path().join(dir);
+  let files = os::list_dir(&issueBasePath);
+  let bodyPath = Path::new(BODY_FILENAME);
+  let noBodyFiles:~[Path] = files.move_iter()
+                                 .filter(|x| x != &bodyPath)
+                                 .map(|x| issueBasePath.join(x))
+                                 .collect();
+  let issueBodyPath = issueBasePath.join(bodyPath);
+  let bodyIssue = read_issue_body(issueBodyPath);
+  do bodyIssue.map |mut bIssue| {
+    let comments = read_issue_comments(noBodyFiles);
+    bIssue.comments = comments;
+    bIssue
   }
 }
 
-fn read_issues_from_string(strval:&str) -> ~[~Issue] {
-  let json = extra::json::from_str(strval);
-  match json {
-    Ok(jsonVal) => read_issues_from_json(jsonVal),
-    Err(_) => ~[]
-  }
+fn read_issue_body(bodyPath:Path) -> Option<~Issue> {
+  /*! Reads an issue from a file, except for the comments, which are stored
+   *  separately from other data.
+   */
+  let dataStrOpt = file_util::read_string_from_path(&bodyPath);
+  dataStrOpt.and_then(|dataStr| {
+     extra::json::from_str(dataStr).into_option()
+  }).and_then(|jsonVal| {
+    Issue::from_json(&jsonVal)
+  })
 }
 
-fn read_issues_from_json(json:extra::json::Json) -> ~[~Issue] {
-  match json {
-    extra::json::List(ref jsonVals) => 
-      do jsonVals.iter().filter_map |jsval| {
-        Issue::from_json(jsval)
-      }.collect(),
-    _ => ~[]
-  }
+fn read_issue_comments(bodyFiles:&[Path]) -> ~[~IssueComment] {
+  bodyFiles.iter().filter_map(read_comment).collect()
+}
+
+fn read_comment(commentFile:&Path) -> Option<~IssueComment> {
+  let dataStrOpt = file_util::read_string_from_path(commentFile);
+  dataStrOpt.and_then(|dataStr| {
+    extra::json::from_str(dataStr).into_option()
+  }).and_then(|jsonVal| {
+    IssueComment::from_json(&jsonVal)
+  })
 }
 
 #[test]

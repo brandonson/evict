@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Need to add comments to most of the code.\n\nCould possibly leave the command modules out for now,\nthough they really need comments too.\n",
+  "branch": "master",
+  "evict-version": "1",
+  "id": "1379285778291233837",
+  "status": {
+    "name": "open",
+    "time": "2013-09-15 2013 at 15:56:18"
+  },
+  "time": "2013-09-15 2013 at 15:56:18",
+  "title": "Add comments to improve readability"
+}

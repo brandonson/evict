@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Currently the merge function in src/merge.rs just takes the incoming issue\nif there are two issues with the same ID.  It needs to actually merge them.\nThis means merging comments based on time, and somehow deciding on current status.\n",
+  "branch": "proper-merge",
+  "evict-version": "1",
+  "id": "1378109326271617127",
+  "status": {
+    "name": "closed",
+    "time": "2013-09-07 2013 at 00:54:02"
+  },
+  "time": "2013-09-02 2013 at 01:08:46",
+  "title": "Make merge actually merge instead of taking incoming"
+}

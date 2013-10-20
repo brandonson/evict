@@ -1,0 +1,7 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "init now includes 'open' and 'closed' as status options, and\nsets 'open' as the default.\n",
+  "branch": "init-update",
+  "id": "1382149572159393115",
+  "time": "2013-09-17 2013 at 00:10:18"
+}

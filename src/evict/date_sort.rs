@@ -16,29 +16,50 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use issue::Issue;
+use issue::{Issue,IssueComment};
+use extra::sort;
+use extra::time;
 
-struct TimeSortedIssue<'self>(&'self Issue);
+priv struct TimeSortedIssue(~Issue);
+priv struct TimeSortedComment(~IssueComment);
 
-impl<'self> Ord for TimeSortedIssue<'self>{
-  fn lt(&self, other:&TimeSortedIssue) -> bool{
-    (*self).creationTime.to_timespec().lt(&(*other).creationTime.to_timespec())
+priv trait CreationTimeTracker {
+  fn creation(&self) -> &time::Tm;
+}
+
+impl CreationTimeTracker for TimeSortedIssue {
+  fn creation(&self) -> &time::Tm {(*self).creationTime}
+}
+impl CreationTimeTracker for TimeSortedComment{
+  fn creation(&self) -> &time::Tm {(*self).creationTime}
+}
+
+impl<T:CreationTimeTracker> Ord for T{
+  fn lt(&self, other:&T) -> bool{
+    (*self).creation().to_timespec().lt(&(*other).creation().to_timespec())
   }
 }
-impl<'self> Eq for TimeSortedIssue<'self>{
-  fn eq(&self, other:&TimeSortedIssue) -> bool {
-    *(*self) == *(*other)
+
+impl<T:CreationTimeTracker> Eq for T{
+  fn eq(&self, other:&T) -> bool {
+    (*self).creation().to_timespec() == (*other).creation().to_timespec()
   }
 }
-pub fn sort_by_time<'a>(issues:&'a [~Issue]) -> ~[&'a Issue]{
-  let mut wrapped:~[TimeSortedIssue<'a>] = 
-                             issues.iter().map(|x| TimeSortedIssue(&**x)).collect();
 
-  let mut sorted:~[&'a Issue] = ~[];
-  while(wrapped.len() > 0){
-    let pos = wrapped.position_elem(wrapped.iter().min().unwrap());
-    let timeIssue = wrapped.swap_remove(pos.unwrap());
-    sorted.push(*timeIssue);
+fn ctt_sort_le<T:CreationTimeTracker>(a:&T, b:&T) -> bool {
+  a.le(b)
+}
+
+pub fn sort_by_time(issues:~[~Issue]) -> ~[~Issue]{
+  let mut wrapped:~[TimeSortedIssue] = 
+                             issues.move_iter().map(|x| TimeSortedIssue(x)).collect();
+
+  sort::quick_sort(wrapped, ctt_sort_le);
+  
+  let mut sorted:~[~Issue] = wrapped.move_iter().map(|x| *x).collect();
+  
+  for x in sorted.mut_iter() {
+    sort::quick_sort(x.comments);
   }
   sorted
 }

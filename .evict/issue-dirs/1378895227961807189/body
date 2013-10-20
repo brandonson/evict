@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "The list command needs ways to filter output.  Definitely need\nfiltering by status, also possibly by author/creation date?\n",
+  "branch": "list-options",
+  "evict-version": "1",
+  "id": "1378895227961807189",
+  "status": {
+    "name": "low-pri",
+    "time": "2013-09-16 2013 at 21:27:26"
+  },
+  "time": "2013-09-11 2013 at 03:27:07",
+  "title": "List filtering"
+}

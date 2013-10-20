@@ -211,6 +211,7 @@ impl IssueComment{
                json::String(time::strftime(TIME_FORMAT, &self.creationTime)));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
+    map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
     json::Object(map) 
   }
   

@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Need to write issues in a consistent order so that the diffs for\n.evict/issues.ebtd aren't so weird.  Possibly sort by date?\n",
+  "branch": "master",
+  "evict-version": "1",
+  "id": "1379231256957690566",
+  "status": {
+    "name": "closed",
+    "time": "2013-09-15 2013 at 02:40:30"
+  },
+  "time": "2013-09-15 2013 at 00:47:36",
+  "title": "Write issues in a consistent order"
+}

@@ -17,7 +17,6 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use selection;
-use vcs_status;
 
 use file_manager;
 use status_storage;
@@ -30,22 +29,17 @@ pub fn set_status(args:~[~str]) -> int {
     println("    or the index of a status");
     1
   }else{
-    match vcs_status::current_branch() {
-      Some(branch) => {
-        match resolve_new_status(args[1]) {
-          Some(newStatus) => {
-            let issues = file_manager::read_committable_issues(branch);
-            let edited = do selection::update_issue(args[0], issues) |mut oldIssue| {
-              oldIssue.status = newStatus.clone();
-              oldIssue
-            };
-            file_manager::write_committable_issues(branch, edited);
-            0
-          }
-          None => {println("Could not read current branch"); 2}
-        }
+    match resolve_new_status(args[1]) {
+      Some(newStatus) => {
+        let issues = file_manager::read_issues();
+        let edited = do selection::update_issue(args[0], issues) |mut oldIssue| {
+          oldIssue.status = newStatus.clone();
+          oldIssue
+        };
+        file_manager::write_issues(edited);
+        0
       }
-      None => 3
+      None => {println("Could not read current branch"); 2}
     }
   }
 }

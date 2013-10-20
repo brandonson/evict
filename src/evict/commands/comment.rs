@@ -18,7 +18,6 @@
  */
 use fsm;
 use issue::{Issue,IssueComment};
-use vcs_status;
 use file_manager;
 use std::io;
 use file_util;
@@ -48,22 +47,15 @@ pub fn new_comment(args:~[~str]) -> int{
     io::println("The id for the issue, or an end section of it must be provided.");
     1
   }else{
-    let branchOpt = vcs_status::current_branch();
-    if(branchOpt.is_none()){
-      io::println("Could not resolve current branch.");
-      2
-    }else{
-      let branch = branchOpt.unwrap();
-      let issues = file_manager::read_committable_issues(branch);
+    let issues = file_manager::read_issues();
 
-      let updated = selection::update_issue(finalFlags.issueIdPart.unwrap(), 
-                                            issues,
-                                            comment_on_matching);
-      if(file_manager::write_committable_issues(branch,updated)){
-        0
-      }else{
-        1
-      }
+    let updated = selection::update_issue(finalFlags.issueIdPart.unwrap(), 
+                                          issues,
+                                          comment_on_matching);
+    if(file_manager::write_issues(updated)){
+      0
+    }else{
+      1
     }
   }
 }
@@ -92,7 +84,7 @@ fn comment_on_matching(matching:~Issue) -> ~Issue {
   }
 }
 
-fn process_new_issue(allIssues:~[~Issue], newIssue:~Issue, branch:~str) -> int {
+fn process_new_issue(allIssues:~[~Issue], newIssue:~Issue) -> int {
   let allIssuesLen = allIssues.len();
   let mut newIssues:~[~Issue] = allIssues.move_iter().filter(
                                                      |issue| {issue.id != newIssue.id})
@@ -101,7 +93,7 @@ fn process_new_issue(allIssues:~[~Issue], newIssue:~Issue, branch:~str) -> int {
   
   newIssues.push(newIssue);
   
-  let success = file_manager::write_committable_issues(branch, newIssues);
+  let success = file_manager::write_issues(newIssues);
   if(success){
     0
   }else{

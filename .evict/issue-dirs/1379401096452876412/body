@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "This will force commands to load configuration if needed,\nbut most commands have no need for the config anyway.\n",
+  "branch": "init-update",
+  "evict-version": "1",
+  "id": "1379401096452876412",
+  "status": {
+    "name": "closed",
+    "time": "2013-09-17 2013 at 00:29:19"
+  },
+  "time": "2013-09-16 2013 at 23:58:16",
+  "title": "Remove config parameter for commands"
+}

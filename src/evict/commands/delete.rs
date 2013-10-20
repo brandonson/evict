@@ -19,7 +19,6 @@
 use std::io::println;
 use issue::Issue;
 use file_manager;
-use vcs_status;
 use fsm;
 use selection;
 
@@ -46,34 +45,12 @@ pub fn delete_issue(args:~[~str]) -> int {
     println("The id of the issue to delete or an end segment of the id must be provided.");
     1
   }else {
-    let cBranch = vcs_status::current_branch();
-    if(cBranch.is_none()){
-      2
-    }else{
-      let issueIdPart = finalFlags.issue.unwrap();
-      let committed = check_committed(issueIdPart);
-      if(committed){
-        3
-      }else{
-	exec_delete(cBranch.unwrap(), issueIdPart)
-      }
-    }
+    let issueIdPart = finalFlags.issue.unwrap();
+    exec_delete(issueIdPart)
   }
 }
-fn check_committed(idPart:&str) -> bool {
-  let committed = file_manager::read_committed_issues();
-  let mut result = false;
-  for issue in committed.iter(){
-    if(issue.id.ends_with(idPart)){
-      println(fmt!("Issue %s (%s) has already been committed, cannot delete.", 
-                   issue.id, issue.title));
-      result = true;
-    } 
-  }
-  return result;
-}
-fn exec_delete(branch:~str, idPart:~str) -> int{
-  let issues = file_manager::read_committable_issues(branch);
+fn exec_delete(idPart:~str) -> int{
+  let issues = file_manager::read_issues();
   let matching = selection::find_matching_issues(idPart, issues);
   if(matching.len() == 0){
     println(fmt!("No issue matching %s found.", idPart));
@@ -89,7 +66,7 @@ fn exec_delete(branch:~str, idPart:~str) -> int{
     }
     //We really, REALLY don't want to be deleting issues we don't expect to be
     assert!(issueCount - 1 == remaining.len());
-    file_manager::write_committable_issues(branch, remaining);
+    file_manager::write_issues(remaining);
     println(fmt!("Issue %s (%s) deleted.", matching[0].id, matching[0].title));
     0
   }else{

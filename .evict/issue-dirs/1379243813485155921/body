@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Possibly use the rust bindings at https://github.com/huonw/git2-rs/ \non the rustc-* branch. \n(master branch of that repo is not up-to-date with rust master)\n\nIn any case, the move to libgit2 will make it easier to get the\ncurrent branch, and allow sync or a new command to delete\nold .evict/*.ebtdlocal files.\n",
+  "branch": "master",
+  "evict-version": "1",
+  "id": "1379243813485155921",
+  "status": {
+    "name": "closed",
+    "time": "2013-09-17 2013 at 21:44:42"
+  },
+  "time": "2013-09-15 2013 at 04:16:53",
+  "title": "Move to libgit2(-rs?)"
+}

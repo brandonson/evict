@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "",
+  "branch": "master",
+  "evict-version": "1",
+  "id": "1379392130388570208",
+  "status": {
+    "name": "open",
+    "time": "2013-09-16 2013 at 21:28:50"
+  },
+  "time": "2013-09-16 2013 at 21:28:50",
+  "title": "Move to single issue per file, rather than single file total"
+}

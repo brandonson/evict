@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "",
+  "branch": "master",
+  "evict-version": "1",
+  "id": "1379228656458843526",
+  "status": {
+    "name": "closed",
+    "time": "2013-09-15 2013 at 02:41:21"
+  },
+  "time": "2013-09-15 2013 at 00:04:16",
+  "title": "Add command to set default status"
+}

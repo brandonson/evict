@@ -20,6 +20,8 @@ use std::io;
 use std::path::Path;
 use std::os;
 use std::result;
+use std::option::IntoOption;
+
 pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool {
   if(!overwrite && file_exists(filename)){
     false
@@ -38,6 +40,10 @@ pub fn read_string_from_file(filename:&str) -> Option<~str> {
     result::Ok(result) => Some(result),
     result::Err(_) => None
   }
+}
+
+pub fn read_string_from_path(path:&Path) -> Option<~str> {
+  io::read_whole_file_str(path).into_option()
 }
 
 pub fn file_exists(name:&str) -> bool {

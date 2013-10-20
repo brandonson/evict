@@ -21,7 +21,6 @@ use std::io;
 use issue::Issue;
 use file_manager;
 use file_util;
-use vcs_status;
 use commands;
 
 use status_storage;
@@ -120,15 +119,8 @@ fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~
 }
 
 fn write_issue(issue:~Issue) -> bool{
-  let branchnameOpt = vcs_status::current_branch();
-  if(branchnameOpt.is_none()){
-    io::println("Could determine current branch.  Is there an active VCS for this directory?");
-    return false;
-  }
-  
-  let branchname = branchnameOpt.unwrap();
-  let mut committable = file_manager::read_committable_issues(branchname);
+  let mut committable = file_manager::read_issues();
   committable.push(issue);
-  file_manager::write_committable_issues(branchname, committable)
+  file_manager::write_issues(committable)
 }
 

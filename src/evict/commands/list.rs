@@ -17,7 +17,6 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use file_manager;
-use vcs_status;
 use issue;
 use issue::Issue;
 
@@ -29,14 +28,6 @@ use date_sort;
 
 static TMP_OUTPUT_FILE:&'static str = ".evict/LIST_TEMP_FILE";
 
-#[deriving(Clone, Eq)]
-struct TimeSortedIssue(~Issue);
-
-impl Ord for TimeSortedIssue{
-  fn lt(&self, other:&TimeSortedIssue) -> bool{
-    (*self).creationTime.to_timespec().lt(&(*other).creationTime.to_timespec())
-  }
-}
 trait LinePushingString{
   fn push_strln(&mut self, rhs:&str);
 }
@@ -49,11 +40,6 @@ impl LinePushingString for ~str{
 }
 
 pub fn list_issues(args:~[~str]) -> int{
-  let cBranch = vcs_status::current_branch();
-  if(cBranch.is_none()){
-    return 1;
-  }
-  
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{short:false,
                                                       committed:false,
@@ -66,11 +52,7 @@ pub fn list_issues(args:~[~str]) -> int{
   }
   let finalFlags = stateMachine.move_state();
   
-  let mut issues = if (finalFlags.committed){
-    file_manager::read_committed_issues()
-  }else{
-    file_manager::read_committable_issues(cBranch.unwrap())
-  };
+  let mut issues = file_manager::read_issues();
 
   for id in finalFlags.id.iter() {
     issues = selection::find_matching_issues(id.as_slice(), issues);

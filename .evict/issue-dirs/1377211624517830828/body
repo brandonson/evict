@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Need a way to change issue status.  (Open, Assigned (?), Closed, etc.)\n",
+  "branch": "master",
+  "evict-version": "1",
+  "id": "1377211624517830828",
+  "status": {
+    "name": "closed",
+    "time": "2013-09-15 2013 at 02:42:43"
+  },
+  "time": "2013-08-22 2013 at 15:47:04",
+  "title": "Add Issue Status"
+}
