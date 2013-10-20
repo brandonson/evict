@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Docs are now out of date.  They still include merge and sync, which have been deleted,\nand do not document how storage works.\n",
+  "branch": "master",
+  "evict-version": "1",
+  "id": "1382259752326296307",
+  "status": {
+    "name": "open",
+    "time": "2013-10-20 2013 at 02:02:32"
+  },
+  "time": "2013-10-20 2013 at 02:02:32",
+  "title": "Update docs for changes to storage"
+}
