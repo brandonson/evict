@@ -16,7 +16,6 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use std::io::println;
 use issue::Issue;
 use file_manager;
 use fsm;

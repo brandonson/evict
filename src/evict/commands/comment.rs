@@ -19,7 +19,6 @@
 use fsm;
 use issue::{Issue,IssueComment};
 use file_manager;
-use std::io;
 use file_util;
 use commands;
 use selection;
@@ -44,7 +43,7 @@ pub fn new_comment(args:~[~str]) -> int{
 
   let finalFlags = stateMachine.move_state();
   if(finalFlags.issueIdPart.is_none()){
-    io::println("The id for the issue, or an end section of it must be provided.");
+    println("The id for the issue, or an end section of it must be provided.");
     1
   }else{
     let issues = file_manager::read_issues();
@@ -65,13 +64,13 @@ fn comment_on_matching(matching:~Issue) -> ~Issue {
   let filename = format!("COMMENT_ON_{}",matching.id);
   let edited = commands::edit_file(filename);
   if(!edited){
-    io::println("No comment body provided");
+    println("No comment body provided");
     matching 
   }else{
     let text = file_util::read_string_from_file(filename);
     file_util::delete_file(filename);
     if(text.is_none()){
-      io::println("Could not read comment body from file");
+      println("Could not read comment body from file");
       matching
     }else{
       let newComment = IssueComment::new(author, text.unwrap());

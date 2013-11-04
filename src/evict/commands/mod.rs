@@ -18,6 +18,8 @@
  */
 use std;
 use config;
+use std::rt::io::stdin;
+use std::rt::io::buffered::BufferedReader;
 
 mod init;
 mod create;
@@ -42,7 +44,7 @@ pub fn execute_command(command:&~str,
   match commandList.find(command) {
     Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
     None => {
-     std::io::println(format!("Command {} not found", *command)); 
+     println(format!("Command {} not found", *command)); 
      std::os::set_exit_status(1); 
      false
     } 
@@ -65,8 +67,8 @@ pub fn standard_commands() -> ~std::container::Map<~str, Command> {
 }
 
 pub fn prompt(prompt:&str) -> ~str{
-  std::io::print(prompt);
-  std::io::stdin().read_line()
+  print(prompt);
+  BufferedReader::new(stdin()).read_line().unwrap() //TODO do we need to check this?
 }
 
 pub fn get_author() -> ~str {

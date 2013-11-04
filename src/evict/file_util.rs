@@ -16,34 +16,46 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use std::io;
 use std::path::Path;
 use std::os;
-use std::result;
-use std::option::IntoOption;
+use std::str;
+use std::rt::io;
+use std::rt::io::Reader;
+use std::rt::io::Writer;
 
 pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool {
   if(!overwrite && file_exists(filename)){
     false
   }else{
-    let path = Path::new(filename);
-    let flags = &[io::Truncate, io::Create];
-    match io::file_writer(&path, flags){
-      result::Ok(writer) => {writer.write_str(content); true}
-      result::Err(_) => {false}
-    }
+    //successful by default, then set to false
+    //if an error is encountered
+    let mut success = true;
+    do io::io_error::cond.trap(|_| {
+      success = false;
+    }).inside {
+      io::file::open(&Path::new(filename), io::CreateOrTruncate, io::Write)
+                 .write(content.to_owned().into_bytes());
+    };
+    success
   }
- 
 }
 pub fn read_string_from_file(filename:&str) -> Option<~str> {
-  match io::read_whole_file_str(&Path::new(filename)){
-    result::Ok(result) => Some(result),
-    result::Err(_) => None
-  }
+  read_string_from_path(&Path::new(filename)) 
 }
 
 pub fn read_string_from_path(path:&Path) -> Option<~str> {
-  io::read_whole_file_str(path).into_option()
+  let mut error:bool = false;
+  let u8bytes = do io::io_error::cond.trap(|_| {
+    error = true;
+  }).inside {
+    io::file::open(path, io::Open, io::Read)
+               .read_to_end()
+  };
+  if(error){
+    None
+  } else {
+    Some(str::from_utf8(u8bytes))
+  } 
 }
 
 pub fn file_exists(name:&str) -> bool {
