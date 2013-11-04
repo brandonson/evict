@@ -37,11 +37,11 @@ impl StatusOption{
 }
 
 fn full_status_filename() -> ~str {
-  fmt!("%s/%s", file_manager::EVICT_DIRECTORY, STATUS_FILE)
+  format!("{}/{}", file_manager::EVICT_DIRECTORY, STATUS_FILE)
 }
 
 fn full_default_status_filename() -> ~str {
-  fmt!("%s/%s", file_manager::EVICT_DIRECTORY, DEF_STATUS_FILE)
+  format!("{}/{}", file_manager::EVICT_DIRECTORY, DEF_STATUS_FILE)
 }
 
 pub fn read_status_options() -> ~[StatusOption] {
@@ -73,7 +73,7 @@ pub fn read_default_status() -> StatusOption {
 pub fn write_default_status(status:&StatusOption) -> Result<bool, ~str> {
   let isOption = read_status_options().contains(status);
   if(!isOption){
-    Err(fmt!("%s is not a status option", status.name))
+    Err(format!("{} is not a status option", status.name))
   }else{
     Ok(file_util::write_string_to_file(status.name, full_default_status_filename(), true))
   }

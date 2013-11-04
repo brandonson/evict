@@ -34,7 +34,7 @@ pub fn update_issue(idEndPart:&str, searchIn:~[~Issue],update:&fn(~Issue) -> ~Is
   if(matching.len() != 1){
     println("Found 0 or >1 matching issues:");
     for issue in matching.iter() {
-      println(fmt!("%s (%s)", issue.id, issue.title));
+      println(format!("{} ({})", issue.id, issue.title));
     }
     searchIn
   }else{

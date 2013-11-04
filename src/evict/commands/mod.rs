@@ -42,7 +42,7 @@ pub fn execute_command(command:&~str,
   match commandList.find(command) {
     Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
     None => {
-     std::io::println(fmt!("Command %s not found", *command)); 
+     std::io::println(format!("Command {} not found", *command)); 
      std::os::set_exit_status(1); 
      false
     } 

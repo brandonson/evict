@@ -26,7 +26,7 @@ pub fn default_status(args:~[~str]) -> int {
   }else{
     if(args.len() == 0){
       let default = status_storage::read_default_status();
-      println(fmt!("Current default status is: %s", default.name));
+      println(format!("Current default status is: {}", default.name));
       2
     }else{
       let status = status_storage::StatusOption{name:args[0]};

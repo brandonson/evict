@@ -112,13 +112,13 @@ fn print_issue_vec(issues:~[~Issue], flags:&Flags) -> ~str{
 
 fn print_issue(issue:&Issue, flags:&Flags, mut resultStr:~str) -> ~str {
   resultStr.push_strln("");
-  resultStr.push_strln(fmt!("\x1b[33m%s (Issue ID: %s)\x1b[0m", issue.title, issue.id));
+  resultStr.push_strln(format!("\x1b[33m{} (Issue ID: {})\x1b[0m", issue.title, issue.id));
   if(!flags.short){
-    resultStr.push_strln(fmt!("Current status: %s", issue.status.name));
-    resultStr.push_strln(fmt!("\x1b[34mReported by %s on %s\x1b[0m",
+    resultStr.push_strln(format!("Current status: {}", issue.status.name));
+    resultStr.push_strln(format!("\x1b[34mReported by {} on {}\x1b[0m",
                        issue.author, 
                        issue.creationTime.strftime(issue::TIME_FORMAT)));
-    resultStr.push_strln(fmt!("Originated on branch %s\n", issue.branch)); 
+    resultStr.push_strln(format!("Originated on branch {}\n", issue.branch)); 
     if(issue.bodyText.len() > 0){
       resultStr.push_strln(issue.bodyText);
     }
@@ -127,10 +127,10 @@ fn print_issue(issue:&Issue, flags:&Flags, mut resultStr:~str) -> ~str {
         resultStr.push_strln("    No comments on this issue.");
       }else{
         for comment in issue.comments.iter() {
-          resultStr.push_strln(fmt!("  \x1b[32m%s on %s\x1b[0m",
+          resultStr.push_strln(format!("  \x1b[32m{} on {}\x1b[0m",
                            comment.author, 
                            comment.creationTime.strftime(issue::TIME_FORMAT)));
-	  resultStr.push_strln(fmt!("  For branch %s", comment.branch));
+	  resultStr.push_strln(format!("  For branch {}", comment.branch));
           for line in comment.bodyText.line_iter() {
             resultStr.push_strln(~"    " + line);
 	  }

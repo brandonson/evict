@@ -62,7 +62,7 @@ pub fn new_comment(args:~[~str]) -> int{
 
 fn comment_on_matching(matching:~Issue) -> ~Issue {
   let author = commands::get_author();
-  let filename = fmt!("COMMENT_ON_%s",matching.id);
+  let filename = format!("COMMENT_ON_{}",matching.id);
   let edited = commands::edit_file(filename);
   if(!edited){
     io::println("No comment body provided");
