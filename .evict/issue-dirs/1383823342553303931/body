@@ -1,0 +1,13 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "",
+  "branch": "master",
+  "evict-version": "1",
+  "id": "1383823342553303931",
+  "status": {
+    "name": "closed",
+    "time": "2013-11-07 2013 at 03:38:54"
+  },
+  "time": "2013-11-07 2013 at 03:22:22",
+  "title": "Fix prompting/printing issues"
+}

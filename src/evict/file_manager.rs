@@ -37,9 +37,11 @@ static LOCAL_EXT:&'static str = ".ebtdlocal";
 
 static ACTIVE_ISSUE_FILENAME_PART:&'static str = "issues";
 
-fn issue_directory_path() -> Path {Path::new(format!("{}/{}",
-                                                     EVICT_DIRECTORY,
-                                                     ISSUE_DIRECTORY))}
+pub fn issue_directory() -> ~str {format!("{}/{}",
+                                          EVICT_DIRECTORY,
+                                          ISSUE_DIRECTORY)}
+
+pub fn issue_directory_path() -> Path {Path::new(issue_directory())}
 
 pub fn single_issue_filename(issue:&Issue) -> ~str {
   format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id)

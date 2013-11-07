@@ -18,8 +18,9 @@
  */
 use std;
 use config;
-use std::rt::io::stdin;
+use std::rt::io::{stdin,stdout};
 use std::rt::io::buffered::BufferedReader;
+use std::rt::io::Writer;
 
 mod init;
 mod create;
@@ -67,8 +68,12 @@ pub fn standard_commands() -> ~std::container::Map<~str, Command> {
 }
 
 pub fn prompt(prompt:&str) -> ~str{
-  print(prompt);
-  BufferedReader::new(stdin()).read_line().unwrap() //TODO do we need to check this?
+  let mut out = stdout();
+  out.write(prompt.as_bytes());
+  out.flush();
+  //TODO do we need to check this?
+  let withNewline = BufferedReader::new(stdin()).read_line().unwrap();
+  withNewline.replace("\n", "").replace("\r", "")
 }
 
 pub fn get_author() -> ~str {
