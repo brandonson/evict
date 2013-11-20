@@ -99,7 +99,6 @@ fn read_issues_from_folders() -> ~[~Issue] {
    */ 
   let dirPath = issue_directory_path();
   let issueDirs = io::fs::readdir(&dirPath);
-  println(format!("{}", dirPath.display()));
   let issueOptions = do issueDirs.move_iter().map |path| {
     read_issue_from_dir(path)
   };
