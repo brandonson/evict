@@ -1,4 +1,4 @@
-#[link(name = "fsm", vers="0.1", author="Brandon Sanderson")];
+#[link(name = "fsm", package_id = "fsm", vers="0.1", author="Brandon Sanderson")];
 #[crate_type="lib"];
 pub enum NextState<S,I>{
   ChangeState(Executor<S,I>, S),
@@ -6,7 +6,7 @@ pub enum NextState<S,I>{
   End(S)
 }
 
-pub type Executor<S,I> = ~fn(S, I) -> NextState<S,I>;
+pub type Executor<S,I> = fn(S, I) -> NextState<S,I>;
 
 pub struct StateMachine<S, I> {
   priv nextExecutor:Option<Executor<S,I>>,

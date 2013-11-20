@@ -19,9 +19,8 @@
 use extra;
 use issue::{Issue, IssueComment};
 use file_util;
-use std::os;
 use std::option::IntoOption;
-
+use std::io;
 #[cfg(not(test))]
 pub static EVICT_DIRECTORY:&'static str = ".evict";
 #[cfg(test)]
@@ -98,7 +97,9 @@ fn read_issues_from_folders() -> ~[~Issue] {
    *  If a folder/file in the issue directory does not parse
    *  into an issue, it is ignored.
    */ 
-  let issueDirs = os::list_dir(&issue_directory_path());
+  let dirPath = issue_directory_path();
+  let issueDirs = io::fs::readdir(&dirPath);
+  println(format!("{}", dirPath.display()));
   let issueOptions = do issueDirs.move_iter().map |path| {
     read_issue_from_dir(path)
   };
@@ -107,15 +108,13 @@ fn read_issues_from_folders() -> ~[~Issue] {
 }
 
 
-fn read_issue_from_dir(dir:Path) -> Option<~Issue> {
-  let issueBasePath = issue_directory_path().join(dir);
-  let files = os::list_dir(&issueBasePath);
+fn read_issue_from_dir(basePath:Path) -> Option<~Issue> {
+  let files = io::fs::readdir(&basePath);
   let bodyPath = Path::new(BODY_FILENAME);
+  let issueBodyPath = basePath.join(bodyPath);
   let noBodyFiles:~[Path] = files.move_iter()
-                                 .filter(|x| x != &bodyPath)
-                                 .map(|x| issueBasePath.join(x))
+                                 .filter(|x| x != &issueBodyPath)
                                  .collect();
-  let issueBodyPath = issueBasePath.join(bodyPath);
   let bodyIssue = read_issue_body(issueBodyPath);
   do bodyIssue.map |mut bIssue| {
     let comments = read_issue_comments(noBodyFiles);

@@ -17,11 +17,10 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std::path::Path;
-use std::os;
 use std::str;
-use std::rt::io;
-use std::rt::io::Reader;
-use std::rt::io::Writer;
+use std::io;
+use std::io::Reader;
+use std::io::Writer;
 
 pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool {
   if(!overwrite && file_exists(filename)){
@@ -33,7 +32,7 @@ pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool
     do io::io_error::cond.trap(|_| {
       success = false;
     }).inside {
-      io::file::open(&Path::new(filename), io::CreateOrTruncate, io::Write)
+      io::File::create(&Path::new(filename))
                  .write(content.to_owned().into_bytes());
     };
     success
@@ -48,8 +47,7 @@ pub fn read_string_from_path(path:&Path) -> Option<~str> {
   let u8bytes = do io::io_error::cond.trap(|_| {
     error = true;
   }).inside {
-    io::file::open(path, io::Open, io::Read)
-               .read_to_end()
+    io::File::open(path).read_to_end()
   };
   if(error){
     None
@@ -59,7 +57,7 @@ pub fn read_string_from_path(path:&Path) -> Option<~str> {
 }
 
 pub fn file_exists(name:&str) -> bool {
-  os::path_exists(&Path::new(name))
+  Path::new(name).exists()
 }
 
 pub fn create_empty(name:&str) -> bool{
@@ -67,11 +65,21 @@ pub fn create_empty(name:&str) -> bool{
 }
 
 pub fn create_directory(name:&str) -> bool {
-  os::make_dir(&Path::new(name), 0400 | 0200 | 0040 | 0020 | 0004)
+  do io_to_success {
+    io::fs::mkdir(&Path::new(name), 0400 | 0200 | 0040 | 0020 | 0004)
+  }
 }
 
 pub fn delete_file(name:&str) -> bool{
-  os::remove_file(&Path::new(name))
+  do io_to_success {
+    io::fs::unlink(&Path::new(name))
+  }
+}
+
+pub fn io_to_success(ioCall:&fn()) -> bool {
+  let mut success = true;
+  io::io_error::cond.trap(|_| success = false).inside(ioCall);
+  success
 }
 
 #[test]

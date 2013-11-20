@@ -18,9 +18,9 @@
  */
 use std;
 use config;
-use std::rt::io::{stdin,stdout};
-use std::rt::io::buffered::BufferedReader;
-use std::rt::io::Writer;
+use std::io::{stdin,stdout};
+use std::io::buffered::BufferedReader;
+use std::io::Writer;
 
 mod init;
 mod create;
@@ -37,7 +37,7 @@ mod default_status;
  * performs some action, then returns an
  * exit code.
  */
-type Command = ~fn (~[~str]) -> int;
+type Command = fn (~[~str]) -> int;
 
 pub fn execute_command(command:&~str, 
                       commandList:&~std::container::Map<~str, Command>, 
