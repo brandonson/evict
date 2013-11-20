@@ -61,19 +61,21 @@ impl<S:Clone, I> StateMachine<S,I>{
 
 #[test]
 fn simple_storage(){
-  let storer:Executor<Option<int>, int> = |state:Option<int>, input:int| -> NextState<Option<int>,int>{
-    if (input == 0){
-      End(state)
-    }else if(input < 0){
-      Continue(None)
-    }else{
-      Continue(Some(input))
-    }
-  };
+  let storer:Executor<Option<int>, int> = simple_storage_statefn; 
   let mut stateM:StateMachine<Option<int>, int> = StateMachine::new(storer, None);
   assert!(stateM.copy_state() == None);
   stateM.process(2);
   assert!(stateM.copy_state() == Some(2));
   stateM.process(0);
   assert!(stateM.is_complete());
+}
+#[cfg(test)]
+fn simple_storage_statefn(state:Option<int>, input:int) -> NextState<Option<int>, int> {
+  if (input == 0){
+    End(state)
+  }else if(input < 0){
+    Continue(None)
+  }else{
+    Continue(Some(input))
+  }
 }

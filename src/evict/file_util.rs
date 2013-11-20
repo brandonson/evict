@@ -65,8 +65,12 @@ pub fn create_empty(name:&str) -> bool{
 }
 
 pub fn create_directory(name:&str) -> bool {
+  create_directory_path(&Path::new(name))
+}
+
+pub fn create_directory_path(p:&Path) -> bool {
   do io_to_success {
-    io::fs::mkdir(&Path::new(name), 0400 | 0200 | 0040 | 0020 | 0004)
+    io::fs::mkdir(p, 0400 | 0200 | 0040 | 0020 | 0004);
   }
 }
 
