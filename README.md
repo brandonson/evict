@@ -1,3 +1,5 @@
+# Evict-BT [![Build Status](https://travis-ci.org/brandonson/evict.png?branch=master)](https://travis-ci.org/brandonson/evict) 
+
 Evict-BT is a issue tracker written in Rust that integrates loosely with git.  In the future, 
 it will hopefully support additional version control systems.
 
