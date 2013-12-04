@@ -29,26 +29,23 @@ pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool
     //successful by default, then set to false
     //if an error is encountered
     let mut success = true;
-    do io::io_error::cond.trap(|_| {
+    io::io_error::cond.trap(|_| {
       success = false;
-    }).inside {
-      io::File::create(&Path::new(filename))
-                 .write(content.to_owned().into_bytes());
-    };
+    }).inside ( ||io::File::create(&Path::init(filename))
+                           .write(content.to_owned().into_bytes())
+    );
     success
   }
 }
 pub fn read_string_from_file(filename:&str) -> Option<~str> {
-  read_string_from_path(&Path::new(filename)) 
+  read_string_from_path(&Path::init(filename)) 
 }
 
 pub fn read_string_from_path(path:&Path) -> Option<~str> {
   let mut error:bool = false;
-  let u8bytes = do io::io_error::cond.trap(|_| {
+  let u8bytes = io::io_error::cond.trap(|_| {
     error = true;
-  }).inside {
-    io::File::open(path).read_to_end()
-  };
+  }).inside (||io::File::open(path).read_to_end());
   if(error){
     None
   } else {
@@ -57,7 +54,7 @@ pub fn read_string_from_path(path:&Path) -> Option<~str> {
 }
 
 pub fn file_exists(name:&str) -> bool {
-  Path::new(name).exists()
+  Path::init(name).exists()
 }
 
 pub fn create_empty(name:&str) -> bool{
@@ -65,22 +62,22 @@ pub fn create_empty(name:&str) -> bool{
 }
 
 pub fn create_directory(name:&str) -> bool {
-  create_directory_path(&Path::new(name))
+  create_directory_path(&Path::init(name))
 }
 
 pub fn create_directory_path(p:&Path) -> bool {
-  do io_to_success {
-    io::fs::mkdir(p, 0400 | 0200 | 0040 | 0020 | 0004);
-  }
+  io_to_success (
+    || io::fs::mkdir(p, 0400 | 0200 | 0040 | 0020 | 0004)
+  )
 }
 
 pub fn delete_file(name:&str) -> bool{
-  do io_to_success {
-    io::fs::unlink(&Path::new(name))
-  }
+  io_to_success( ||
+    io::fs::unlink(&Path::init(name))
+  )
 }
 
-pub fn io_to_success(ioCall:&fn()) -> bool {
+pub fn io_to_success(ioCall:| |) -> bool {
   let mut success = true;
   io::io_error::cond.trap(|_| success = false).inside(ioCall);
   success

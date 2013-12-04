@@ -28,7 +28,7 @@ pub fn find_matching_issues(idEndPart:&str, searchIn:&[~Issue]) -> ~[~Issue] {
   matching
 }
 
-pub fn update_issue(idEndPart:&str, searchIn:~[~Issue],update:&fn(~Issue) -> ~Issue) 
+pub fn update_issue(idEndPart:&str, searchIn:~[~Issue],update:|~Issue| -> ~Issue)
   -> ~[~Issue] {
   let matching  = find_matching_issues(idEndPart, searchIn);
   if(matching.len() != 1){

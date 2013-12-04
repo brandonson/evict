@@ -40,7 +40,7 @@ pub fn issue_directory() -> ~str {format!("{}/{}",
                                           EVICT_DIRECTORY,
                                           ISSUE_DIRECTORY)}
 
-pub fn issue_directory_path() -> Path {Path::new(issue_directory())}
+pub fn issue_directory_path() -> Path {Path::init(issue_directory())}
 
 pub fn single_issue_filename(issue:&Issue) -> ~str {
   format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id)
@@ -99,9 +99,9 @@ fn read_issues_from_folders() -> ~[~Issue] {
    */ 
   let dirPath = issue_directory_path();
   let issueDirs = io::fs::readdir(&dirPath);
-  let issueOptions = do issueDirs.move_iter().map |path| {
-    read_issue_from_dir(path)
-  };
+  let issueOptions = issueDirs.move_iter().map (
+    |path| read_issue_from_dir(path)
+  );
   //clear all None values and unwrap Some(issue) to just issue
   issueOptions.filter_map(|x| x).collect()
 }
@@ -109,17 +109,17 @@ fn read_issues_from_folders() -> ~[~Issue] {
 
 fn read_issue_from_dir(basePath:Path) -> Option<~Issue> {
   let files = io::fs::readdir(&basePath);
-  let bodyPath = Path::new(BODY_FILENAME);
+  let bodyPath = Path::init(BODY_FILENAME);
   let issueBodyPath = basePath.join(bodyPath);
   let noBodyFiles:~[Path] = files.move_iter()
                                  .filter(|x| x != &issueBodyPath)
                                  .collect();
   let bodyIssue = read_issue_body(issueBodyPath);
-  do bodyIssue.map |mut bIssue| {
+  bodyIssue.map (|mut bIssue| {
     let comments = read_issue_comments(noBodyFiles);
     bIssue.comments = comments;
     bIssue
-  }
+  })
 }
 
 fn read_issue_body(bodyPath:Path) -> Option<~Issue> {
@@ -149,11 +149,11 @@ fn read_comment(commentFile:&Path) -> Option<~IssueComment> {
 
 #[test]
 pub fn write_read_issue_file(){
-  file_util::create_directory_path(&Path::new(EVICT_DIRECTORY));
+  file_util::create_directory_path(&Path::init(EVICT_DIRECTORY));
   file_util::create_directory_path(&issue_directory_path());
   let issues = ~[Issue::new(~"A", ~"B", ~"C")];
   write_issues(issues);
   let read = read_issues();
   assert!(issues == read);
-  io::fs::rmdir_recursive(&Path::new(EVICT_DIRECTORY));
+  io::fs::rmdir_recursive(&Path::init(EVICT_DIRECTORY));
 }

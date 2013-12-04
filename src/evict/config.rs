@@ -54,12 +54,12 @@ impl Config{
   
   fn read_repo_config() -> Config {
     let jsonStr = file_util::read_string_from_file(CONFIG_FILE);
-    let jsonOpt = do jsonStr.and_then |string| {
+    let jsonOpt = jsonStr.and_then (|string| {
                     match json::from_str(string){
                       Ok(json) => Some(json),
                       Err(_) => None
                     }
-                  };
+                  });
     jsonOpt.map_default(Config::default(), Config::from_json)
   }
   

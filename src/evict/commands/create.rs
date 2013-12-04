@@ -98,9 +98,9 @@ fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~
                    Some(Issue::new(title, ~"", author))
                  }else{
                    let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap());
-                   do bodyTextOpt.map |text| {
-                     Issue::new(title.clone(), text, author.clone())
-		   }
+                   bodyTextOpt.map(
+                     |text| Issue::new(title.clone(), text, author.clone())
+		   )
                  };
   if(issueOpt.is_none()){
     println("Could not open body file.");

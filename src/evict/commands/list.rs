@@ -131,7 +131,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut resultStr:~str) -> ~str {
                            comment.author, 
                            comment.creationTime.strftime(issue::TIME_FORMAT)));
 	  resultStr.push_strln(format!("  For branch {}", comment.branch));
-          for line in comment.bodyText.line_iter() {
+          for line in comment.bodyText.lines() {
             resultStr.push_strln(~"    " + line);
 	  }
           resultStr.push_strln("");

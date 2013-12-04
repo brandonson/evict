@@ -47,7 +47,7 @@ fn full_default_status_filename() -> ~str {
 pub fn read_status_options() -> ~[StatusOption] {
   let fullString = file_util::read_string_from_file(full_status_filename())
                              .unwrap_or(~"");
-  fullString.any_line_iter().map(|x| StatusOption{name:x.to_owned()}).collect()
+  fullString.lines_any().map(|x| StatusOption{name:x.to_owned()}).collect()
 }
 
 pub fn write_status_options(statuses:~[StatusOption]) -> bool {
@@ -59,7 +59,7 @@ pub fn write_status_options(statuses:~[StatusOption]) -> bool {
 pub fn read_default_status() -> StatusOption {
   let fullFile = file_util::read_string_from_file(full_default_status_filename())
                            .unwrap_or(DEFAULT_STATUS_NAME.to_owned());
-  let lineVec:~[&str] = fullFile.any_line_iter().collect();
+  let lineVec:~[&str] = fullFile.lines_any().collect();
   let firstLine = lineVec.head_opt().unwrap_or(&DEFAULT_STATUS_NAME);
   
   let statusOption = StatusOption{name:firstLine.to_owned()};

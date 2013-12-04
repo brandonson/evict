@@ -22,7 +22,7 @@ use file_manager;
 
 
 pub fn clear_data(_:~[~str]) -> int {
-  let evictPath = &std::path::Path::new(file_manager::EVICT_DIRECTORY);
+  let evictPath = &std::path::Path::init(file_manager::EVICT_DIRECTORY);
   let absolute = std::os::make_absolute(evictPath);
   let res = commands::prompt(
              format!("Really clear everything from {}? [y/n]", 
@@ -32,9 +32,9 @@ pub fn clear_data(_:~[~str]) -> int {
     //try to delete, if we fail the just set success to false
     //(no point in retries or anything else, user can just
     // rerun the command)
-    do std::io::io_error::cond.trap ( |_| success = false).inside {
-      std::io::fs::rmdir_recursive(evictPath);
-    }
+    std::io::io_error::cond.trap ( |_| success = false).inside( 
+      || std::io::fs::rmdir_recursive(evictPath)
+    );
     if(success){
       println("All Evict-BT info has been cleared");
       0

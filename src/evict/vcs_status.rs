@@ -40,7 +40,7 @@ impl VCS {
 pub fn current_branch() -> Option<~str> {
   let output = VCS::current().current_branch_cmd_output(); 
   let mut line:~str = ~"";
-  for branch in output.any_line_iter() {
+  for branch in output.lines_any() {
     line = branch.to_owned();
     break;
   }

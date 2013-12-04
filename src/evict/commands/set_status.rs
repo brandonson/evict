@@ -32,10 +32,10 @@ pub fn set_status(args:~[~str]) -> int {
     match resolve_new_status(args[1]) {
       Some(newStatus) => {
         let issues = file_manager::read_issues();
-        let edited = do selection::update_issue(args[0], issues) |mut oldIssue| {
+        let edited = selection::update_issue(args[0], issues, |mut oldIssue| {
           oldIssue.status = newStatus.clone();
           oldIssue
-        };
+        });
         file_manager::write_issues(edited);
         0
       }
