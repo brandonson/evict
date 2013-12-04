@@ -2,6 +2,18 @@
   "author": "Brandon Sanderson",
   "bodyText": "The order of issues currently changes every time an\nissue changes in any way.  They should be ordered in\nsome way, probably newest to oldest.  Possibly with\na cutoff?\n",
   "branch": "master",
+  "events": [
+    [
+      "comment",
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "list now orders issues from newest to oldest.\n",
+        "branch": "list-options",
+        "id": "1382149572157459129",
+        "time": "2013-09-11 2013 at 03:26:09"
+      }
+    ]
+  ],
   "evict-version": "1",
   "id": "1378272368275278886",
   "status": {

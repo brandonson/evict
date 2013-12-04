@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "Now write to appropriate files, need to add support for reading as well.\n",
-  "branch": "single-issue-files",
-  "id": "1382149572174415441",
-  "time": "2013-10-18 2013 at 02:22:11"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Now write to appropriate files, need to add support for reading as well.\n",
+    "branch": "single-issue-files",
+    "id": "1382149572174415441",
+    "time": "2013-10-18 2013 at 02:22:11"
+  }
+]

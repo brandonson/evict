@@ -2,6 +2,7 @@
   "author": "Brandon Sanderson",
   "bodyText": "This will force commands to load configuration if needed,\nbut most commands have no need for the config anyway.\n",
   "branch": "init-update",
+  "events": [],
   "evict-version": "1",
   "id": "1379401096452876412",
   "status": {

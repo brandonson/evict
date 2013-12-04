@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "Documentation added in README.txt.  Uses Github markdown format.\n",
-  "branch": "master",
-  "id": "1382149572158006005",
-  "time": "2013-09-15 2013 at 02:40:58"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Documentation added in README.txt.  Uses Github markdown format.\n",
+    "branch": "master",
+    "id": "1382149572158006005",
+    "time": "2013-09-15 2013 at 02:40:58"
+  }
+]

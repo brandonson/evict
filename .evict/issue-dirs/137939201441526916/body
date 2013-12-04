@@ -2,6 +2,7 @@
   "author": "Brandon Sanderson",
   "bodyText": "Current docs say only to build, install, then run 'evict list'. Needs 'evict sync' before\nthat in order to show any issues.\n",
   "branch": "master",
+  "events": [],
   "evict-version": "1",
   "id": "137939201441526916",
   "status": {

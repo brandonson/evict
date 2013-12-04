@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "list now accepts --id <issue-id>, and prints issues based on\nstandard selection.\n",
-  "branch": "list-options",
-  "id": "1382149572173331172",
-  "time": "2013-09-13 2013 at 15:51:58"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "list now accepts --id <issue-id>, and prints issues based on\nstandard selection.\n",
+    "branch": "list-options",
+    "id": "1382149572173331172",
+    "time": "2013-09-13 2013 at 15:51:58"
+  }
+]

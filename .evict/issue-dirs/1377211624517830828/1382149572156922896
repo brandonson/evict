@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "Now that statuses exist, need to add them to the init command.\n",
-  "branch": "proper-merge",
-  "id": "1382149572156922896",
-  "time": "2013-09-03 2013 at 22:23:25"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Now that statuses exist, need to add them to the init command.\n",
+    "branch": "proper-merge",
+    "id": "1382149572156922896",
+    "time": "2013-09-03 2013 at 22:23:25"
+  }
+]

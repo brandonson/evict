@@ -2,6 +2,18 @@
   "author": "Brandon Sanderson",
   "bodyText": "Docs are now out of date.  They still include merge and sync, which have been deleted,\nand do not document how storage works.\n",
   "branch": "master",
+  "events": [
+    [
+      "tag",
+      {
+        "author": "Brandon Sanderson",
+        "enabled": true,
+        "id": "1386142348601892229",
+        "name": "docs",
+        "time": "2013-12-03 2013 at 23:32:28"
+      }
+    ]
+  ],
   "evict-version": "1",
   "id": "1382259752326296307",
   "status": {

@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "Fixed.  This was a bug in the usage of the new runtime IO,\nin the prompt method (evict/commands/mod.rs)\n",
-  "branch": "master",
-  "id": "1383824319803363916",
-  "time": "2013-11-07 2013 at 03:38:39"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Fixed.  This was a bug in the usage of the new runtime IO,\nin the prompt method (evict/commands/mod.rs)\n",
+    "branch": "master",
+    "id": "1383824319803363916",
+    "time": "2013-11-07 2013 at 03:38:39"
+  }
+]

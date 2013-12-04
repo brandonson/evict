@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "Going to allow arbitrary user-defined states.\n\nNeed to decide what defaults to include for 'evict init',\nif any.\n",
-  "branch": "issue-status",
-  "id": "1382149572156840844",
-  "time": "2013-08-22 2013 at 17:17:57"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Going to allow arbitrary user-defined states.\n\nNeed to decide what defaults to include for 'evict init',\nif any.\n",
+    "branch": "issue-status",
+    "id": "1382149572156840844",
+    "time": "2013-08-22 2013 at 17:17:57"
+  }
+]

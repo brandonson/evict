@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "Now writing with 1 folder = 1 issue, 1 file = 1 comment, + file for issue body.\n",
-  "branch": "single-issue-files",
-  "id": "1382153103991650903",
-  "time": "2013-10-18 2013 at 20:25:03"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Now writing with 1 folder = 1 issue, 1 file = 1 comment, + file for issue body.\n",
+    "branch": "single-issue-files",
+    "id": "1382153103991650903",
+    "time": "2013-10-18 2013 at 20:25:03"
+  }
+]

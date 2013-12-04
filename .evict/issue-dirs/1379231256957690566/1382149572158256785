@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "Now save issues by date, or at least we should.\n",
-  "branch": "issue-ordering",
-  "id": "1382149572158256785",
-  "time": "2013-09-15 2013 at 01:39:25"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "Now save issues by date, or at least we should.\n",
+    "branch": "issue-ordering",
+    "id": "1382149572158256785",
+    "time": "2013-09-15 2013 at 01:39:25"
+  }
+]

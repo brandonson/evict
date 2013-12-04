@@ -1,7 +1,10 @@
-{
-  "author": "Brandon Sanderson",
-  "bodyText": "After some thought, it turns out the issue mentioned above will\nrequire libgit integration to achieve merges.  Therefore, this has been\nreopened.\n",
-  "branch": "master",
-  "id": "1382149572158485386",
-  "time": "2013-09-17 2013 at 00:38:15"
-}
+[
+  "comment",
+  {
+    "author": "Brandon Sanderson",
+    "bodyText": "After some thought, it turns out the issue mentioned above will\nrequire libgit integration to achieve merges.  Therefore, this has been\nreopened.\n",
+    "branch": "master",
+    "id": "1382149572158485386",
+    "time": "2013-09-17 2013 at 00:38:15"
+  }
+]
