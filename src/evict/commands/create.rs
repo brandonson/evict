@@ -93,7 +93,7 @@ pub fn create_issue(args:~[~str]) -> int {
   }
 }
 
-fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~Issue>{
+fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<Issue>{
   let issueOpt = if(bodyFile.is_none()){
                    Some(Issue::new(title, ~"", author))
                  }else{
@@ -117,7 +117,7 @@ fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<~
   }
 }
 
-fn write_issue(issue:~Issue) -> bool{
+fn write_issue(issue:Issue) -> bool{
   let mut committable = file_manager::read_issues();
   committable.push(issue);
   file_manager::write_issues(committable)

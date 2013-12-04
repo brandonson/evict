@@ -18,10 +18,12 @@
  */
 use file_manager;
 use issue;
-use issue::Issue;
+use issue::{Issue,TimelineComment, TimelineTag};
 
 use file_util;
 use std::run;
+use extra::time;
+use extra::treemap::TreeMap;
 use fsm;
 use selection;
 use date_sort;
@@ -96,7 +98,7 @@ fn get_id(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   fsm::ChangeState(std_handler, flags)
 }
 
-fn print_issue_vec(issues:~[~Issue], flags:&Flags) -> ~str{
+fn print_issue_vec(issues:~[Issue], flags:&Flags) -> ~str{
   let dateSorted = date_sort::sort_by_time(issues);
   let mut resultStr = ~"";
   //reverse because they're sorted in ascending order
@@ -104,7 +106,7 @@ fn print_issue_vec(issues:~[~Issue], flags:&Flags) -> ~str{
   for issue in dateSorted.rev_iter() {
     if (flags.statuses.len() == 0 ||
         flags.statuses.contains(&issue.status.name)){
-      resultStr = print_issue(*issue, flags, resultStr);
+      resultStr = print_issue(issue, flags, resultStr);
     }
   }
   resultStr
@@ -123,19 +125,52 @@ fn print_issue(issue:&Issue, flags:&Flags, mut resultStr:~str) -> ~str {
       resultStr.push_strln(issue.bodyText);
     }
     if(!flags.noComments){
-      if(issue.comments.len() == 0){
-        resultStr.push_strln("    No comments on this issue.");
+      if(issue.events.len() == 0){
+        resultStr.push_strln("    Nothing here for this issue.");
       }else{
-        for comment in issue.comments.iter() {
-          resultStr.push_strln(format!("  \x1b[32m{} on {}\x1b[0m",
-                           comment.author, 
-                           comment.creationTime.strftime(issue::TIME_FORMAT)));
-	  resultStr.push_strln(format!("  For branch {}", comment.branch));
-          for line in comment.bodyText.lines() {
-            resultStr.push_strln(~"    " + line);
-	  }
-          resultStr.push_strln("");
+        //the string for all comment info
+        let mut commentsStr = ~"";
+        //the tags for this comment
+        let mut tagMap:TreeMap<~str, time::Tm> = TreeMap::new();
+        for evt in issue.events.iter() {
+          match evt {
+            &TimelineComment(ref comment) => {
+              commentsStr.push_strln(format!("  \x1b[32m{} on {}\x1b[0m",
+                               comment.author, 
+                               comment.creationTime.strftime(issue::TIME_FORMAT)));
+	      commentsStr.push_strln(format!("  For branch {}", comment.branch));
+              for line in comment.bodyText.lines() {
+                commentsStr.push_strln(~"    " + line);
+	      }
+              commentsStr.push_strln("");
+            }
+            &TimelineTag(ref tag) => {
+              if(tag.enabled){
+                tagMap.insert(tag.tagName.clone(), tag.time.clone());
+              }else{
+                tagMap.remove(&tag.tagName);
+              }
+            }
+          }
         }
+        let mut tagStr = ~"";
+        if(tagMap.len() == 0){
+          tagStr.push_str("  No tags for this issue");
+        }else {
+          tagStr.push_str("  Tags: ");
+          let mut isStart = true;
+          let tagMap = tagMap; //freeze to allow iteration
+          for (tagname,_) in tagMap.iter() {
+            if(!isStart){
+              tagStr.push_str(", "); 
+              isStart = true;
+            }
+            tagStr.push_str(*tagname);
+          }
+        }
+
+        resultStr.push_strln(tagStr);
+        resultStr.push_strln(commentsStr);
       }
     }
   }

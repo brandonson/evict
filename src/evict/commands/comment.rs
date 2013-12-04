@@ -17,7 +17,7 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use fsm;
-use issue::{Issue,IssueComment};
+use issue::{Issue,IssueComment,TimelineComment};
 use file_manager;
 use file_util;
 use commands;
@@ -59,7 +59,7 @@ pub fn new_comment(args:~[~str]) -> int{
   }
 }
 
-fn comment_on_matching(matching:~Issue) -> ~Issue {
+fn comment_on_matching(matching:Issue) -> Issue {
   let author = commands::get_author();
   let filename = format!("COMMENT_ON_{}",matching.id);
   let edited = commands::edit_file(filename);
@@ -73,21 +73,22 @@ fn comment_on_matching(matching:~Issue) -> ~Issue {
       println("Could not read comment body from file");
       matching
     }else{
-      let newComment = IssueComment::new(author, text.unwrap());
-      let mut newComments = matching.comments.clone();
-      newComments.push(newComment);
-      let newIssue = ~Issue{comments:newComments,
-                            .. *matching};
+      let newComment = TimelineComment(IssueComment::new(author, text.unwrap()));
+      let mut newEvents = matching.events.clone();
+      newEvents.push(newComment);
+      let newIssue = Issue{events:newEvents,
+                            .. matching};
       newIssue
     }
   }
 }
 
-fn process_new_issue(allIssues:~[~Issue], newIssue:~Issue) -> int {
+fn process_new_issue(allIssues:~[Issue], newIssue:Issue) -> int {
   let allIssuesLen = allIssues.len();
-  let mut newIssues:~[~Issue] = allIssues.move_iter().filter(
+  let mut newIssues:~[Issue] = allIssues.move_iter().filter(
                                                      |issue| {issue.id != newIssue.id})
                                            .collect();
+  //We really don't want to replace multiple issues
   assert!(newIssues.len() == allIssuesLen - 1);
   
   newIssues.push(newIssue);

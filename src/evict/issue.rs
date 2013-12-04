@@ -29,11 +29,14 @@ pub static AUTHOR_KEY:&'static str = "author";
 pub static TITLE_KEY:&'static str = "title";
 pub static ID_KEY:&'static str = "id";
 pub static VERSION_KEY:&'static str = "evict-version";
-pub static COMMENTS_KEY:&'static str = "comments";
+pub static I_EVENT_KEY:&'static str = "events";
 pub static BRANCH_KEY:&'static str = "branch";
 pub static STATE_KEY:&'static str = "status";
 pub static NAME_KEY:&'static str = "name";
-#[deriving(Clone)]
+pub static ENABLED_KEY:&'static str = "enabled";
+pub static TIMELINE_EVT_KEY:&'static str = "t-evt-type";
+
+#[deriving(Clone, Eq)]
 pub struct IssueComment{
   creationTime: time::Tm,
   author:~str,
@@ -41,11 +44,28 @@ pub struct IssueComment{
   branch:~str,
   id:~str
 }
+
+#[deriving(Clone, Eq)]
+pub struct IssueTag{
+  time: time::Tm,
+  tagName: ~str,
+  enabled: bool,
+  author: ~str,
+  changeId: ~str
+}
+
+#[deriving(Clone, Eq)]
+pub enum IssueTimelineEvent{
+  TimelineComment(IssueComment),
+  TimelineTag(IssueTag)
+}
+
 #[deriving(Clone, Eq)]
 pub struct IssueStatus{
   name:~str,
   lastChangeTime: time::Tm
 }
+
 #[deriving(Clone)]
 pub struct Issue{
   title:~str,
@@ -54,17 +74,11 @@ pub struct Issue{
 
   bodyText:~str,
   id:~str,
-  comments:~[~IssueComment],
+  events:~[IssueTimelineEvent],
   branch:~str,
-  status:~IssueStatus
+  status:IssueStatus
 }
 
-impl Eq for IssueComment{
-  fn eq(&self, other:&IssueComment) -> bool {
-    return self.author == other.author
-           && self.bodyText == other.bodyText;
-  }
-}
 
 impl Eq for Issue{
   fn eq(&self, other:&Issue) -> bool {
@@ -90,8 +104,36 @@ fn get_string_for_key(map:&json::Object, key:&str) -> Option<~str>{
 
 impl Issue{
 
-  pub fn add_comment(&mut self, comment:~IssueComment) {
-    self.comments.push(comment)
+  pub fn add_comment(&mut self, comment:IssueComment) {
+    self.events.push(TimelineComment(comment))
+  }
+  
+  pub fn add_tag(&mut self, tag:IssueTag) {
+    self.events.push(TimelineTag(tag))
+  }
+
+  pub fn most_recent_tag_for_name<'x>(&'x self, name:&str) -> Option<&'x IssueTag> {
+    let mut recent:Option<&'x IssueTag> = None;
+    for evt in self.events.iter(){
+      match evt {
+        &TimelineTag(ref tag) => {
+          if(tag.tagName.as_slice() == name){
+            if(recent.is_none()){
+              recent = Some(tag);
+            }else{
+              let oldTag = recent.take_unwrap();
+              if(oldTag.time.to_timespec() < tag.time.to_timespec()){
+                recent = Some(tag);
+              }else{
+                recent = Some(oldTag);
+              }
+            }
+          }
+        }
+        _ => {}
+      }
+    }
+    recent
   }
 
   pub fn to_json(&self) -> json::Json {
@@ -103,7 +145,7 @@ impl Issue{
                json::String(time::strftime(TIME_FORMAT, &self.creationTime)));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
-    map.insert(COMMENTS_KEY.to_owned(), json::List(self.comments.map (|c| {c.to_json()})));
+    map.insert(I_EVENT_KEY.to_owned(), json::List(self.events.map (|c| {c.to_json()})));
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
     map.insert(STATE_KEY.to_owned(), self.status.to_json());
     json::Object(map)
@@ -118,19 +160,20 @@ impl Issue{
                json::String(time::strftime(TIME_FORMAT, &self.creationTime)));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
+    map.insert(I_EVENT_KEY.to_owned(), json::List(self.events.map (|c| {c.to_json()})));
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
     map.insert(STATE_KEY.to_owned(), self.status.to_json());
     json::Object(map)
   }
 
-  pub fn from_json(json:&json::Json) -> Option<~Issue> {
+  pub fn from_json(json:&json::Json) -> Option<Issue> {
     match json {
-      &json::Object(ref map) => Issue::read_from_map(map.clone()),
+      &json::Object(ref map) => Issue::read_from_map(*map),
       _ => None
     }
   }
 
-  fn read_from_map(map:~json::Object) -> Option<~Issue>{
+  fn read_from_map(map:&json::Object) -> Option<Issue>{
     let versionOpt = get_string_for_key(map, VERSION_KEY);
     let version:int = if(versionOpt.is_none()){
                     fail!("No version on json for an issue.");
@@ -148,8 +191,8 @@ impl Issue{
 	    branchOpt.and_then (|branch| {
               let idOpt = get_string_for_key(map, ID_KEY);
               idOpt.and_then (|id| {
-                let comments = map.find(&COMMENTS_KEY.to_owned()).map_default(~[],
-                                                                      Issue::load_comments);
+                let events = map.find(&I_EVENT_KEY.to_owned()).map_default(~[],
+                                                                      Issue::load_events);
 		let status = map.find(&STATE_KEY.to_owned())
                                   .map_default(IssueStatus::default(), |json| {
 		  IssueStatus::from_json(json)
@@ -158,11 +201,11 @@ impl Issue{
                 timeOpt.and_then (|time| {
                   let timeResult = time::strptime(time,TIME_FORMAT);
                   match timeResult {
-                    Ok(tm) => Some(~Issue{title:title.clone(), bodyText:body.clone(), 
+                    Ok(tm) => Some(Issue{title:title.clone(), bodyText:body.clone(), 
                                         author:author.clone(), 
                                         creationTime:tm, id:id.clone(),
-                                        comments:comments.clone(),
-                                        branch:branch.clone(), status:~status.clone()}),
+                                        events:events.clone(),
+                                        branch:branch.clone(), status:status.clone()}),
                     Err(_) => None
                   }
                 })
@@ -176,35 +219,98 @@ impl Issue{
     }
   }
 
-  fn load_comments(json:&json::Json) -> ~[~IssueComment] {
+  fn load_events(json:&json::Json) -> ~[IssueTimelineEvent] {
     match *json {
       json::List(ref list) => {
-	                         let commentJsonOpts = list.clone();
-                                 let mut commentJson = commentJsonOpts.map(
-                                                                   IssueComment::from_json);
-                                 commentJson.retain(|comment| {comment.is_some()});
-                                 commentJson.map(|comment| {comment.clone().unwrap()})
-                               }
+        let eventJsonOpts = list.clone();
+        let mut eventJson = eventJsonOpts.map(IssueTimelineEvent::from_json);
+        eventJson.retain(|e| {e.is_some()});
+        eventJson.map(|e| {e.clone().unwrap()})
+      }
       _ => ~[]
     }
   }
 
-  pub fn new(title:~str, body:~str, author:~str) -> ~Issue{
+  pub fn new(title:~str, body:~str, author:~str) -> Issue{
     let branch = vcs_status::current_branch().unwrap_or(~"<unknown>");
-    ~Issue{title:title,
+    Issue{title:title,
            bodyText:body,
            author:author,
            id:generate_id(),
            creationTime:time::now(),
-           comments:~[],
+           events:~[],
            branch:branch,
-           status:~IssueStatus::default()}
+           status:IssueStatus::default()}
   }
 
 }
 
-impl IssueComment{
-  pub fn to_json(&self) -> json::Json {
+impl json::ToJson for IssueTag{
+  fn to_json(&self) -> json::Json {
+    let mut map:~json::Object = ~treemap::TreeMap::new();
+    map.insert(TIME_KEY.to_owned(), json_time(&self.time));
+    map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
+    map.insert(NAME_KEY.to_owned(), json::String(self.tagName.to_owned()));
+    map.insert(ENABLED_KEY.to_owned(), json::Boolean(self.enabled));
+    map.insert(ID_KEY.to_owned(), json::String(self.changeId.to_owned()));
+    json::Object(map)
+  }
+}
+
+impl IssueTag{
+  pub fn from_json(json:&json::Json) -> Option<IssueTag> {
+    match json {
+      &json::Object(ref map) => IssueTag::read_from_map(*map),
+      _ => None
+    }
+  }
+  
+  fn read_from_map(map:&json::Object) -> Option<IssueTag> {
+    let nameOpt = get_string_for_key(map, NAME_KEY);
+    nameOpt.and_then(|tname| {
+      let authorOpt = get_string_for_key(map, AUTHOR_KEY);
+      authorOpt.and_then(|author| {
+        let enabledOpt = IssueTag::read_enabled(map);
+        enabledOpt.and_then(|enabled| {
+          let idOpt = get_string_for_key(map, ID_KEY);
+          idOpt.and_then(|id| {
+            let timeOpt = get_string_for_key(map, TIME_KEY);
+            timeOpt.and_then(|timeStr| {
+              let timeResult = time::strptime(timeStr, TIME_FORMAT);
+              match timeResult {
+                Ok(time) => 
+                  Some(IssueTag{time:time,
+                                author:author.to_owned(),
+                                enabled:enabled,
+                                changeId:id.to_owned(),
+                                tagName:tname.to_owned()}),
+                _ => None
+              }
+            })
+          })
+        })
+      })
+    })
+  }
+  
+  fn read_enabled(map:&json::Object) -> Option<bool> {
+    let eOpt = map.find(&ENABLED_KEY.to_owned());
+    eOpt.and_then(|json| {
+      match json {
+        &json::Boolean(b) => Some(b),
+        _ => None
+      }
+    })
+  }
+
+  pub fn new(name:~str, author:~str, enabled:bool) -> IssueTag{
+    IssueTag{time:time::now(), author:author, enabled:enabled,
+             tagName:name, changeId:generate_id()}
+  }
+}
+
+impl json::ToJson for IssueComment{
+  fn to_json(&self) -> json::Json {
     let mut map:~json::Object = ~treemap::TreeMap::new();
     map.insert(BODY_KEY.to_owned(), json::String(self.bodyText.to_owned()));
     map.insert(TIME_KEY.to_owned(), 
@@ -214,15 +320,17 @@ impl IssueComment{
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
     json::Object(map) 
   }
-  
-  pub fn from_json(json:&json::Json) -> Option<~IssueComment> {
+}
+
+impl IssueComment{
+  pub fn from_json(json:&json::Json) -> Option<IssueComment> {
     match json {
       &json::Object(ref map) => IssueComment::read_from_map(map.clone()),
       _ => None
     }
   }
-
-  fn read_from_map(map:~json::Object) -> Option<~IssueComment> {
+  
+  fn read_from_map(map:~json::Object) -> Option<IssueComment> {
     let bodyOpt = get_string_for_key(map, BODY_KEY);
     bodyOpt.and_then (|body| {
       let authorOpt = get_string_for_key(map, AUTHOR_KEY);
@@ -233,7 +341,7 @@ impl IssueComment{
           timeOpt.and_then (|time| {
             let timeResult = time::strptime(time,TIME_FORMAT);
             match timeResult {
-              Ok(tm) => Some(~IssueComment{bodyText:body.clone(),
+              Ok(tm) => Some(IssueComment{bodyText:body.clone(),
                                     author:author.clone(),
                                     creationTime:tm,
                                     branch:branch.clone(),
@@ -247,10 +355,71 @@ impl IssueComment{
     })
   }
   
-  pub fn new(author:~str, body:~str) -> ~IssueComment{
+  pub fn new(author:~str, body:~str) -> IssueComment{
     let branch = vcs_status::current_branch().unwrap_or(~"<unknown>");
-    ~IssueComment{author:author, bodyText:body, creationTime:time::now(),
+    IssueComment{author:author, bodyText:body, creationTime:time::now(),
                   branch: branch, id:generate_id()}
+  }
+}
+
+impl json::ToJson for IssueTimelineEvent{
+  fn to_json(&self) -> json::Json {
+    let mut data:~[json::Json] = ~[];
+    data.push(json::String(self.event_type()));
+    data.push(self.event_data());
+    json::List(data)
+  }
+}
+
+impl IssueTimelineEvent{
+  pub fn event_type(&self) -> ~str {
+    match self {
+      &TimelineComment(_) => ~"comment",
+      &TimelineTag(_) => ~"tag"
+    }
+  }
+
+  pub fn event_data(&self) -> json::Json {
+    match self {
+      &TimelineComment(ref comment) => comment.to_json(),
+      &TimelineTag(ref tag) => tag.to_json()
+    }
+  }
+
+  pub fn from_json(json:&json::Json) -> Option<IssueTimelineEvent> {
+    match json {
+      &json::List(ref jlist) => {
+        if(jlist.len() != 2){
+          None
+        }else{
+          match jlist[0] {
+            json::String(~"comment") => IssueComment::from_json(&jlist[1])
+                                                    .map(|x| TimelineComment(x)),
+            json::String(~"tag") => IssueTag::from_json(&jlist[1])
+                                            .map(|x| TimelineTag(x)),
+            _ => None
+          }
+        }
+      }
+      otherJson => {
+        //really old versions had comments only and did not use list format
+        IssueComment::from_json(otherJson).map(|x| TimelineComment(x))
+      }
+    }
+  }
+
+  pub fn time<'x>(&'x self) -> &'x time::Tm {
+    match self {
+      &TimelineComment(ref comment) => &comment.creationTime,
+      &TimelineTag(ref tag) => &tag.time
+    }
+  }
+
+  pub fn id<'x>(&'x self) -> &'x str {
+    match self {
+      &TimelineComment(ref comment) => comment.id.as_slice(),
+      &TimelineTag(ref tag) => tag.changeId.as_slice()
+    }
   }
 }
 
@@ -258,11 +427,11 @@ impl json::ToJson for IssueStatus{
   fn to_json(&self) -> json::Json {
     let mut map:~treemap::TreeMap<~str, json::Json> = ~treemap::TreeMap::new();
     map.insert(NAME_KEY.to_owned(), self.name.to_json());
-    map.insert(TIME_KEY.to_owned(), 
-               json::String(time::strftime(TIME_FORMAT, &self.lastChangeTime)));
+    map.insert(TIME_KEY.to_owned(), json_time(&self.lastChangeTime));
     json::Object(map)
   }
 }
+
 impl IssueStatus{
   pub fn from_json(json:&json::Json) -> IssueStatus {
     match json {
@@ -289,6 +458,10 @@ impl IssueStatus{
 pub fn generate_id() -> ~str {
   let cTime = time::get_time();
   cTime.sec.to_str() + cTime.nsec.to_str()
+}
+
+fn json_time(time:&time::Tm) -> json::Json {
+  json::String(time::strftime(TIME_FORMAT, time))
 }
 
 #[test]

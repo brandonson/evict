@@ -57,7 +57,7 @@ fn exec_delete(idPart:~str) -> int{
   }else if(matching.len() == 1){
     let issueCount = issues.len();
 
-    let mut remaining:~[~Issue] = ~[];
+    let mut remaining:~[Issue] = ~[];
     for issue in issues.move_iter() {
        if(issue != matching[0]){
          remaining.push(issue);

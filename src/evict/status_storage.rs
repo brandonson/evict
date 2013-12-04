@@ -31,8 +31,8 @@ pub struct StatusOption{
 }
 
 impl StatusOption{
-  pub fn make_status(&self) -> ~IssueStatus {
-    ~IssueStatus::new(self.name.to_owned())
+  pub fn make_status(&self) -> IssueStatus {
+    IssueStatus::new(self.name.to_owned())
   }
 }
 

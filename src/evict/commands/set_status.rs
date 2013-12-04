@@ -44,7 +44,7 @@ pub fn set_status(args:~[~str]) -> int {
   }
 }
 
-fn resolve_new_status(statusIdent:&str) -> Option<~IssueStatus> {
+fn resolve_new_status(statusIdent:&str) -> Option<IssueStatus> {
   let search = status_storage::read_status_options();
   match from_str::<uint>(statusIdent) {
     Some(index) => if(search.len() > index) {Some(search[index])} else {None},

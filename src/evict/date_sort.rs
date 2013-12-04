@@ -16,34 +16,38 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use issue::{Issue,IssueComment};
+use issue::{Issue, IssueTimelineEvent};
+use issue::{TimelineComment, TimelineTag};
 use extra::sort;
 use extra::time;
 use std::util::swap;
 
 priv enum TimeSorted{
-  TimeSortedIssue(~Issue),
-  TimeSortedComment(~IssueComment)
+  TimeSortedIssue(Issue),
+  TimeSortedEvent(IssueTimelineEvent)
 }
 
 impl TimeSorted{
   fn creation<'x>(&'x self) -> &'x time::Tm {
     match self {
       &TimeSortedIssue(ref issue) => &issue.creationTime,
-      &TimeSortedComment(ref comment) => &comment.creationTime
+      &TimeSortedEvent(ref evt) => match evt {
+        &TimelineComment(ref comment) => &comment.creationTime,
+        &TimelineTag(ref tag) => &tag.time
+      }
     }
   }
   
-  fn unwrap_to_issue(self) -> ~Issue {
+  fn unwrap_to_issue(self) -> Issue {
     match self {
       TimeSortedIssue(i) => i,
       _ => fail!("Tried to get issue from something that wasn't a TimeSortedIssue")
     }
   }
 
-  fn unwrap_to_comment(self) -> ~IssueComment{
+  fn unwrap_to_event(self) -> IssueTimelineEvent{
     match self {
-      TimeSortedComment(c) => c,
+      TimeSortedEvent(e) => e,
       _ => fail!("Tried to get comment from something that wasn't a TimeSortedComment")
     }
   }
@@ -65,22 +69,22 @@ fn sort_le(a:&TimeSorted, b:&TimeSorted) -> bool {
   a.le(b)
 }
 
-pub fn sort_by_time(issues:~[~Issue]) -> ~[~Issue]{
+pub fn sort_by_time(issues:~[Issue]) -> ~[Issue]{
   let mut wrapped:~[TimeSorted] = 
                              issues.move_iter().map(|x| TimeSortedIssue(x)).collect();
 
   sort::quick_sort(wrapped, sort_le);
   
-  let mut sorted:~[~Issue] = wrapped.move_iter().map(|x| x.unwrap_to_issue()).collect();
+  let mut sorted:~[Issue] = wrapped.move_iter().map(|x| x.unwrap_to_issue()).collect();
   
   for x in sorted.mut_iter() {
-    let mut comments:~[~IssueComment] = ~[];
-    swap(&mut comments, &mut x.comments);
+    let mut events:~[IssueTimelineEvent] = ~[];
+    swap(&mut events, &mut x.events);
     
-    let mut wrappedComments:~[TimeSorted] = comments.move_iter().map(|x| TimeSortedComment(x)).collect();
+    let mut wrappedComments:~[TimeSorted] = events.move_iter().map(|x| TimeSortedEvent(x)).collect();
     sort::quick_sort(wrappedComments, sort_le);
-    comments = wrappedComments.move_iter().map(|x| x.unwrap_to_comment()).collect();
-    swap(&mut comments, &mut x.comments);
+    events = wrappedComments.move_iter().map(|x| x.unwrap_to_event()).collect();
+    swap(&mut events, &mut x.events);
   }
   sorted
 }

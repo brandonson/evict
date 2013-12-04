@@ -17,10 +17,12 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use extra;
-use issue::{Issue, IssueComment};
+use issue::{Issue, IssueTimelineEvent};
 use file_util;
 use std::option::IntoOption;
 use std::io;
+use extra::json::ToJson;
+
 #[cfg(not(test))]
 pub static EVICT_DIRECTORY:&'static str = ".evict";
 #[cfg(test)]
@@ -46,14 +48,14 @@ pub fn single_issue_filename(issue:&Issue) -> ~str {
   format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id)
 }
 
-pub fn write_issues(issues:&[~Issue]) -> bool {
+pub fn write_issues(issues:&[Issue]) -> bool {
   write_issues_to_file(issues)
 }
 
-pub fn write_issues_to_file(issues:&[~Issue]) -> bool {
+pub fn write_issues_to_file(issues:&[Issue]) -> bool {
   let mut allSuccess = true;
   for i in issues.iter() {
-    allSuccess = allSuccess && write_single_issue(*i);
+    allSuccess = allSuccess && write_single_issue(i);
   }
   allSuccess
 }
@@ -61,8 +63,8 @@ pub fn write_issues_to_file(issues:&[~Issue]) -> bool {
 fn write_single_issue(issue:&Issue) -> bool {
   file_util::create_directory(single_issue_filename(issue));
   let mut allSuccess = write_issue_body(issue);
-  for comment in issue.comments.iter() {
-    allSuccess = allSuccess && write_issue_comment(issue.id, *comment);
+  for event in issue.events.iter() {
+    allSuccess = allSuccess && write_issue_event(issue.id, event);
   }
   allSuccess
 }
@@ -77,21 +79,21 @@ fn issue_body_filename(issue:&Issue) -> ~str {
   format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id, BODY_FILENAME)
 }
 
-fn write_issue_comment(issueId:&str, comment:&IssueComment) -> bool{
-  let filename = issue_comment_filename(issueId, comment);
-  let jsonStr = comment.to_json().to_pretty_str();
+fn write_issue_event(issueId:&str, event:&IssueTimelineEvent) -> bool{
+  let filename = issue_event_filename(issueId, event);
+  let jsonStr = event.to_json().to_pretty_str();
   file_util::write_string_to_file(jsonStr, filename, true)
 }
 
-fn issue_comment_filename(issueId:&str, comment:&IssueComment) -> ~str {
-  format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issueId, comment.id)
+fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> ~str {
+  format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issueId, event.id())
 }
 
-pub fn read_issues() -> ~[~Issue] {
+pub fn read_issues() -> ~[Issue] {
   read_issues_from_folders()
 }
 
-fn read_issues_from_folders() -> ~[~Issue] {
+fn read_issues_from_folders() -> ~[Issue] {
   /*! Reads all issues from the folders located in the
    *  folder returned by full_issue_directory.
    *  If a folder/file in the issue directory does not parse
@@ -107,7 +109,7 @@ fn read_issues_from_folders() -> ~[~Issue] {
 }
 
 
-fn read_issue_from_dir(basePath:Path) -> Option<~Issue> {
+fn read_issue_from_dir(basePath:Path) -> Option<Issue> {
   let files = io::fs::readdir(&basePath);
   let bodyPath = Path::init(BODY_FILENAME);
   let issueBodyPath = basePath.join(bodyPath);
@@ -116,13 +118,13 @@ fn read_issue_from_dir(basePath:Path) -> Option<~Issue> {
                                  .collect();
   let bodyIssue = read_issue_body(issueBodyPath);
   bodyIssue.map (|mut bIssue| {
-    let comments = read_issue_comments(noBodyFiles);
-    bIssue.comments = comments;
+    let events = read_issue_events(noBodyFiles);
+    bIssue.events = events;
     bIssue
   })
 }
 
-fn read_issue_body(bodyPath:Path) -> Option<~Issue> {
+fn read_issue_body(bodyPath:Path) -> Option<Issue> {
   /*! Reads an issue from a file, except for the comments, which are stored
    *  separately from other data.
    */
@@ -134,16 +136,16 @@ fn read_issue_body(bodyPath:Path) -> Option<~Issue> {
   })
 }
 
-fn read_issue_comments(bodyFiles:&[Path]) -> ~[~IssueComment] {
+fn read_issue_events(bodyFiles:&[Path]) -> ~[IssueTimelineEvent] {
   bodyFiles.iter().filter_map(read_comment).collect()
 }
 
-fn read_comment(commentFile:&Path) -> Option<~IssueComment> {
+fn read_comment(commentFile:&Path) -> Option<IssueTimelineEvent> {
   let dataStrOpt = file_util::read_string_from_path(commentFile);
   dataStrOpt.and_then(|dataStr| {
     extra::json::from_str(dataStr).into_option()
   }).and_then(|jsonVal| {
-    IssueComment::from_json(&jsonVal)
+    IssueTimelineEvent::from_json(&jsonVal)
   })
 }
 

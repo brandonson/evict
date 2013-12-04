@@ -18,8 +18,8 @@
  */
 use issue::Issue;
 
-pub fn find_matching_issues(idEndPart:&str, searchIn:&[~Issue]) -> ~[~Issue] {
-  let mut matching:~[~Issue] = ~[];
+pub fn find_matching_issues(idEndPart:&str, searchIn:&[Issue]) -> ~[Issue] {
+  let mut matching:~[Issue] = ~[];
   for issue in searchIn.iter() {
     if issue.id.ends_with(idEndPart) {
       matching.push(issue.clone());
@@ -28,8 +28,8 @@ pub fn find_matching_issues(idEndPart:&str, searchIn:&[~Issue]) -> ~[~Issue] {
   matching
 }
 
-pub fn update_issue(idEndPart:&str, searchIn:~[~Issue],update:|~Issue| -> ~Issue)
-  -> ~[~Issue] {
+pub fn update_issue(idEndPart:&str, searchIn:~[Issue], update:|Issue| -> Issue)
+  -> ~[Issue] {
   let matching  = find_matching_issues(idEndPart, searchIn);
   if(matching.len() != 1){
     println("Found 0 or >1 matching issues:");
@@ -38,7 +38,7 @@ pub fn update_issue(idEndPart:&str, searchIn:~[~Issue],update:|~Issue| -> ~Issue
     }
     searchIn
   }else{
-    let mut filtered:~[~Issue] = searchIn.move_iter()
+    let mut filtered:~[Issue] = searchIn.move_iter()
                                          .filter(|x| x.id != matching[0].id)
                                          .collect();
     filtered.push(update(matching[0]));

@@ -32,6 +32,7 @@ mod new_status;
 mod default_author;
 mod set_status;
 mod default_status;
+mod tag;
 
 /* A command takes a list of argument strings,
  * performs some action, then returns an
@@ -64,6 +65,8 @@ pub fn standard_commands() -> ~std::container::Map<~str, Command> {
   hmap.insert(~"default-author", default_author::default_author);
   hmap.insert(~"set-status", set_status::set_status);
   hmap.insert(~"default-status", default_status::default_status);
+  hmap.insert(~"tag", tag::tag);
+  hmap.insert(~"untag", tag::untag);
   hmap as ~std::container::Map<~str, Command>
 }
 

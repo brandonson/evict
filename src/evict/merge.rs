@@ -17,10 +17,10 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std::hashmap::HashMap;
-use issue::{Issue,IssueComment};
+use issue::{Issue,IssueTimelineEvent};
 
-pub fn merge_issues(incoming:~[~Issue],mergeInto:~[~Issue]) -> ~[~Issue] {
-  let mut identMap:HashMap<~str, (Option<~Issue>, Option<~Issue>)> = HashMap::new();
+pub fn merge_issues(incoming:~[Issue],mergeInto:~[Issue]) -> ~[Issue] {
+  let mut identMap:HashMap<~str, (Option<Issue>, Option<Issue>)> = HashMap::new();
   for issue in incoming.move_iter() {
     identMap.insert(issue.id.to_owned(), (Some(issue), None));
   }
@@ -30,7 +30,7 @@ pub fn merge_issues(incoming:~[~Issue],mergeInto:~[~Issue]) -> ~[~Issue] {
       None => identMap.insert(issue.id.to_owned(), (None, Some(issue)))
     };
   }
-  let mut merged:~[~Issue] = ~[];
+  let mut merged:~[Issue] = ~[];
   merged.reserve(identMap.len());
 
   for (_, value) in identMap.move_iter() {
@@ -39,13 +39,13 @@ pub fn merge_issues(incoming:~[~Issue],mergeInto:~[~Issue]) -> ~[~Issue] {
   merged
 }
 
-fn merge_pair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
+fn merge_pair(issues:(Option<Issue>, Option<Issue>)) -> Issue {
   let (incomingOpt, mergeIntoOpt) = issues;
   if(incomingOpt.is_some() && mergeIntoOpt.is_some()){
     let incoming = incomingOpt.unwrap();
     let mergeInto = mergeIntoOpt.unwrap();
-    let new_comments = merge_comments(incoming.comments.clone(), 
-                                    mergeInto.comments.clone());
+    let new_events = merge_events(incoming.events.clone(), 
+                                  mergeInto.events.clone());
 
     let status = if(incoming.status.lastChangeTime.to_timespec()
                      .gt(&mergeInto.status.lastChangeTime.to_timespec())){
@@ -53,7 +53,7 @@ fn merge_pair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
                  } else {
                       mergeInto.status.clone()
                  };
-    ~Issue{comments:new_comments, status:status, .. *incoming}
+    Issue{events:new_events, status:status, .. incoming}
   }else if(incomingOpt.is_some()){
     incomingOpt.unwrap()
   }else{
@@ -61,11 +61,12 @@ fn merge_pair(issues:(Option<~Issue>, Option<~Issue>)) -> ~Issue {
   }
 }
 
-fn merge_comments(incoming:~[~IssueComment], mergeInto:~[~IssueComment]) -> ~[~IssueComment] {
+fn merge_events(incoming:~[IssueTimelineEvent],
+                  mergeInto:~[IssueTimelineEvent]) -> ~[IssueTimelineEvent] {
   let mut joined = incoming + mergeInto;
-  let mut merged:~[~IssueComment] = ~[];
+  let mut merged:~[IssueTimelineEvent] = ~[];
   while(joined.len() > 0) {
-    match joined.iter().min_by(|icomment| icomment.creationTime.to_timespec())
+    match joined.iter().min_by(|ievt| ievt.time().to_timespec())
                        .and_then(|minimum| joined.position_elem(minimum)) {
       Some(pos) => {
         merged.push(joined.swap_remove(pos));
