@@ -24,7 +24,7 @@ use extra::treemap;
 static CONFIG_FILE:&'static str = ".evict/config";
 static AUTHOR_KEY:&'static str = "author";
 
-struct Config{
+pub struct Config{
   author:Option<~str>,
 }
 

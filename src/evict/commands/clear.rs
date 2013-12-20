@@ -22,7 +22,7 @@ use file_manager;
 
 
 pub fn clear_data(_:~[~str]) -> int {
-  let evictPath = &std::path::Path::init(file_manager::EVICT_DIRECTORY);
+  let evictPath = &std::path::Path::new(file_manager::EVICT_DIRECTORY);
   let absolute = std::os::make_absolute(evictPath);
   let res = commands::prompt(
              format!("Really clear everything from {}? [y/n]", 

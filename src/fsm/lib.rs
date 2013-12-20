@@ -1,4 +1,4 @@
-#[link(name = "fsm", package_id = "fsm", vers="0.1", author="Brandon Sanderson")];
+#[crate_id = "fsm#0.1"];
 #[crate_type="lib"];
 pub enum NextState<S,I>{
   ChangeState(Executor<S,I>, S),

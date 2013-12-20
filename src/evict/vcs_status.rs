@@ -23,12 +23,15 @@ enum VCS{
 }
 
 impl VCS {
-  fn current_branch_cmd_output(&self) -> ~str{
+  fn current_branch_cmd_output(&self) -> Option<~str>{
     match self {
-      &Git =>
-        str::from_utf8(run::process_output("git", [~"rev-parse", 
+      &Git => {
+        let output = run::process_output("git", [~"rev-parse", 
                                                     ~"--abbrev-ref", 
-                                                    ~"HEAD"]).output)
+                                                    ~"HEAD"])
+                         .map(|x| x.output);
+        output.map(str::from_utf8_owned)
+      }
     }
   }
 
@@ -39,15 +42,16 @@ impl VCS {
 
 pub fn current_branch() -> Option<~str> {
   let output = VCS::current().current_branch_cmd_output(); 
-  let mut line:~str = ~"";
-  for branch in output.lines_any() {
-    line = branch.to_owned();
-    break;
+  output.and_then(grab_first_line)
+}
+
+fn grab_first_line(grab_from:~str) -> Option<~str> {
+  //'loop' through the lines but just return
+  //the first line we get
+  for first in grab_from.lines_any() {
+    return Some(first.to_owned());
   }
-  if (line == ~"") {
-    None
-  }else{
-    Some(line)
-  }
+  //there were no lines, return None
+  None
 }
 

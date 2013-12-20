@@ -31,14 +31,14 @@ pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool
     let mut success = true;
     io::io_error::cond.trap(|_| {
       success = false;
-    }).inside ( ||io::File::create(&Path::init(filename))
+    }).inside ( ||io::File::create(&Path::new(filename))
                            .write(content.to_owned().into_bytes())
     );
     success
   }
 }
 pub fn read_string_from_file(filename:&str) -> Option<~str> {
-  read_string_from_path(&Path::init(filename)) 
+  read_string_from_path(&Path::new(filename)) 
 }
 
 pub fn read_string_from_path(path:&Path) -> Option<~str> {
@@ -49,12 +49,12 @@ pub fn read_string_from_path(path:&Path) -> Option<~str> {
   if(error){
     None
   } else {
-    Some(str::from_utf8(u8bytes))
+    Some(str::from_utf8_owned(u8bytes))
   } 
 }
 
 pub fn file_exists(name:&str) -> bool {
-  Path::init(name).exists()
+  Path::new(name).exists()
 }
 
 pub fn create_empty(name:&str) -> bool{
@@ -62,7 +62,7 @@ pub fn create_empty(name:&str) -> bool{
 }
 
 pub fn create_directory(name:&str) -> bool {
-  create_directory_path(&Path::init(name))
+  create_directory_path(&Path::new(name))
 }
 
 pub fn create_directory_path(p:&Path) -> bool {
@@ -73,7 +73,7 @@ pub fn create_directory_path(p:&Path) -> bool {
 
 pub fn delete_file(name:&str) -> bool{
   io_to_success( ||
-    io::fs::unlink(&Path::init(name))
+    io::fs::unlink(&Path::new(name))
   )
 }
 

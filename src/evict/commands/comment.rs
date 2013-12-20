@@ -83,20 +83,3 @@ fn comment_on_matching(matching:Issue) -> Issue {
   }
 }
 
-fn process_new_issue(allIssues:~[Issue], newIssue:Issue) -> int {
-  let allIssuesLen = allIssues.len();
-  let mut newIssues:~[Issue] = allIssues.move_iter().filter(
-                                                     |issue| {issue.id != newIssue.id})
-                                           .collect();
-  //We really don't want to replace multiple issues
-  assert!(newIssues.len() == allIssuesLen - 1);
-  
-  newIssues.push(newIssue);
-  
-  let success = file_manager::write_issues(newIssues);
-  if(success){
-    0
-  }else{
-    7
-  }
-}

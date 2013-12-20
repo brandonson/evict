@@ -1,0 +1,25 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "We don't name variables according to rust conventions, and this should get\nfixed (along with some other things).\n\n",
+  "branch": "master",
+  "events": [
+    [
+      "tag",
+      {
+        "author": "Brandon Sanderson",
+        "enabled": true,
+        "id": "1387512562788231221",
+        "name": "conventions",
+        "time": "2013-12-19 2013 at 20:09:22"
+      }
+    ]
+  ],
+  "evict-version": "1",
+  "id": "1387512496686356667",
+  "status": {
+    "name": "open",
+    "time": "2013-12-19 2013 at 20:08:16"
+  },
+  "time": "2013-12-19 2013 at 20:08:16",
+  "title": "Start using coding conventions for rust"
+}

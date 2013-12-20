@@ -19,7 +19,6 @@
 use extra;
 use issue::{Issue, IssueTimelineEvent};
 use file_util;
-use std::option::IntoOption;
 use std::io;
 use extra::json::ToJson;
 
@@ -32,17 +31,11 @@ static ISSUE_DIRECTORY:&'static str = "issue-dirs";
 
 static BODY_FILENAME:&'static str = "body";
 
-static EXTENSION:&'static str = ".ebtd";
-
-static LOCAL_EXT:&'static str = ".ebtdlocal";
-
-static ACTIVE_ISSUE_FILENAME_PART:&'static str = "issues";
-
 pub fn issue_directory() -> ~str {format!("{}/{}",
                                           EVICT_DIRECTORY,
                                           ISSUE_DIRECTORY)}
 
-pub fn issue_directory_path() -> Path {Path::init(issue_directory())}
+pub fn issue_directory_path() -> Path {Path::new(issue_directory())}
 
 pub fn single_issue_filename(issue:&Issue) -> ~str {
   format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id)
@@ -111,7 +104,7 @@ fn read_issues_from_folders() -> ~[Issue] {
 
 fn read_issue_from_dir(basePath:Path) -> Option<Issue> {
   let files = io::fs::readdir(&basePath);
-  let bodyPath = Path::init(BODY_FILENAME);
+  let bodyPath = Path::new(BODY_FILENAME);
   let issueBodyPath = basePath.join(bodyPath);
   let noBodyFiles:~[Path] = files.move_iter()
                                  .filter(|x| x != &issueBodyPath)
@@ -130,7 +123,7 @@ fn read_issue_body(bodyPath:Path) -> Option<Issue> {
    */
   let dataStrOpt = file_util::read_string_from_path(&bodyPath);
   dataStrOpt.and_then(|dataStr| {
-     extra::json::from_str(dataStr).into_option()
+     extra::json::from_str(dataStr).ok()
   }).and_then(|jsonVal| {
     Issue::from_json(&jsonVal)
   })
@@ -143,7 +136,7 @@ fn read_issue_events(bodyFiles:&[Path]) -> ~[IssueTimelineEvent] {
 fn read_comment(commentFile:&Path) -> Option<IssueTimelineEvent> {
   let dataStrOpt = file_util::read_string_from_path(commentFile);
   dataStrOpt.and_then(|dataStr| {
-    extra::json::from_str(dataStr).into_option()
+    extra::json::from_str(dataStr).ok()
   }).and_then(|jsonVal| {
     IssueTimelineEvent::from_json(&jsonVal)
   })
@@ -151,11 +144,11 @@ fn read_comment(commentFile:&Path) -> Option<IssueTimelineEvent> {
 
 #[test]
 pub fn write_read_issue_file(){
-  file_util::create_directory_path(&Path::init(EVICT_DIRECTORY));
+  file_util::create_directory_path(&Path::new(EVICT_DIRECTORY));
   file_util::create_directory_path(&issue_directory_path());
   let issues = ~[Issue::new(~"A", ~"B", ~"C")];
   write_issues(issues);
   let read = read_issues();
   assert!(issues == read);
-  io::fs::rmdir_recursive(&Path::init(EVICT_DIRECTORY));
+  io::fs::rmdir_recursive(&Path::new(EVICT_DIRECTORY));
 }
