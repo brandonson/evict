@@ -18,7 +18,6 @@
  */
 use issue::{Issue, IssueTimelineEvent};
 use issue::{TimelineComment, TimelineTag};
-use extra::sort;
 use extra::time;
 use std::util::swap;
 
@@ -65,15 +64,21 @@ impl Eq for TimeSorted{
   }
 }
 
-fn sort_le(a:&TimeSorted, b:&TimeSorted) -> bool {
-  a.le(b)
+fn ts_ordering(a:&TimeSorted, b:&TimeSorted) -> Ordering {
+  if a.eq(b) {
+    Equal
+  }else if a.lt(b) {
+    Less
+  }else{
+    Greater
+  }
 }
 
 pub fn sort_by_time(issues:~[Issue]) -> ~[Issue]{
   let mut wrapped:~[TimeSorted] = 
                              issues.move_iter().map(|x| TimeSortedIssue(x)).collect();
 
-  sort::quick_sort(wrapped, sort_le);
+  wrapped.sort_by(ts_ordering);
   
   let mut sorted:~[Issue] = wrapped.move_iter().map(|x| x.unwrap_to_issue()).collect();
   
@@ -82,7 +87,7 @@ pub fn sort_by_time(issues:~[Issue]) -> ~[Issue]{
     swap(&mut events, &mut x.events);
     
     let mut wrappedComments:~[TimeSorted] = events.move_iter().map(|x| TimeSortedEvent(x)).collect();
-    sort::quick_sort(wrappedComments, sort_le);
+    wrappedComments.sort_by(ts_ordering);
     events = wrappedComments.move_iter().map(|x| x.unwrap_to_event()).collect();
     swap(&mut events, &mut x.events);
   }
