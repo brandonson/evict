@@ -191,10 +191,10 @@ impl Issue{
 	    branchOpt.and_then (|branch| {
               let idOpt = get_string_for_key(map, ID_KEY);
               idOpt.and_then (|id| {
-                let events = map.find(&I_EVENT_KEY.to_owned()).map_default(~[],
+                let events = map.find(&I_EVENT_KEY.to_owned()).map_or(~[],
                                                                       Issue::load_events);
 		let status = map.find(&STATE_KEY.to_owned())
-                                  .map_default(IssueStatus::default(), |json| {
+                                  .map_or(IssueStatus::default(), |json| {
 		  IssueStatus::from_json(json)
                 });
                 let timeOpt = get_string_for_key(map, TIME_KEY);
