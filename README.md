@@ -11,10 +11,7 @@ won't break any issues currently being tracked.
 <dt>Features supported by Evict-BT:</dt>
 <dd> Evict-BT repo initialization/de-initialization -- `evict init/clear`</dd>
 <dd> Issue creation -- `evict create`</dd>
-<dd> Issue deletion -- `evict delete` (limited to non-committed issues)</dd>
 <dd> Branch-based issue location</dd>
-<dd> Issue committing -- `evict sync`</dd>
-<dd> Merging across branches -- `evict merge`</dd>
 <dd> Issue authors</dd>
 <dd> Default issue author -- `evict default-author`</dd>
 <dd> Issue listing -- `evict list`</dd>
@@ -23,13 +20,15 @@ won't break any issues currently being tracked.
 <dd> User-defined issue states -- `evict new-status`</dd>
 <dd> Issue commenting -- `evict comment`</dd>
 <dd> List filtering by status</dd>
+<dd> Issue tags -- `evict tag`</dd>
+<dd> Issue statuses</dd>
+<dd> Issue deletion -- `evict delete`</dd>
 
 <dt>Features to be supported:</dt>
-<dd> Default issue statuses for new repos.</dd>
-<dd> Issue status removal</dd>
 <dd> Assigning issues</dd>
-<dd> Issue tags</dd>
 <dd> More filter options for `evict list`</dd>
+<dd> Github integration</dd>
+<dd> Tracking issues within files</dd>
 <dl>
 Installation
 ------------
@@ -47,9 +46,9 @@ only be used if you're familiar with rustpkg, as it is currently limited and has
 bugs.  `rustpkg install evict` will install Evict-BT according to your rustpkg config.
 
 The other, more standard method, is  to use `make`.  Then `make install`, and everything
-should work great.
+should work.
 
-To test your install, run `evict sync` and then `evict list`.  If you get a bunch of output that looks like issues, 
+To test your install, run `evict list`.  If you get a bunch of output that looks like issues, 
 then you've got a working install.  (Evict-BT uses `less` to paginate output, so hit q to terminate
 it)
 
@@ -58,7 +57,7 @@ Commands
 --------
 #### General
 
-All commands will ignore unknown arguments, except the default-xxx commands
+Many commands will ignore unknown arguments, except the default-xxx commands
 which take only 0 or 1 argument.
 
 For commands that take an <issue-id> argument, that argument is the last
@@ -97,9 +96,7 @@ The editor will still be launched, but should already have the desired issue bod
 (Note: `ISSUE_MSG` is deleted each time `evict create` runs)
 
 #### delete
-
-`evict delete <issue-id>` deletes the issue specified by <issue-id>, if that issue
-has not yet been committed.
+`evict delete <issue-id>` will delete an issue.  WARNING: this does not get frequently tested, and may cause git conflicts if not used carefully.
 
 #### list
 
@@ -138,21 +135,14 @@ given must have been created using `evict new-status`.
 
 #### default-status
 
-`evict default-status [status-name]` print the current default status if no [status-name] argument is
+`evict default-status [status-name]` prints the current default status if no [status-name] argument is
 given, and sets the default to [status-name] otherwise.  This is local to the current repo.  [status-name] must
 have been created using `evict new-status`.
 
-#### merge
+#### tag
 
-`evict merge <branch-A> [branch-B]` takes one or two git branches as arguments.  If given a single branch,
-that branch's issues are merged into the current branch's issues.  Otherwise, the first branch's issues
-are merged into the second branch's issues.
+`evict tag <issue-id> <tag>` adds a tag to a single issue. 
 
-#### sync
+#### untag
 
-`evict sync` synchronizes the current branch's issues with those in the git repository.  This should be run before
-every commit and after each pull/merge.  (NOTE: git will likely find conflicts in .evict/issues.ebtd during merges.  These should be
-fixed by running `evict merge` for the incoming branch and then `evict sync`. Be sure to run `evict merge` before `evict sync`, 
-or issues from the incoming branch will be removed from the repositorry.  They can still be re-added by running 
-`evict merge <branch>`, `evict sync`, and then committing to git but this would require an issue-only commit.)
-
+`evict untag <issue-id> <tag>` removes a tag from a single issue
