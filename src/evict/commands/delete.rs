@@ -41,7 +41,7 @@ pub fn delete_issue(args:~[~str]) -> int {
   let finalFlags = stateMachine.move_state();
 
   if(finalFlags.issue.is_none()){
-    println("The id of the issue to delete or an end segment of the id must be provided.");
+    println!("The id of the issue to delete or an end segment of the id must be provided.");
     1
   }else {
     let issueIdPart = finalFlags.issue.unwrap();
@@ -52,7 +52,7 @@ fn exec_delete(idPart:~str) -> int{
   let issues = file_manager::read_issues();
   let matching = selection::find_matching_issues(idPart, issues);
   if(matching.len() == 0){
-    println(format!("No issue matching {} found.", idPart));
+    println!("No issue matching {} found.", idPart);
     4
   }else if(matching.len() == 1){
     let issueCount = issues.len();
@@ -66,12 +66,12 @@ fn exec_delete(idPart:~str) -> int{
     //We really, REALLY don't want to be deleting issues we don't expect to be
     assert!(issueCount - 1 == remaining.len());
     file_manager::write_issues(remaining);
-    println(format!("Issue {} ({}) deleted.", matching[0].id, matching[0].title));
+    println!("Issue {} ({}) deleted.", matching[0].id, matching[0].title);
     0
   }else{
-    println("Multiple matching issues found:");
+    println!("Multiple matching issues found:");
     for issue in matching.iter() {
-      println(format!("{} ({})", issue.id, issue.title));
+      println!("{} ({})", issue.id, issue.title);
     }
     5
   }

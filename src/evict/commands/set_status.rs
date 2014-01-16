@@ -24,9 +24,9 @@ use issue::IssueStatus;
 
 pub fn set_status(args:~[~str]) -> int {
   if(args.len() != 2){
-    println("set-status usage: evict set-status <issue-id> <status>");
-    println("    Where <status> is either the full name of a status");
-    println("    or the index of a status");
+    println!("set-status usage: evict set-status <issue-id> <status>");
+    println!("    Where <status> is either the full name of a status");
+    println!("    or the index of a status");
     1
   }else{
     match resolve_new_status(args[1]) {
@@ -39,7 +39,7 @@ pub fn set_status(args:~[~str]) -> int {
         file_manager::write_issues(edited);
         0
       }
-      None => {println("Given status does not exist"); 2}
+      None => {println!("Given status does not exist"); 2}
     }
   }
 }

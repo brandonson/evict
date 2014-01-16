@@ -21,19 +21,19 @@ use status_storage;
 
 pub fn default_status(args:~[~str]) -> int {
   if(args.len() > 1){
-    println ("default-status usage: evict default-status [new-status]");
+    println! ("default-status usage: evict default-status [new-status]");
     1
   }else{
     if(args.len() == 0){
       let default = status_storage::read_default_status();
-      println(format!("Current default status is: {}", default.name));
+      println!("Current default status is: {}", default.name);
       2
     }else{
       let status = status_storage::StatusOption{name:args[0]};
       match status_storage::write_default_status(&status) {
         Ok(true) => {0}
-        Ok(false) => {println("Could not write to file"); 3}
-        Err(s) => {println(s); 4}
+        Ok(false) => {println!("Could not write to file"); 3}
+        Err(s) => {println!("{}", s); 4}
       }
     }
   }

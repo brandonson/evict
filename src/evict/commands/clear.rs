@@ -36,14 +36,14 @@ pub fn clear_data(_:~[~str]) -> int {
       || std::io::fs::rmdir_recursive(evictPath)
     );
     if(success){
-      println("All Evict-BT info has been cleared");
+      println!("All Evict-BT info has been cleared");
       0
     }else{
-      println("Could not clear info.");
+      println!("Could not clear info.");
       1
     }
   }else{
-    println("Aborting.");
+    println!("Aborting.");
     0
   }
 }

@@ -22,7 +22,7 @@ fn main(){
   let args = std::os::args();
   if(args.len() < 2){
     // < 2 because the first arg is the name of the binary
-    println("No command given");
+    println!("No command given");
   }else{
     let cmd_args = args.tailn(2).to_owned();
     

@@ -31,7 +31,7 @@ pub fn untag(args:~[~str]) -> int {
 
 pub fn tag_cmd(args:~[~str], cmdName:&str, enabledAfter:bool) -> int {
   if(args.len() != 2){
-    println(format!("{} usage: evict {} <issue-id> <tag>", cmdName, cmdName));
+    println!("{} usage: evict {} <issue-id> <tag>", cmdName, cmdName);
     1
   }else{
     let issues = file_manager::read_issues();

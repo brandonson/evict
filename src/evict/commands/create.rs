@@ -86,7 +86,7 @@ pub fn create_issue(args:~[~str]) -> int {
   let created = do_issue_creation(title, author, bodyFile);
   if(editedBodyFile){ file_util::delete_file(DEFAULT_ISSUE_BODY_FILE); };
   if(created.is_some()){
-    println(format!("Issue {} created.", created.unwrap().id)); 
+    println!("Issue {} created.", created.unwrap().id); 
     0
   }else{
     1
@@ -103,7 +103,7 @@ fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<I
 		   )
                  };
   if(issueOpt.is_none()){
-    println("Could not open body file.");
+    println!("Could not open body file.");
     None
   }else{
     let mut issue = issueOpt.unwrap();
@@ -111,7 +111,7 @@ fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<I
     if(write_issue(issue.clone())){
       Some(issue)
     }else{
-      println("Could not write issue to file.");
+      println!("Could not write issue to file.");
       None
     }
   }
