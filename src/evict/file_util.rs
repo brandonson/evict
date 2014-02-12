@@ -23,18 +23,14 @@ use std::io::Reader;
 use std::io::Writer;
 
 pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool {
-  if(!overwrite && file_exists(filename)){
+  if !overwrite && file_exists(filename) {
     false
   }else{
     //successful by default, then set to false
     //if an error is encountered
-    let mut success = true;
-    io::io_error::cond.trap(|_| {
-      success = false;
-    }).inside ( ||io::File::create(&Path::new(filename))
-                           .write(content.to_owned().into_bytes())
-    );
-    success
+    io_to_success(||io::File::create(&Path::new(filename))
+                           .write(content.to_owned().into_bytes()))
+
   }
 }
 pub fn read_string_from_file(filename:&str) -> Option<~str> {
@@ -42,15 +38,10 @@ pub fn read_string_from_file(filename:&str) -> Option<~str> {
 }
 
 pub fn read_string_from_path(path:&Path) -> Option<~str> {
-  let mut error:bool = false;
-  let u8bytes = io::io_error::cond.trap(|_| {
-    error = true;
-  }).inside (||io::File::open(path).read_to_end());
-  if(error){
-    None
-  } else {
-    Some(str::from_utf8_owned(u8bytes))
-  } 
+  match io::File::open(path).read_to_end() {
+    Err(_) => None,
+    Ok(u8bytes) => str::from_utf8_owned(u8bytes)
+  }
 }
 
 pub fn file_exists(name:&str) -> bool {
@@ -77,9 +68,12 @@ pub fn delete_file(name:&str) -> bool{
   )
 }
 
-pub fn io_to_success(ioCall:| |) -> bool {
+pub fn io_to_success(ioCall:| | -> io::IoResult<()>) -> bool {
   let mut success = true;
-  io::io_error::cond.trap(|_| success = false).inside(ioCall);
+  match ioCall() {
+    Err(_) => success = false,
+    Ok(_) => {}
+  }
   success
 }
 

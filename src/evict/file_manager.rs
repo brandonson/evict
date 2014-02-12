@@ -83,6 +83,7 @@ fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> ~str {
 }
 
 pub fn read_issues() -> ~[Issue] {
+  println!("Reading.")
   read_issues_from_folders()
 }
 
@@ -91,14 +92,21 @@ fn read_issues_from_folders() -> ~[Issue] {
    *  folder returned by full_issue_directory.
    *  If a folder/file in the issue directory does not parse
    *  into an issue, it is ignored.
-   */ 
+   */
   let dirPath = issue_directory_path();
-  let issueDirs = io::fs::readdir(&dirPath);
+  let issueDirResult = io::fs::readdir(&dirPath);
+  if issueDirResult.is_err() {
+    println!("No issue directories found.")
+  }
+  let issueDirs = issueDirResult.ok().unwrap_or(~[]);
+  println!("{} issue directories.", issueDirs.len());
   let issueOptions = issueDirs.move_iter().map (
     |path| read_issue_from_dir(path)
   );
   //clear all None values and unwrap Some(issue) to just issue
-  issueOptions.filter_map(|x| x).collect()
+  let issues = issueOptions.filter_map(|x| x).to_owned_vec();
+  println!("Found {} issues", issues.len());
+  issues
 }
 
 
@@ -106,7 +114,8 @@ fn read_issue_from_dir(basePath:Path) -> Option<Issue> {
   let files = io::fs::readdir(&basePath);
   let bodyPath = Path::new(BODY_FILENAME);
   let issueBodyPath = basePath.join(bodyPath);
-  let noBodyFiles:~[Path] = files.move_iter()
+  let noBodyFiles:~[Path] = files.ok().unwrap_or(~[])
+                                 .move_iter()
                                  .filter(|x| x != &issueBodyPath)
                                  .collect();
   let bodyIssue = read_issue_body(issueBodyPath);

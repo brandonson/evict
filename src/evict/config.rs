@@ -19,7 +19,7 @@
 use file_util;
 use extra::json;
 use extra::json::ToJson;
-use extra::treemap;
+use collections::treemap;
 
 static CONFIG_FILE:&'static str = ".evict/config";
 static AUTHOR_KEY:&'static str = "author";
@@ -41,7 +41,7 @@ impl ToJson for Config{
 
 impl Config{
   pub fn load() -> Config {
-    if(file_util::file_exists(CONFIG_FILE)){
+    if file_util::file_exists(CONFIG_FILE) {
       Config::read_repo_config()
     }else{
       Config::default()
@@ -53,14 +53,14 @@ impl Config{
   }
   
   fn read_repo_config() -> Config {
-    let jsonStr = file_util::read_string_from_file(CONFIG_FILE);
-    let jsonOpt = jsonStr.and_then (|string| {
+    let json_str = file_util::read_string_from_file(CONFIG_FILE);
+    let json_opt = json_str.and_then (|string| {
                     match json::from_str(string){
                       Ok(json) => Some(json),
                       Err(_) => None
                     }
                   });
-    jsonOpt.map_or(Config::default(), Config::from_json)
+    json_opt.map_or(Config::default(), Config::from_json)
   }
   
   fn from_json(json:json::Json) -> Config {
@@ -73,8 +73,8 @@ impl Config{
   }
 
   pub fn save(&self){
-    let jsonStr = self.to_json().to_pretty_str();
-    file_util::write_string_to_file(jsonStr, CONFIG_FILE, true);
+    let json_str = self.to_json().to_pretty_str();
+    file_util::write_string_to_file(json_str, CONFIG_FILE, true);
   }
 }
 

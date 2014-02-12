@@ -19,7 +19,7 @@
 use issue::{Issue, IssueTimelineEvent};
 use issue::{TimelineComment, TimelineTag};
 use extra::time;
-use std::util::swap;
+use std::mem::swap;
 
 priv enum TimeSorted{
   TimeSortedIssue(Issue),
@@ -29,9 +29,9 @@ priv enum TimeSorted{
 impl TimeSorted{
   fn creation<'x>(&'x self) -> &'x time::Tm {
     match self {
-      &TimeSortedIssue(ref issue) => &issue.creationTime,
+      &TimeSortedIssue(ref issue) => &issue.creation_time,
       &TimeSortedEvent(ref evt) => match evt {
-        &TimelineComment(ref comment) => &comment.creationTime,
+        &TimelineComment(ref comment) => &comment.creation_time,
         &TimelineTag(ref tag) => &tag.time
       }
     }

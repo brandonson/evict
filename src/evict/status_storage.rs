@@ -60,10 +60,10 @@ pub fn read_default_status() -> StatusOption {
   let fullFile = file_util::read_string_from_file(full_default_status_filename())
                            .unwrap_or(DEFAULT_STATUS_NAME.to_owned());
   let lineVec:~[&str] = fullFile.lines_any().collect();
-  let firstLine = lineVec.head_opt().unwrap_or(&DEFAULT_STATUS_NAME);
+  let firstLine = lineVec.head().unwrap_or(&DEFAULT_STATUS_NAME);
   
   let statusOption = StatusOption{name:firstLine.to_owned()};
-  if(!read_status_options().contains(&statusOption)){
+  if !read_status_options().contains(&statusOption) {
     StatusOption{name:DEFAULT_STATUS_NAME.to_owned()}
   }else{
     statusOption
@@ -72,7 +72,7 @@ pub fn read_default_status() -> StatusOption {
 
 pub fn write_default_status(status:&StatusOption) -> Result<bool, ~str> {
   let isOption = read_status_options().contains(status);
-  if(!isOption){
+  if !isOption {
     Err(format!("{} is not a status option", status.name))
   }else{
     Ok(file_util::write_string_to_file(status.name, full_default_status_filename(), true))

@@ -23,17 +23,17 @@ use status_storage::{StatusOption,
 use file_util;
 
 pub fn initialize(_:~[~str]) -> int {
-  let res = file_util::create_directory(file_manager::EVICT_DIRECTORY);
-  if(res){
+  let createSuccess = file_util::create_directory(file_manager::EVICT_DIRECTORY);
+  if createSuccess {
     let defaultStatus = StatusOption{name:~"open"};
     let statusOpts = ~[defaultStatus.clone(), StatusOption{name:~"closed"}];
     let optionSuccess = write_status_options(statusOpts);
-    if(optionSuccess){
+    if optionSuccess {
       let defaultResult = write_default_status(&defaultStatus);
-      if(defaultResult.is_ok()){
+      if defaultResult.is_ok() {
         let idirSuccess = file_util::create_directory(
                                           file_manager::issue_directory());
-        if(idirSuccess){0}else{1}
+        if idirSuccess {0}else{1}
       }else{
         2
       }

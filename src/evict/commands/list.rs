@@ -23,7 +23,7 @@ use issue::{Issue,TimelineComment, TimelineTag};
 use file_util;
 use std::run;
 use extra::time;
-use extra::treemap::TreeMap;
+use collections::treemap::TreeMap;
 use fsm;
 use selection;
 use date_sort;
@@ -49,21 +49,25 @@ pub fn list_issues(args:~[~str]) -> int{
                                                       noComments:false,
                                                       id:None});
 
-  for argVal in args.move_iter(){
-    stateMachine.process(argVal);
+  for arg in args.move_iter(){
+    stateMachine.process(arg);
   }
-  let finalFlags = stateMachine.move_state();
+  let final_flags = stateMachine.move_state();
   
   let mut issues = file_manager::read_issues();
 
-  for id in finalFlags.id.iter() {
+  for id in final_flags.id.iter() {
     issues = selection::find_matching_issues(id.as_slice(), issues);
   }
 
-  let resultStr = print_issue_vec(issues, &finalFlags);
+  let to_print = print_issue_vec(issues, &final_flags);
 
-  file_util::write_string_to_file(resultStr, TMP_OUTPUT_FILE, true);
-  run::process_status("less", &[~"-RXF", TMP_OUTPUT_FILE.to_owned()]);
+  file_util::write_string_to_file(to_print, TMP_OUTPUT_FILE, true);
+  let paginate_result = run::process_status("less", &[~"-RXF", TMP_OUTPUT_FILE.to_owned()]);
+  if paginate_result.is_err() {
+    println!("Couldn't paginate output.  Printing straight to terminal");
+    println!("{}", to_print);
+  }
   file_util::delete_file(TMP_OUTPUT_FILE);
   0
 }
@@ -99,81 +103,81 @@ fn get_id(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
 }
 
 fn print_issue_vec(issues:~[Issue], flags:&Flags) -> ~str{
-  let dateSorted = date_sort::sort_by_time(issues);
-  let mut resultStr = ~"";
+  let date_sorted = date_sort::sort_by_time(issues);
+  let mut to_print = ~"";
   //reverse because they're sorted in ascending order
   //and we want descending
-  for issue in dateSorted.rev_iter() {
-    if (flags.statuses.len() == 0 ||
-        flags.statuses.contains(&issue.status.name)){
-      resultStr = print_issue(issue, flags, resultStr);
+  for issue in date_sorted.rev_iter() {
+    if flags.statuses.len() == 0 ||
+       flags.statuses.contains(&issue.status.name){ 
+      to_print = print_issue(issue, flags, to_print);
     }
   }
-  resultStr
+  to_print
 }
 
-fn print_issue(issue:&Issue, flags:&Flags, mut resultStr:~str) -> ~str {
-  resultStr.push_strln("");
-  resultStr.push_strln(format!("\x1b[33m{} (Issue ID: {})\x1b[0m", issue.title, issue.id));
-  if(!flags.short){
-    resultStr.push_strln(format!("Current status: {}", issue.status.name));
-    resultStr.push_strln(format!("\x1b[34mReported by {} on {}\x1b[0m",
+fn print_issue(issue:&Issue, flags:&Flags, mut to_print:~str) -> ~str {
+  to_print.push_strln("");
+  to_print.push_strln(format!("\x1b[33m{} (Issue ID: {})\x1b[0m", issue.title, issue.id));
+  if !flags.short {
+    to_print.push_strln(format!("Current status: {}", issue.status.name));
+    to_print.push_strln(format!("\x1b[34mReported by {} on {}\x1b[0m",
                        issue.author, 
-                       issue.creationTime.strftime(issue::TIME_FORMAT)));
-    resultStr.push_strln(format!("Originated on branch {}\n", issue.branch)); 
-    if(issue.bodyText.len() > 0){
-      resultStr.push_strln(issue.bodyText);
+                       issue.creation_time.strftime(issue::TIME_FORMAT)));
+    to_print.push_strln(format!("Originated on branch {}\n", issue.branch)); 
+    if issue.body_text.len() > 0 {
+      to_print.push_strln(issue.body_text);
     }
-    if(!flags.noComments){
-      if(issue.events.len() == 0){
-        resultStr.push_strln("    Nothing here for this issue.");
+    if !flags.noComments {
+      if issue.events.len() == 0 {
+        to_print.push_strln("    Nothing here for this issue.");
       }else{
         //the string for all comment info
-        let mut commentsStr = ~"";
+        let mut comment_output = ~"";
         //the tags for this comment
-        let mut tagMap:TreeMap<~str, time::Tm> = TreeMap::new();
+        let mut tag_map:TreeMap<~str, time::Tm> = TreeMap::new();
         for evt in issue.events.iter() {
           match evt {
             &TimelineComment(ref comment) => {
-              commentsStr.push_strln(format!("  \x1b[32m{} on {}\x1b[0m",
+              comment_output.push_strln(format!("  \x1b[32m{} on {}\x1b[0m",
                                comment.author, 
-                               comment.creationTime.strftime(issue::TIME_FORMAT)));
-	      commentsStr.push_strln(format!("  For branch {}", comment.branch));
-              for line in comment.bodyText.lines() {
-                commentsStr.push_strln(~"    " + line);
-	      }
-              commentsStr.push_strln("");
+                               comment.creation_time.strftime(issue::TIME_FORMAT)));
+              comment_output.push_strln(format!("  For branch {}", comment.branch));
+              for line in comment.body_text.lines() {
+                comment_output.push_strln(~"    " + line);
+              }
+              comment_output.push_strln("");
             }
             &TimelineTag(ref tag) => {
-              if(tag.enabled){
-                tagMap.insert(tag.tagName.clone(), tag.time.clone());
+              if tag.enabled {
+                tag_map.insert(tag.tag_name.clone(), tag.time.clone());
               }else{
-                tagMap.remove(&tag.tagName);
+                tag_map.remove(&tag.tag_name);
               }
             }
           }
         }
-        let mut tagStr = ~"";
-        if(tagMap.len() == 0){
-          tagStr.push_str("  No tags for this issue");
+        let mut tag_output = ~"";
+        if tag_map.len() == 0 {
+          tag_output.push_str("  No tags for this issue");
         }else {
-          tagStr.push_str("  Tags: ");
+          tag_output.push_str("  Tags: ");
           let mut isStart = true;
-          let tagMap = tagMap; //freeze to allow iteration
-          for (tagname,_) in tagMap.iter() {
-            if(!isStart){
-              tagStr.push_str(", "); 
+          let tag_map = tag_map; //freeze to allow iteration
+          for (tagname,_) in tag_map.iter() {
+            if !isStart {
+              tag_output.push_str(", "); 
               isStart = true;
             }
-            tagStr.push_str(*tagname);
+            tag_output.push_str(*tagname);
           }
         }
 
-        resultStr.push_strln(tagStr);
-        resultStr.push_strln(commentsStr);
+        to_print.push_strln(tag_output);
+        to_print.push_strln(comment_output);
       }
     }
   }
-  resultStr
+  to_print
 }
 

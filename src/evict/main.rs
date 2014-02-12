@@ -1,5 +1,6 @@
 extern mod extra;
 extern mod fsm;
+extern mod collections;
 
 pub mod issue;
 pub mod file_manager;
@@ -20,7 +21,7 @@ pub mod evict{
 #[cfg(not(test))]
 fn main(){
   let args = std::os::args();
-  if(args.len() < 2){
+  if args.len() < 2 {
     // < 2 because the first arg is the name of the binary
     println!("No command given");
   }else{

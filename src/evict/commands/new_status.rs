@@ -20,7 +20,7 @@
 use status_storage;
 
 pub fn new_status(args:~[~str]) -> int {
-  if(args.len() != 1){
+  if args.len() != 1 {
     println!("new-status usage: evict new-status <status-name>");
     1
   }else{

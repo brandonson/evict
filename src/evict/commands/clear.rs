@@ -27,15 +27,16 @@ pub fn clear_data(_:~[~str]) -> int {
   let res = commands::prompt(
              format!("Really clear everything from {}? [y/n]", 
                      absolute.display()));
-  if(res == ~"y"){
+  if res == ~"y" {
     let mut success = true;
     //try to delete, if we fail the just set success to false
     //(no point in retries or anything else, user can just
     // rerun the command)
-    std::io::io_error::cond.trap ( |_| success = false).inside( 
-      || std::io::fs::rmdir_recursive(evictPath)
-    );
-    if(success){
+    match std::io::fs::rmdir_recursive(evictPath) {
+        Err(_)  => success = false,
+        Ok(_) => {}
+    }
+    if success {
       println!("All Evict-BT info has been cleared");
       0
     }else{

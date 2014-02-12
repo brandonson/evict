@@ -30,7 +30,10 @@ impl VCS {
                                                     ~"--abbrev-ref", 
                                                     ~"HEAD"])
                          .map(|x| x.output);
-        output.map(str::from_utf8_owned)
+        match output {
+          Ok(out) => str::from_utf8_owned(out),
+          Err(_) => None
+        }
       }
     }
   }

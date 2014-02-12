@@ -40,7 +40,7 @@ pub fn delete_issue(args:~[~str]) -> int {
   }
   let finalFlags = stateMachine.move_state();
 
-  if(finalFlags.issue.is_none()){
+  if finalFlags.issue.is_none() {
     println!("The id of the issue to delete or an end segment of the id must be provided.");
     1
   }else {
@@ -51,15 +51,15 @@ pub fn delete_issue(args:~[~str]) -> int {
 fn exec_delete(idPart:~str) -> int{
   let issues = file_manager::read_issues();
   let matching = selection::find_matching_issues(idPart, issues);
-  if(matching.len() == 0){
+  if matching.len() == 0 {
     println!("No issue matching {} found.", idPart);
     4
-  }else if(matching.len() == 1){
+  }else if matching.len() == 1 {
     let issueCount = issues.len();
 
     let mut remaining:~[Issue] = ~[];
     for issue in issues.move_iter() {
-       if(issue != matching[0]){
+       if issue != matching[0] {
          remaining.push(issue);
        }
     }

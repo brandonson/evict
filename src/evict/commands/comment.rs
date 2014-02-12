@@ -42,7 +42,7 @@ pub fn new_comment(args:~[~str]) -> int{
   }
 
   let finalFlags = stateMachine.move_state();
-  if(finalFlags.issueIdPart.is_none()){
+  if finalFlags.issueIdPart.is_none() {
     println!("The id for the issue, or an end section of it must be provided.");
     1
   }else{
@@ -51,7 +51,7 @@ pub fn new_comment(args:~[~str]) -> int{
     let updated = selection::update_issue(finalFlags.issueIdPart.unwrap(), 
                                           issues,
                                           comment_on_matching);
-    if(file_manager::write_issues(updated)){
+    if file_manager::write_issues(updated) {
       0
     }else{
       1
@@ -63,13 +63,13 @@ fn comment_on_matching(matching:Issue) -> Issue {
   let author = commands::get_author();
   let filename = format!("COMMENT_ON_{}",matching.id);
   let edited = commands::edit_file(filename);
-  if(!edited){
+  if !edited {
     println!("No comment body provided");
     matching 
   }else{
     let text = file_util::read_string_from_file(filename);
     file_util::delete_file(filename);
-    if(text.is_none()){
+    if text.is_none() {
       println!("Could not read comment body from file");
       matching
     }else{

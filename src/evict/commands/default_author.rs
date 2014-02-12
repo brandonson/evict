@@ -19,12 +19,12 @@
 use config;
 
 pub fn default_author(args:~[~str]) -> int {
-  if(args.len() > 1){
+  if args.len() > 1 {
     println!("default-author usage: evict default-author [new-author]");
     1
   }else{
     let config = config::Config::load(); 
-    if(args.len() == 0){
+    if args.len() == 0 {
       match config.author {
         Some(author) => println!("{}", author),
         None => println!("No author set")

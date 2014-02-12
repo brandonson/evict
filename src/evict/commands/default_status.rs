@@ -20,11 +20,11 @@
 use status_storage;
 
 pub fn default_status(args:~[~str]) -> int {
-  if(args.len() > 1){
+  if args.len() > 1 {
     println! ("default-status usage: evict default-status [new-status]");
     1
   }else{
-    if(args.len() == 0){
+    if args.len() == 0 {
       let default = status_storage::read_default_status();
       println!("Current default status is: {}", default.name);
       2

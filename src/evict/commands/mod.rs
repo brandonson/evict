@@ -18,9 +18,8 @@
  */
 use std;
 use config;
-use std::io::{stdin,stdout};
-use std::io::buffered::BufferedReader;
-use std::io::Writer;
+use std::io::{stdin};
+use std::io::BufferedReader;
 
 mod init;
 mod create;
@@ -71,9 +70,7 @@ pub fn standard_commands() -> ~std::container::Map<~str, Command> {
 }
 
 pub fn prompt(prompt:&str) -> ~str{
-  let mut out = stdout();
-  out.write(prompt.as_bytes());
-  out.flush();
+  println!("{}", prompt);
   //TODO do we need to check this?
   let withNewline = BufferedReader::new(stdin()).read_line().unwrap();
   withNewline.replace("\n", "").replace("\r", "")
@@ -90,7 +87,7 @@ pub fn get_author() -> ~str {
 pub fn edit_file(filename:&str) -> bool{
   match std::os::getenv("EDITOR") {
     Some(editorName) => {
-      std::run::process_status(editorName, &[filename.to_owned()]);
+      let _ = std::run::process_status(editorName, &[filename.to_owned()]);
       true
     }
     None => false

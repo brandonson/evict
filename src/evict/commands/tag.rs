@@ -30,7 +30,7 @@ pub fn untag(args:~[~str]) -> int {
 }
 
 pub fn tag_cmd(args:~[~str], cmdName:&str, enabledAfter:bool) -> int {
-  if(args.len() != 2){
+  if args.len() != 2 {
     println!("{} usage: evict {} <issue-id> <tag>", cmdName, cmdName);
     1
   }else{
@@ -38,7 +38,7 @@ pub fn tag_cmd(args:~[~str], cmdName:&str, enabledAfter:bool) -> int {
     let updated = selection::update_issue(args[0],
                                           issues,
                                           |issue| modify_tag(issue, args[1], enabledAfter));
-    if(file_manager::write_issues(updated)){
+    if file_manager::write_issues(updated) { 
       0
     }else{
       2
@@ -54,7 +54,7 @@ fn modify_tag(mut issue:Issue, tag:&str, enabledAfter:bool) -> Issue {
     let optTag = issue.most_recent_tag_for_name(tag);
     optTag.map(|tag| tag.clone())
   };
-  if(lastTag.is_none() || lastTag.unwrap().enabled != enabledAfter){
+  if lastTag.is_none() || lastTag.unwrap().enabled != enabledAfter {
     issue.add_tag(IssueTag::new(tag.to_owned(), author, enabledAfter));
   }
   issue

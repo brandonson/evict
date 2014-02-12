@@ -72,20 +72,20 @@ pub fn create_issue(args:~[~str]) -> int {
     None => commands::get_author()
   };
   let mut editedBodyFile = false;
-  let bodyFile = if(finalFlags.hasBody && finalFlags.bodyFile.is_none()){
+  let bodyFile = if finalFlags.hasBody && finalFlags.bodyFile.is_none() {
     editedBodyFile =  commands::edit_file(DEFAULT_ISSUE_BODY_FILE);
-    if(!editedBodyFile){
+    if !editedBodyFile {
       return 2;
     }
     Some(DEFAULT_ISSUE_BODY_FILE.to_owned())
-  }else if(!finalFlags.hasBody){
+  }else if !finalFlags.hasBody {
     None
   }else{
     finalFlags.bodyFile
   };
   let created = do_issue_creation(title, author, bodyFile);
-  if(editedBodyFile){ file_util::delete_file(DEFAULT_ISSUE_BODY_FILE); };
-  if(created.is_some()){
+  if editedBodyFile { file_util::delete_file(DEFAULT_ISSUE_BODY_FILE); };
+  if created.is_some() {
     println!("Issue {} created.", created.unwrap().id); 
     0
   }else{
@@ -94,21 +94,21 @@ pub fn create_issue(args:~[~str]) -> int {
 }
 
 fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<Issue>{
-  let issueOpt = if(bodyFile.is_none()){
+  let issueOpt = if bodyFile.is_none() {
                    Some(Issue::new(title, ~"", author))
                  }else{
                    let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap());
                    bodyTextOpt.map(
                      |text| Issue::new(title.clone(), text, author.clone())
-		   )
+                   )
                  };
-  if(issueOpt.is_none()){
+  if issueOpt.is_none() {
     println!("Could not open body file.");
     None
   }else{
     let mut issue = issueOpt.unwrap();
     issue.status = status_storage::read_default_status().make_status();
-    if(write_issue(issue.clone())){
+    if write_issue(issue.clone()) {
       Some(issue)
     }else{
       println!("Could not write issue to file.");
