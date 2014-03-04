@@ -16,7 +16,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use std::run;
+use std::io::process;
 use std::str;
 enum VCS{
   Git
@@ -26,7 +26,7 @@ impl VCS {
   fn current_branch_cmd_output(&self) -> Option<~str>{
     match self {
       &Git => {
-        let output = run::process_output("git", [~"rev-parse", 
+        let output = process::Process::output("git", [~"rev-parse", 
                                                     ~"--abbrev-ref", 
                                                     ~"HEAD"])
                          .map(|x| x.output);

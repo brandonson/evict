@@ -1,0 +1,14 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Body files (storing main issue data etc.) are edited on changes.  This should be fixed,\nas I believe it's a holdover from when we had a giant single file.\n",
+  "branch": "sourced-issues",
+  "events": [],
+  "evict-version": "1",
+  "id": "1393963842538096047",
+  "status": {
+    "name": "open",
+    "time": "2014-03-04 2014 at 12:10:42"
+  },
+  "time": "2014-03-04 2014 at 12:10:42",
+  "title": "Stop editing body files after creation"
+}

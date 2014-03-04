@@ -1,6 +1,8 @@
-extern mod extra;
-extern mod fsm;
-extern mod collections;
+extern crate extra;
+extern crate fsm;
+extern crate collections;
+extern crate time;
+extern crate serialize;
 
 pub mod issue;
 pub mod file_manager;

@@ -16,11 +16,13 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use extra::{json, time};
+use serialize::json;
+use serialize::json::ToJson;
+
+use time;
 use collections::treemap;
 use evict;
 use vcs_status;
-use extra::json::ToJson;
 use status_storage::DEFAULT_STATUS_NAME;
 pub static TIME_FORMAT:&'static str = "%F %Y at %T";
 

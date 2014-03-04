@@ -17,9 +17,12 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std;
+use std::libc;
 use config;
-use std::io::{stdin};
+use std::io::stdin;
 use std::io::BufferedReader;
+use collections::hashmap::HashMap;
+use std::io::process;
 
 mod init;
 mod create;
@@ -37,7 +40,7 @@ mod tag;
  * performs some action, then returns an
  * exit code.
  */
-type Command = fn (~[~str]) -> int;
+pub type Command = fn (~[~str]) -> int;
 
 pub fn execute_command(command:&~str, 
                       commandList:&~std::container::Map<~str, Command>, 
@@ -53,7 +56,7 @@ pub fn execute_command(command:&~str,
 }
 
 pub fn standard_commands() -> ~std::container::Map<~str, Command> {
-  let mut hmap:~std::hashmap::HashMap<~str, Command> = ~std::hashmap::HashMap::new();
+  let mut hmap:~HashMap<~str, Command> = ~HashMap::new();
   hmap.insert(~"create", create::create_issue);
   hmap.insert(~"clear", clear::clear_data);
   hmap.insert(~"init", init::initialize);
@@ -87,8 +90,20 @@ pub fn get_author() -> ~str {
 pub fn edit_file(filename:&str) -> bool{
   match std::os::getenv("EDITOR") {
     Some(editorName) => {
-      let _ = std::run::process_status(editorName, &[filename.to_owned()]);
-      true
+      let editor = process::Process::configure(
+                 process::ProcessConfig{
+                   program: editorName,
+                   args:&[filename.to_owned()],
+                   stdin:process::InheritFd(libc::STDIN_FILENO),
+                   stdout:process::InheritFd(libc::STDOUT_FILENO),
+                   stderr:process::InheritFd(libc::STDERR_FILENO),
+                   .. process::ProcessConfig::new()});
+      if editor.is_err() {
+        println!("Couldn't launch editor {}", editorName);
+        false
+      }else{
+        editor.ok().unwrap().wait().success()
+      }
     }
     None => false
   }

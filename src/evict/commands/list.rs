@@ -21,8 +21,9 @@ use issue;
 use issue::{Issue,TimelineComment, TimelineTag};
 
 use file_util;
-use std::run;
-use extra::time;
+use std::io::process;
+use std::libc;
+use time;
 use collections::treemap::TreeMap;
 use fsm;
 use selection;
@@ -62,11 +63,24 @@ pub fn list_issues(args:~[~str]) -> int{
 
   let to_print = print_issue_vec(issues, &final_flags);
 
-  file_util::write_string_to_file(to_print, TMP_OUTPUT_FILE, true);
-  let paginate_result = run::process_status("less", &[~"-RXF", TMP_OUTPUT_FILE.to_owned()]);
-  if paginate_result.is_err() {
+  let written = file_util::write_string_to_file(to_print, TMP_OUTPUT_FILE, true);
+  if !written {
+    println!("File write failure.");
+  }
+  let paginate_proc = process::Process::configure(
+                          process::ProcessConfig{
+                            program:"less",
+                            args:&[~"-RXF", TMP_OUTPUT_FILE.to_owned()],
+                            stdout:process::InheritFd(libc::STDOUT_FILENO),
+                            stderr:process::InheritFd(libc::STDERR_FILENO),
+                            .. process::ProcessConfig::new()});
+  if paginate_proc.is_err() {
     println!("Couldn't paginate output.  Printing straight to terminal");
     println!("{}", to_print);
+  }
+  let exit_code = paginate_proc.ok().unwrap().wait();
+  if !exit_code.success() {
+    println!("Something went wrong in pagination.");
   }
   file_util::delete_file(TMP_OUTPUT_FILE);
   0

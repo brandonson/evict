@@ -18,7 +18,7 @@
  */
 use issue::{Issue, IssueTimelineEvent};
 use issue::{TimelineComment, TimelineTag};
-use extra::time;
+use time;
 use std::mem::swap;
 
 priv enum TimeSorted{

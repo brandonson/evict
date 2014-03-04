@@ -16,7 +16,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use std::hashmap::HashMap;
+use collections::HashMap;
 use issue::{Issue,IssueTimelineEvent};
 
 pub fn merge_issues(incoming:~[Issue],merge_into:~[Issue]) -> ~[Issue] {
@@ -70,7 +70,8 @@ fn merge_events(incoming:~[IssueTimelineEvent],
     match joined.iter().min_by(|ievt| ievt.time().to_timespec())
                        .and_then(|minimum| joined.position_elem(minimum)) {
       Some(pos) => {
-        merged.push(joined.swap_remove(pos));
+        //unwrap here is fine, we know pos is within index range.
+        merged.push(joined.swap_remove(pos).unwrap());
       }
       None => {}
     }

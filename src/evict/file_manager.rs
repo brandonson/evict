@@ -16,11 +16,11 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use extra;
 use issue::{Issue, IssueTimelineEvent};
 use file_util;
 use std::io;
-use extra::json::ToJson;
+use serialize::json;
+use serialize::json::ToJson;
 
 #[cfg(not(test))]
 pub static EVICT_DIRECTORY:&'static str = ".evict";
@@ -83,7 +83,6 @@ fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> ~str {
 }
 
 pub fn read_issues() -> ~[Issue] {
-  println!("Reading.")
   read_issues_from_folders()
 }
 
@@ -95,17 +94,12 @@ fn read_issues_from_folders() -> ~[Issue] {
    */
   let dirPath = issue_directory_path();
   let issueDirResult = io::fs::readdir(&dirPath);
-  if issueDirResult.is_err() {
-    println!("No issue directories found.")
-  }
   let issueDirs = issueDirResult.ok().unwrap_or(~[]);
-  println!("{} issue directories.", issueDirs.len());
   let issueOptions = issueDirs.move_iter().map (
     |path| read_issue_from_dir(path)
   );
   //clear all None values and unwrap Some(issue) to just issue
   let issues = issueOptions.filter_map(|x| x).to_owned_vec();
-  println!("Found {} issues", issues.len());
   issues
 }
 
@@ -132,7 +126,7 @@ fn read_issue_body(bodyPath:Path) -> Option<Issue> {
    */
   let dataStrOpt = file_util::read_string_from_path(&bodyPath);
   dataStrOpt.and_then(|dataStr| {
-     extra::json::from_str(dataStr).ok()
+     json::from_str(dataStr).ok()
   }).and_then(|jsonVal| {
     Issue::from_json(&jsonVal)
   })
@@ -145,7 +139,7 @@ fn read_issue_events(bodyFiles:&[Path]) -> ~[IssueTimelineEvent] {
 fn read_comment(commentFile:&Path) -> Option<IssueTimelineEvent> {
   let dataStrOpt = file_util::read_string_from_path(commentFile);
   dataStrOpt.and_then(|dataStr| {
-    extra::json::from_str(dataStr).ok()
+    json::from_str(dataStr).ok()
   }).and_then(|jsonVal| {
     IssueTimelineEvent::from_json(&jsonVal)
   })

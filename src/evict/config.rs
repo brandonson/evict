@@ -17,8 +17,8 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use file_util;
-use extra::json;
-use extra::json::ToJson;
+use serialize::json;
+use serialize::json::ToJson;
 use collections::treemap;
 
 static CONFIG_FILE:&'static str = ".evict/config";
