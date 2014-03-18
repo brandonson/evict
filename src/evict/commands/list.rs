@@ -95,13 +95,13 @@ struct Flags{
 }
 
 fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
-  match input {
-    ~"--short" => fsm::Continue(Flags{short:true, .. flags}),
-    ~"-s" => fsm::Continue(Flags{short:true, .. flags}),
-    ~"--committed" => fsm::Continue(Flags{committed:true, .. flags}),
-    ~"--status" => fsm::ChangeState(get_status, flags),
-    ~"--nocomment" => fsm::Continue(Flags{noComments:true, .. flags}),
-    ~"--id" => fsm::ChangeState(get_id, flags),
+  match input.as_slice() {
+    "--short" => fsm::Continue(Flags{short:true, .. flags}),
+    "-s" => fsm::Continue(Flags{short:true, .. flags}),
+    "--committed" => fsm::Continue(Flags{committed:true, .. flags}),
+    "--status" => fsm::ChangeState(get_status, flags),
+    "--nocomment" => fsm::Continue(Flags{noComments:true, .. flags}),
+    "--id" => fsm::ChangeState(get_id, flags),
     _ => fsm::Continue(flags)
   }
 }

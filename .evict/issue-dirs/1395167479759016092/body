@@ -1,0 +1,25 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Need to use the new vector struct, rather than ~[], as the semantics of ~[] are changing\nWaiting to do this, pending std being changed appropriately.\n",
+  "branch": "sourced-issues",
+  "events": [
+    [
+      "tag",
+      {
+        "author": "Brandon Sanderson",
+        "enabled": true,
+        "id": "1395167824654756433",
+        "name": "conventions",
+        "time": "2014-03-18 2014 at 11:37:04"
+      }
+    ]
+  ],
+  "evict-version": "1",
+  "id": "1395167479759016092",
+  "status": {
+    "name": "open",
+    "time": "2014-03-18 2014 at 11:31:19"
+  },
+  "time": "2014-03-18 2014 at 11:31:19",
+  "title": "Switch over to Vec<T> instead of ~[T]"
+}

@@ -34,12 +34,12 @@ struct Flags{
 }
 
 fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
-  match input {
-    ~"--no-body" => fsm::Continue(Flags{hasBody:false, 
+  match input.as_slice() {
+    "--no-body" => fsm::Continue(Flags{hasBody:false, 
                                          .. flags}),
-    ~"--body-file" => fsm::ChangeState(get_body_file, flags),
-    ~"--title" => fsm::ChangeState(get_title, flags),
-    ~"--author" => fsm::ChangeState(get_author, flags),
+    "--body-file" => fsm::ChangeState(get_body_file, flags),
+    "--title" => fsm::ChangeState(get_title, flags),
+    "--author" => fsm::ChangeState(get_author, flags),
     _ => fsm::Continue(flags)
   }
 }

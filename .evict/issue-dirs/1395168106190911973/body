@@ -1,0 +1,14 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "Git, for example, matches from the start of commit messages.  We should do the same for ids.\n",
+  "branch": "sourced-issues",
+  "events": [],
+  "evict-version": "1",
+  "id": "1395168106190911973",
+  "status": {
+    "name": "open",
+    "time": "2014-03-18 2014 at 11:41:46"
+  },
+  "time": "2014-03-18 2014 at 11:41:46",
+  "title": "Enable matching from the start of an issue id"
+}

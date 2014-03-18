@@ -1,4 +1,3 @@
-extern crate extra;
 extern crate fsm;
 extern crate collections;
 extern crate time;
