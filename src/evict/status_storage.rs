@@ -27,7 +27,7 @@ pub static DEFAULT_STATUS_NAME:&'static str = "<unknown>";
 
 #[deriving(Clone, Eq)]
 pub struct StatusOption{
-  name:~str
+  pub name:~str
 }
 
 impl StatusOption{

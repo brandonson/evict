@@ -41,20 +41,20 @@ pub static TIMELINE_EVT_KEY:&'static str = "t-evt-type";
 
 #[deriving(Clone, Eq)]
 pub struct IssueComment{
-  creation_time: time::Tm,
-  author:~str,
-  body_text:~str,
-  branch:~str,
-  id:~str
+  pub creation_time: time::Tm,
+  pub author:~str,
+  pub body_text:~str,
+  pub branch:~str,
+  pub id:~str
 }
 
 #[deriving(Clone, Eq)]
 pub struct IssueTag{
-  time: time::Tm,
-  tag_name: ~str,
-  enabled: bool,
-  author: ~str,
-  change_id: ~str
+  pub time: time::Tm,
+  pub tag_name: ~str,
+  pub enabled: bool,
+  pub author: ~str,
+  pub change_id: ~str
 }
 
 #[deriving(Clone, Eq)]
@@ -65,21 +65,21 @@ pub enum IssueTimelineEvent{
 
 #[deriving(Clone, Eq)]
 pub struct IssueStatus{
-  name:~str,
-  last_change_time: time::Tm
+  pub name:~str,
+  pub last_change_time: time::Tm
 }
 
 #[deriving(Clone)]
 pub struct Issue{
-  title:~str,
-  creation_time: time::Tm,
-  author:~str,
+  pub title:~str,
+  pub creation_time: time::Tm,
+  pub author:~str,
 
-  body_text:~str,
-  id:~str,
-  events:Vec<IssueTimelineEvent>,
-  branch:~str,
-  status:IssueStatus
+  pub body_text:~str,
+  pub id:~str,
+  pub events:Vec<IssueTimelineEvent>,
+  pub branch:~str,
+  pub status:IssueStatus
 }
 
 
@@ -150,7 +150,7 @@ impl Issue{
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
 
 
-    let event_json = self.events.iter().map(|c| c.to_json());
+    let mut event_json = self.events.iter().map(|c| c.to_json());
 
     map.insert(I_EVENT_KEY.to_owned(), json::List(event_json.collect()));
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
@@ -168,7 +168,7 @@ impl Issue{
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
     
-    let event_json = self.events.iter().map(|c| c.to_json());
+    let mut event_json = self.events.iter().map(|c| c.to_json());
 
     map.insert(I_EVENT_KEY.to_owned(), json::List(event_json.collect()));
     

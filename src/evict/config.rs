@@ -25,7 +25,7 @@ static CONFIG_FILE:&'static str = ".evict/config";
 static AUTHOR_KEY:&'static str = "author";
 
 pub struct Config{
-  author:Option<~str>,
+  pub author:Option<~str>,
 }
 
 impl ToJson for Config{

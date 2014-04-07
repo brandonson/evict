@@ -30,7 +30,7 @@ pub fn find_matching_issues(idEndPart:&str, searchIn:&[Issue]) -> Vec<Issue> {
 
 pub fn update_issue(idEndPart:&str, searchIn:Vec<Issue>, update:|Issue| -> Issue)
   -> Vec<Issue> {
-  let matching  = find_matching_issues(idEndPart, searchIn.as_slice());
+  let mut matching  = find_matching_issues(idEndPart, searchIn.as_slice());
   if matching.len() != 1 {
     println!("Found 0 or >1 matching issues:");
     for issue in matching.iter() {
