@@ -2,6 +2,7 @@ extern crate fsm;
 extern crate collections;
 extern crate time;
 extern crate serialize;
+extern crate libc;
 
 pub mod issue;
 pub mod file_manager;
@@ -14,6 +15,10 @@ pub mod selection;
 pub mod config;
 pub mod status_storage;
 pub mod date_sort;
+
+pub mod source{
+  pub mod parse;
+}
 
 pub mod evict{
   pub static CURRENT_VERSION:uint = 1;

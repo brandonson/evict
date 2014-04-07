@@ -22,7 +22,7 @@ use issue::{Issue,TimelineComment, TimelineTag};
 
 use file_util;
 use std::io::process;
-use std::libc;
+use libc;
 use time;
 use collections::treemap::TreeMap;
 use fsm;
@@ -58,7 +58,7 @@ pub fn list_issues(args:~[~str]) -> int{
   let mut issues = file_manager::read_issues();
 
   for id in final_flags.id.iter() {
-    issues = selection::find_matching_issues(id.as_slice(), issues);
+    issues = selection::find_matching_issues(id.as_slice(), issues.as_slice());
   }
 
   let to_print = print_issue_vec(issues, &final_flags);
@@ -116,12 +116,12 @@ fn get_id(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   fsm::ChangeState(std_handler, flags)
 }
 
-fn print_issue_vec(issues:~[Issue], flags:&Flags) -> ~str{
+fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> ~str{
   let date_sorted = date_sort::sort_by_time(issues);
   let mut to_print = ~"";
   //reverse because they're sorted in ascending order
   //and we want descending
-  for issue in date_sorted.rev_iter() {
+  for issue in date_sorted.iter().rev() {
     if flags.statuses.len() == 0 ||
        flags.statuses.contains(&issue.status.name){ 
       to_print = print_issue(issue, flags, to_print);

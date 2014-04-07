@@ -62,13 +62,13 @@ fn merge_pair(issues:(Option<Issue>, Option<Issue>)) -> Issue {
   }
 }
 
-fn merge_events(incoming:~[IssueTimelineEvent],
-                  merge_into:~[IssueTimelineEvent]) -> ~[IssueTimelineEvent] {
-  let mut joined = incoming + merge_into;
-  let mut merged:~[IssueTimelineEvent] = ~[];
+fn merge_events(incoming:Vec<IssueTimelineEvent>,
+                  merge_into:Vec<IssueTimelineEvent>) -> Vec<IssueTimelineEvent> {
+  let mut joined = incoming.append(merge_into.as_slice());
+  let mut merged:Vec<IssueTimelineEvent> = vec!();
   while joined.len() > 0 {
     match joined.iter().min_by(|ievt| ievt.time().to_timespec())
-                       .and_then(|minimum| joined.position_elem(minimum)) {
+                       .and_then(|minimum| joined.iter().position(|x| x == minimum)) {
       Some(pos) => {
         //unwrap here is fine, we know pos is within index range.
         merged.push(joined.swap_remove(pos).unwrap());

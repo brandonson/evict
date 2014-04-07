@@ -82,11 +82,11 @@ fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> ~str {
   format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issueId, event.id())
 }
 
-pub fn read_issues() -> ~[Issue] {
+pub fn read_issues() -> Vec<Issue> {
   read_issues_from_folders()
 }
 
-fn read_issues_from_folders() -> ~[Issue] {
+fn read_issues_from_folders() -> Vec<Issue> {
   /*! Reads all issues from the folders located in the
    *  folder returned by full_issue_directory.
    *  If a folder/file in the issue directory does not parse
@@ -95,12 +95,10 @@ fn read_issues_from_folders() -> ~[Issue] {
   let dirPath = issue_directory_path();
   let issueDirResult = io::fs::readdir(&dirPath);
   let issueDirs = issueDirResult.ok().unwrap_or(~[]);
-  let issueOptions = issueDirs.move_iter().map (
+  
+  issueDirs.move_iter().filter_map (
     |path| read_issue_from_dir(path)
-  );
-  //clear all None values and unwrap Some(issue) to just issue
-  let issues = issueOptions.filter_map(|x| x).to_owned_vec();
-  issues
+  ).collect()
 }
 
 
@@ -132,7 +130,7 @@ fn read_issue_body(bodyPath:Path) -> Option<Issue> {
   })
 }
 
-fn read_issue_events(bodyFiles:&[Path]) -> ~[IssueTimelineEvent] {
+fn read_issue_events(bodyFiles:&[Path]) -> Vec<IssueTimelineEvent> {
   bodyFiles.iter().filter_map(read_comment).collect()
 }
 

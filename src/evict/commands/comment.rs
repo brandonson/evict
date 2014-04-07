@@ -51,7 +51,7 @@ pub fn new_comment(args:~[~str]) -> int{
     let updated = selection::update_issue(finalFlags.issueIdPart.unwrap(), 
                                           issues,
                                           comment_on_matching);
-    if file_manager::write_issues(updated) {
+    if file_manager::write_issues(updated.as_slice()) {
       0
     }else{
       1

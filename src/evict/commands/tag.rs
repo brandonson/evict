@@ -38,7 +38,7 @@ pub fn tag_cmd(args:~[~str], cmdName:&str, enabledAfter:bool) -> int {
     let updated = selection::update_issue(args[0],
                                           issues,
                                           |issue| modify_tag(issue, args[1], enabledAfter));
-    if file_manager::write_issues(updated) { 
+    if file_manager::write_issues(updated.as_slice()) { 
       0
     }else{
       2

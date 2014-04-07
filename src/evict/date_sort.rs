@@ -74,19 +74,19 @@ fn ts_ordering(a:&TimeSorted, b:&TimeSorted) -> Ordering {
   }
 }
 
-pub fn sort_by_time(issues:~[Issue]) -> ~[Issue]{
-  let mut wrapped:~[TimeSorted] = 
+pub fn sort_by_time(issues:Vec<Issue>) -> Vec<Issue>{
+  let mut wrapped:Vec<TimeSorted> = 
                              issues.move_iter().map(|x| TimeSortedIssue(x)).collect();
 
   wrapped.sort_by(ts_ordering);
   
-  let mut sorted:~[Issue] = wrapped.move_iter().map(|x| x.unwrap_to_issue()).collect();
+  let mut sorted:Vec<Issue> = wrapped.move_iter().map(|x| x.unwrap_to_issue()).collect();
   
   for x in sorted.mut_iter() {
-    let mut events:~[IssueTimelineEvent] = ~[];
+    let mut events:Vec<IssueTimelineEvent> = vec!();
     swap(&mut events, &mut x.events);
     
-    let mut wrappedComments:~[TimeSorted] = events.move_iter().map(|x| TimeSortedEvent(x)).collect();
+    let mut wrappedComments:Vec<TimeSorted> = events.move_iter().map(|x| TimeSortedEvent(x)).collect();
     wrappedComments.sort_by(ts_ordering);
     events = wrappedComments.move_iter().map(|x| x.unwrap_to_event()).collect();
     swap(&mut events, &mut x.events);

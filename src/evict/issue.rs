@@ -77,7 +77,7 @@ pub struct Issue{
 
   body_text:~str,
   id:~str,
-  events:~[IssueTimelineEvent],
+  events:Vec<IssueTimelineEvent>,
   branch:~str,
   status:IssueStatus
 }
@@ -148,7 +148,11 @@ impl Issue{
                json::String(time::strftime(TIME_FORMAT, &self.creation_time)));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
-    map.insert(I_EVENT_KEY.to_owned(), json::List(self.events.map (|c| {c.to_json()})));
+
+
+    let event_json = self.events.iter().map(|c| c.to_json());
+
+    map.insert(I_EVENT_KEY.to_owned(), json::List(event_json.collect()));
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
     map.insert(STATE_KEY.to_owned(), self.status.to_json());
     json::Object(map)
@@ -163,7 +167,11 @@ impl Issue{
                json::String(time::strftime(TIME_FORMAT, &self.creation_time)));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
-    map.insert(I_EVENT_KEY.to_owned(), json::List(self.events.map (|c| {c.to_json()})));
+    
+    let event_json = self.events.iter().map(|c| c.to_json());
+
+    map.insert(I_EVENT_KEY.to_owned(), json::List(event_json.collect()));
+    
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
     map.insert(STATE_KEY.to_owned(), self.status.to_json());
     json::Object(map)
@@ -194,7 +202,7 @@ impl Issue{
 	    branch_opt.and_then (|branch| {
               let id_opt = get_string_for_key(map, ID_KEY);
               id_opt.and_then (|id| {
-                let events = map.find(&I_EVENT_KEY.to_owned()).map_or(~[],
+                let events = map.find(&I_EVENT_KEY.to_owned()).map_or(vec!(),
                                                                       Issue::load_events);
 		let status = map.find(&STATE_KEY.to_owned())
                                   .map_or(IssueStatus::default(), |json| {
@@ -222,15 +230,13 @@ impl Issue{
     }
   }
 
-  fn load_events(json:&json::Json) -> ~[IssueTimelineEvent] {
+  fn load_events(json:&json::Json) -> Vec<IssueTimelineEvent> {
     match *json {
       json::List(ref list) => {
         let eventJson_opts = list.clone();
-        let mut eventJson = eventJson_opts.map(IssueTimelineEvent::from_json);
-        eventJson.retain(|e| {e.is_some()});
-        eventJson.map(|e| {e.clone().unwrap()})
+        eventJson_opts.iter().filter_map(IssueTimelineEvent::from_json).collect()
       }
-      _ => ~[]
+      _ => vec!() 
     }
   }
 
@@ -241,7 +247,7 @@ impl Issue{
            author:author,
            id:generate_id(),
            creation_time:time::now(),
-           events:~[],
+           events:vec!(),
            branch:branch,
            status:IssueStatus::default()}
   }

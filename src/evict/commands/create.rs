@@ -25,7 +25,6 @@ use commands;
 use status_storage;
 
 static DEFAULT_ISSUE_BODY_FILE:&'static str = "ISSUE_MSG";
-#[deriving(Clone)]
 struct Flags{
   hasBody:bool,
   bodyFile:Option<~str>,
@@ -120,6 +119,6 @@ fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<I
 fn write_issue(issue:Issue) -> bool{
   let mut committable = file_manager::read_issues();
   committable.push(issue);
-  file_manager::write_issues(committable)
+  file_manager::write_issues(committable.as_slice())
 }
 

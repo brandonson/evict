@@ -18,8 +18,8 @@
  */
 use issue::Issue;
 
-pub fn find_matching_issues(idEndPart:&str, searchIn:&[Issue]) -> ~[Issue] {
-  let mut matching:~[Issue] = ~[];
+pub fn find_matching_issues(idEndPart:&str, searchIn:&[Issue]) -> Vec<Issue> {
+  let mut matching:Vec<Issue> = vec!();
   for issue in searchIn.iter() {
     if issue.id.ends_with(idEndPart) {
       matching.push(issue.clone());
@@ -28,9 +28,9 @@ pub fn find_matching_issues(idEndPart:&str, searchIn:&[Issue]) -> ~[Issue] {
   matching
 }
 
-pub fn update_issue(idEndPart:&str, searchIn:~[Issue], update:|Issue| -> Issue)
-  -> ~[Issue] {
-  let matching  = find_matching_issues(idEndPart, searchIn);
+pub fn update_issue(idEndPart:&str, searchIn:Vec<Issue>, update:|Issue| -> Issue)
+  -> Vec<Issue> {
+  let matching  = find_matching_issues(idEndPart, searchIn.as_slice());
   if matching.len() != 1 {
     println!("Found 0 or >1 matching issues:");
     for issue in matching.iter() {
@@ -38,10 +38,10 @@ pub fn update_issue(idEndPart:&str, searchIn:~[Issue], update:|Issue| -> Issue)
     }
     searchIn
   }else{
-    let mut filtered:~[Issue] = searchIn.move_iter()
-                                         .filter(|x| x.id != matching[0].id)
+    let mut filtered:Vec<Issue> = searchIn.move_iter()
+                                         .filter(|x| x.id != matching.get(0).id)
                                          .collect();
-    filtered.push(update(matching[0]));
+    filtered.push(update(matching.pop().unwrap()));
     filtered
   }
 }

@@ -36,7 +36,7 @@ pub fn set_status(args:~[~str]) -> int {
           oldIssue.status = newStatus.clone();
           oldIssue
         });
-        file_manager::write_issues(edited);
+        file_manager::write_issues(edited.as_slice());
         0
       }
       None => {println!("Given status does not exist"); 2}

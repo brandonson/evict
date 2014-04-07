@@ -17,7 +17,7 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std;
-use std::libc;
+use libc;
 use config;
 use std::io::stdin;
 use std::io::BufferedReader;
