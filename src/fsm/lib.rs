@@ -1,5 +1,5 @@
-#[crate_id = "fsm#0.1"];
-#[crate_type="lib"];
+#![crate_id = "fsm#0.1"]
+#![crate_type="lib"]
 pub enum NextState<S,I>{
   ChangeState(Executor<S,I>, S),
   Continue(S),
@@ -9,10 +9,10 @@ pub enum NextState<S,I>{
 pub type Executor<S,I> = fn(S, I) -> NextState<S,I>;
 
 pub struct StateMachine<S, I> {
-  priv nextExecutor:Option<Executor<S,I>>,
+  nextExecutor:Option<Executor<S,I>>,
   ///State should only ever be None when the process
   ///method is running.
-  priv currentState:Option<S>
+  currentState:Option<S>
 }
 
 impl<S,I> StateMachine<S,I>{
