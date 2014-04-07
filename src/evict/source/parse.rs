@@ -36,7 +36,14 @@ struct PartialParseResult<'a>{
 }
 
 impl<'a> PartialParseResult<'a> {
-  fn to_final_result(self) -> ParseResult {
+  fn to_final_result(mut self) -> ParseResult {
+    if self.issue_in_progress.is_some() {
+      let mut issue = self.issue_in_progress.take_unwrap();
+      if self.body_in_progress.is_some() {
+        issue.body_text = self.body_in_progress.take_unwrap();
+      }
+      self.new_issues.push(issue);
+    }
     let PartialParseResult{new_issues, new_contents, ..} = self;
     ParseResult{new_issues:new_issues, new_file_contents:new_contents}
   }
@@ -61,6 +68,11 @@ impl SourceSearcher {
 
   pub fn parse_file<R:Reader>(&self, reader:&mut BufferedReader<R>)
           -> IoResult<ParseResult>{
+    self.parse_file_lines(reader.lines())
+  }
+
+  pub fn parse_file_lines<'a, ITER:Iterator<IoResult<~str>>>
+          (&self, mut iter: ITER) -> IoResult<ParseResult> {
     let partial_result = PartialParseResult{new_issues:vec!(),
                            issue_in_progress:None, body_in_progress:None,
                            current_comment_format:None,
@@ -69,7 +81,7 @@ impl SourceSearcher {
     let mut state_machine = fsm::StateMachine::new(main_parse_handler,
                                                    partial_result);
                                           
-    for lineRes in reader.lines() {
+    for lineRes in iter {
       match lineRes {
         Ok(line) =>{
           state_machine.process(line);
@@ -211,10 +223,45 @@ fn parse_body<'a>(partial_result:PartialParseResult<'a>, input:~str)
 }
 
 fn add_line<'a>(presult:PartialParseResult<'a>, line:&str) -> PartialParseResult<'a> {
-  let contents = presult.new_contents + "\n" + line;
+  let contents = if presult.new_contents == ~"" {
+    line.to_owned()
+  }else{
+    presult.new_contents + "\n" + line
+  };
   PartialParseResult{new_contents:contents, .. presult}
 }
 
 fn line_ends_format(input:&str, format:&CommentFormat) -> bool {
   format.body_end_line_start.as_ref().map(|x| input.starts_with(*x)).unwrap_or(false)
+}
+
+#[test]
+fn basic_parse_test(){
+  use issue::TimelineTag;
+  use std::vec::MoveItems;
+
+  let searcher = SourceSearcher::new_default_searcher(~"me");
+  let lines:MoveItems<IoResult<~str>> = vec!(Ok(~"//[sometag] This is a title"))
+                                            .move_iter();
+  let result = searcher.parse_file_lines(lines);  
+  assert!(result.is_ok());
+  let result = result.unwrap();
+  assert!(result.new_issues.len() == 1);
+
+  println!("{}", result.new_file_contents.lines().len());
+  println!("{}", result.new_file_contents);
+
+  assert!(result.new_file_contents.lines().len() == 2);
+
+  let issue = result.new_issues.get(0);
+
+  assert!(issue.title == ~"This is a title");
+  assert!(issue.author == ~"me");
+  assert!(issue.body_text == ~"");
+  assert!(issue.events.len() == 1);
+  match issue.events.get(0) {
+    &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == &~"sometag"),
+    _ => fail!("Didn't get a tag")
+  }
+
 }
