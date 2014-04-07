@@ -147,9 +147,9 @@ fn read_comment(commentFile:&Path) -> Option<IssueTimelineEvent> {
 pub fn write_read_issue_file(){
   file_util::create_directory_path(&Path::new(EVICT_DIRECTORY));
   file_util::create_directory_path(&issue_directory_path());
-  let issues = ~[Issue::new(~"A", ~"B", ~"C")];
-  write_issues(issues);
+  let issues = vec!(Issue::new(~"A", ~"B", ~"C"));
+  write_issues(issues.as_slice());
   let read = read_issues();
   assert!(issues == read);
-  io::fs::rmdir_recursive(&Path::new(EVICT_DIRECTORY));
+  let _ = io::fs::rmdir_recursive(&Path::new(EVICT_DIRECTORY));
 }

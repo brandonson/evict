@@ -71,9 +71,9 @@ fn simple_storage(){
 }
 #[cfg(test)]
 fn simple_storage_statefn(state:Option<int>, input:int) -> NextState<Option<int>, int> {
-  if (input == 0){
+  if input == 0 {
     End(state)
-  }else if(input < 0){
+  }else if input < 0 {
     Continue(None)
   }else{
     Continue(Some(input))
