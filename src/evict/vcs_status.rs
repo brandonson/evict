@@ -31,7 +31,7 @@ impl VCS {
                                                     ~"HEAD"])
                          .map(|x| x.output);
         match output {
-          Ok(out) => str::from_utf8_owned(out),
+          Ok(out) => str::from_utf8_owned(out.as_slice().to_owned()),
           Err(_) => None
         }
       }

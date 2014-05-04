@@ -40,7 +40,7 @@ pub fn read_string_from_file(filename:&str) -> Option<~str> {
 pub fn read_string_from_path(path:&Path) -> Option<~str> {
   match io::File::open(path).read_to_end() {
     Err(_) => None,
-    Ok(u8bytes) => str::from_utf8_owned(u8bytes)
+    Ok(u8bytes) => str::from_utf8_owned(u8bytes.as_slice().to_owned())
   }
 }
 

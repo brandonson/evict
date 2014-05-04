@@ -12,6 +12,16 @@
         "name": "conventions",
         "time": "2014-03-18 2014 at 11:37:04"
       }
+    ],
+    [
+      "comment",
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "I think we have this handled now, as it was needed to make things compile (push method got removed from ~[]).\n",
+        "branch": "master",
+        "id": "1399160716116901661",
+        "time": "2014-05-03 2014 at 16:45:16"
+      }
     ]
   ],
   "evict-version": "1",

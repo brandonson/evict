@@ -57,7 +57,7 @@ fn exec_delete(idPart:~str) -> int{
   }else if matching.len() == 1 {
     let issueCount = issues.len();
 
-    let mut remaining:~[Issue] = ~[];
+    let mut remaining:Vec<Issue> = vec!();
     for issue in issues.move_iter() {
        if issue != *matching.get(0) {
          remaining.push(issue);
@@ -65,7 +65,7 @@ fn exec_delete(idPart:~str) -> int{
     }
     //We really, REALLY don't want to be deleting issues we don't expect to be
     assert!(issueCount - 1 == remaining.len());
-    file_manager::write_issues(remaining);
+    file_manager::write_issues(remaining.as_slice());
     println!("Issue {} ({}) deleted.", matching.get(0).id, matching.get(0).title);
     0
   }else{

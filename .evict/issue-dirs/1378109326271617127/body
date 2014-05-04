@@ -7,10 +7,10 @@
       "comment",
       {
         "author": "Brandon Sanderson",
-        "bodyText": "In order to properly merge, we need to add a\nstatusSetTime field to Issue.  Will also move\ndate json conversion out to a utility method\nsomewhere.\n",
+        "bodyText": "A test comment for merging.\n",
         "branch": "proper-merge",
-        "id": "1382149572157150670",
-        "time": "2013-09-03 2013 at 22:28:38"
+        "id": "1382149572172952457",
+        "time": "2013-09-03 2013 at 23:06:03"
       }
     ],
     [
@@ -21,16 +21,6 @@
         "branch": "master",
         "id": "1382149572157191073",
         "time": "2013-09-03 2013 at 23:05:24"
-      }
-    ],
-    [
-      "comment",
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "A test comment for merging.\n",
-        "branch": "proper-merge",
-        "id": "1382149572172952457",
-        "time": "2013-09-03 2013 at 23:06:03"
       }
     ],
     [
@@ -51,6 +41,16 @@
         "branch": "proper-merge",
         "id": "1382149572173038669",
         "time": "2013-09-07 2013 at 00:42:35"
+      }
+    ],
+    [
+      "comment",
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "In order to properly merge, we need to add a\nstatusSetTime field to Issue.  Will also move\ndate json conversion out to a utility method\nsomewhere.\n",
+        "branch": "proper-merge",
+        "id": "1382149572157150670",
+        "time": "2013-09-03 2013 at 22:28:38"
       }
     ]
   ],

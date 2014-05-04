@@ -32,21 +32,22 @@ use date_sort;
 static TMP_OUTPUT_FILE:&'static str = ".evict/LIST_TEMP_FILE";
 
 trait LinePushingString{
-  fn push_strln(&mut self, rhs:&str);
+  fn push_strln<S:Str>(&mut self, rhs:S);
 }
 
-impl LinePushingString for ~str{
-  fn push_strln(&mut self, rhs:&str){
-    self.push_str(rhs);
+impl LinePushingString for StrBuf{
+  fn push_strln<S:Str>(&mut self, rhs:S){
+    self.push_str(rhs.as_slice());
     self.push_str("\n");
   }
 }
+
 
 pub fn list_issues(args:~[~str]) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{short:false,
                                                       committed:false,
-                                                      statuses:~[],
+                                                      statuses:vec!(),
                                                       noComments:false,
                                                       id:None});
 
@@ -89,7 +90,7 @@ pub fn list_issues(args:~[~str]) -> int{
 struct Flags{
   short:bool,
   committed: bool,
-  statuses: ~[~str],
+  statuses: Vec<~str>,
   noComments: bool,
   id:Option<~str>
 }
@@ -118,21 +119,23 @@ fn get_id(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
 
 fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> ~str{
   let date_sorted = date_sort::sort_by_time(issues);
-  let mut to_print = ~"";
+  let mut to_print = ~StrBuf::new();
   //reverse because they're sorted in ascending order
   //and we want descending
   for issue in date_sorted.iter().rev() {
     if flags.statuses.len() == 0 ||
-       flags.statuses.contains(&issue.status.name){ 
+      flags.statuses.contains(&issue.status.name){ 
       to_print = print_issue(issue, flags, to_print);
     }
   }
-  to_print
+  to_print.into_owned()
 }
 
-fn print_issue(issue:&Issue, flags:&Flags, mut to_print:~str) -> ~str {
+fn print_issue(issue:&Issue, flags:&Flags, mut to_print:~StrBuf)
+  -> ~StrBuf {
   to_print.push_strln("");
-  to_print.push_strln(format!("\x1b[33m{} (Issue ID: {})\x1b[0m", issue.title, issue.id));
+  to_print.push_strln(format!("\x1b[33m{} (Issue ID: {})\x1b[0m",
+                              issue.title, issue.id));
   if !flags.short {
     to_print.push_strln(format!("Current status: {}", issue.status.name));
     to_print.push_strln(format!("\x1b[34mReported by {} on {}\x1b[0m",
@@ -140,14 +143,14 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:~str) -> ~str {
                        issue.creation_time.strftime(issue::TIME_FORMAT)));
     to_print.push_strln(format!("Originated on branch {}\n", issue.branch)); 
     if issue.body_text.len() > 0 {
-      to_print.push_strln(issue.body_text);
+      to_print.push_strln(issue.body_text.as_slice());
     }
     if !flags.noComments {
       if issue.events.len() == 0 {
         to_print.push_strln("    Nothing here for this issue.");
       }else{
         //the string for all comment info
-        let mut comment_output = ~"";
+        let mut comment_output = StrBuf::new();
         //the tags for this comment
         let mut tag_map:TreeMap<~str, time::Tm> = TreeMap::new();
         for evt in issue.events.iter() {
@@ -171,7 +174,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:~str) -> ~str {
             }
           }
         }
-        let mut tag_output = ~"";
+        let mut tag_output = StrBuf::new();
         if tag_map.len() == 0 {
           tag_output.push_str("  No tags for this issue");
         }else {

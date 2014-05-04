@@ -373,9 +373,8 @@ impl IssueComment{
 
 impl json::ToJson for IssueTimelineEvent{
   fn to_json(&self) -> json::Json {
-    let mut data:~[json::Json] = ~[];
-    data.push(json::String(self.event_type()));
-    data.push(self.event_data());
+    let data:~[json::Json] = ~[json::String(self.event_type()),
+                               self.event_data()];
     json::List(data)
   }
 }

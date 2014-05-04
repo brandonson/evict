@@ -44,13 +44,13 @@ fn full_default_status_filename() -> ~str {
   format!("{}/{}", file_manager::EVICT_DIRECTORY, DEF_STATUS_FILE)
 }
 
-pub fn read_status_options() -> ~[StatusOption] {
+pub fn read_status_options() -> Vec<StatusOption> {
   let fullString = file_util::read_string_from_file(full_status_filename())
                              .unwrap_or(~"");
   fullString.lines_any().map(|x| StatusOption{name:x.to_owned()}).collect()
 }
 
-pub fn write_status_options(statuses:~[StatusOption]) -> bool {
+pub fn write_status_options(statuses:Vec<StatusOption>) -> bool {
   let stringVec:~[~str] = statuses.move_iter().map(|x| x.name).collect();
   let fullString = stringVec.connect("\n");
   file_util::write_string_to_file(fullString, full_status_filename(), true)

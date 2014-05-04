@@ -7,10 +7,10 @@
       "comment",
       {
         "author": "Brandon Sanderson",
-        "bodyText": "To achieve 1 file = 1 issue, we need a method of merging.  The best way to achieve this\nseems to be that each issue filename has the format <issue-id>-<current-branch>.ebtd.\nThis way, we can have `evict merge` look for issue files which have the same ID but are\nfor a different branch, then merge such files, removing the files for the incoming branch.\nThen, it would rename all the files for the incoming branch that had not yet been merged.\n\nThroughout all this, we would also have to make sure that the removals are tracked properly by the VCS,\nas the user should never have to use any non-evict command excepting perhaps '<vcs> add .evict'.\n",
-        "branch": "master",
-        "id": "1382149572159171756",
-        "time": "2013-09-17 2013 at 00:44:53"
+        "bodyText": "Now write to appropriate files, need to add support for reading as well.\n",
+        "branch": "single-issue-files",
+        "id": "1382149572174415441",
+        "time": "2013-10-18 2013 at 02:22:11"
       }
     ],
     [
@@ -37,20 +37,20 @@
       "comment",
       {
         "author": "Brandon Sanderson",
-        "bodyText": "Now write to appropriate files, need to add support for reading as well.\n",
+        "bodyText": "Now writing with 1 folder = 1 issue, 1 file = 1 comment, + file for issue body.\n",
         "branch": "single-issue-files",
-        "id": "1382149572174415441",
-        "time": "2013-10-18 2013 at 02:22:11"
+        "id": "1382153103991650903",
+        "time": "2013-10-18 2013 at 20:25:03"
       }
     ],
     [
       "comment",
       {
         "author": "Brandon Sanderson",
-        "bodyText": "Now writing with 1 folder = 1 issue, 1 file = 1 comment, + file for issue body.\n",
-        "branch": "single-issue-files",
-        "id": "1382153103991650903",
-        "time": "2013-10-18 2013 at 20:25:03"
+        "bodyText": "To achieve 1 file = 1 issue, we need a method of merging.  The best way to achieve this\nseems to be that each issue filename has the format <issue-id>-<current-branch>.ebtd.\nThis way, we can have `evict merge` look for issue files which have the same ID but are\nfor a different branch, then merge such files, removing the files for the incoming branch.\nThen, it would rename all the files for the incoming branch that had not yet been merged.\n\nThroughout all this, we would also have to make sure that the removals are tracked properly by the VCS,\nas the user should never have to use any non-evict command excepting perhaps '<vcs> add .evict'.\n",
+        "branch": "master",
+        "id": "1382149572159171756",
+        "time": "2013-09-17 2013 at 00:44:53"
       }
     ]
   ],

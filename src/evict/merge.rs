@@ -18,8 +18,9 @@
  */
 use collections::HashMap;
 use issue::{Issue,IssueTimelineEvent};
+use std::vec::Vec;
 
-pub fn merge_issues(incoming:~[Issue],merge_into:~[Issue]) -> ~[Issue] {
+pub fn merge_issues(incoming:Vec<Issue>,merge_into:Vec<Issue>) -> Vec<Issue> {
   let mut ident_map:HashMap<~str, (Option<Issue>, Option<Issue>)> = HashMap::new();
   for issue in incoming.move_iter() {
     ident_map.insert(issue.id.to_owned(), (Some(issue), None));
@@ -30,7 +31,7 @@ pub fn merge_issues(incoming:~[Issue],merge_into:~[Issue]) -> ~[Issue] {
       None => ident_map.insert(issue.id.to_owned(), (None, Some(issue)))
     };
   }
-  let mut merged:~[Issue] = ~[];
+  let mut merged:Vec<Issue> = vec!();
   merged.reserve(ident_map.len());
 
   for (_, value) in ident_map.move_iter() {

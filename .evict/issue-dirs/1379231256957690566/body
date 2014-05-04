@@ -7,20 +7,20 @@
       "comment",
       {
         "author": "Brandon Sanderson",
-        "bodyText": "Now save issues by date, or at least we should.\n",
+        "bodyText": "Confirmed that we now save in order to reduce diff size.\n",
         "branch": "issue-ordering",
-        "id": "1382149572158256785",
-        "time": "2013-09-15 2013 at 01:39:25"
+        "id": "1382149572173768678",
+        "time": "2013-09-15 2013 at 01:41:05"
       }
     ],
     [
       "comment",
       {
         "author": "Brandon Sanderson",
-        "bodyText": "Confirmed that we now save in order to reduce diff size.\n",
+        "bodyText": "Now save issues by date, or at least we should.\n",
         "branch": "issue-ordering",
-        "id": "1382149572173768678",
-        "time": "2013-09-15 2013 at 01:41:05"
+        "id": "1382149572158256785",
+        "time": "2013-09-15 2013 at 01:39:25"
       }
     ]
   ],
