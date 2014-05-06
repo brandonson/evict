@@ -94,7 +94,7 @@ pub fn create_issue(args:~[~str]) -> int {
 
 fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<Issue>{
   let issueOpt = if bodyFile.is_none() {
-                   Some(Issue::new(title, ~"", author))
+                   Some(Issue::new(title, "".to_owned(), author))
                  }else{
                    let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap());
                    bodyTextOpt.map(

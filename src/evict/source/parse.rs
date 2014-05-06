@@ -51,15 +51,15 @@ impl<'a> PartialParseResult<'a> {
 
 impl SourceSearcher {
   pub fn new_default_searcher(auth:~str) -> SourceSearcher {
-    let double_slash_format = CommentFormat{issue_start:~"//",
-                                            body_line_start:~"//",
+    let double_slash_format = CommentFormat{issue_start:"//".to_owned(),
+                                            body_line_start:"//".to_owned(),
                                             body_end_line_start:None};
-    let mline_comment_format = CommentFormat{issue_start:~"/*",
-                                             body_line_start:~"*",
-                                             body_end_line_start:Some(~"*/")};
+    let mline_comment_format = CommentFormat{issue_start:"/*".to_owned(),
+                                             body_line_start:"*".to_owned(),
+                                             body_end_line_start:Some("*/".to_owned())};
     SourceSearcher{comment_fmts:vec!(double_slash_format,
                                      mline_comment_format),
-                   issue_id_comment_start:~"//--evict-id",
+                   issue_id_comment_start:"//--evict-id ".to_owned(),
                    tag_start_delim: '[',
                    tag_end_delim: ']',
                    tag_split_delim: ',',
@@ -76,7 +76,7 @@ impl SourceSearcher {
     let partial_result = PartialParseResult{new_issues:vec!(),
                            issue_in_progress:None, body_in_progress:None,
                            current_comment_format:None,
-                           new_contents:~"",
+                           new_contents:"".to_owned(),
                            searcher:self};
     let mut state_machine = fsm::StateMachine::new(main_parse_handler,
                                                    partial_result);
@@ -110,7 +110,7 @@ fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, input:~str)
          
          if tags.is_some() {
          
-           let mut new_issue = Issue::new(title_text.to_owned(), ~"",
+           let mut new_issue = Issue::new(title_text.to_owned(), "".to_owned(),
                                           partial_result.searcher
                                                         .issue_author_name.clone());
          
@@ -208,12 +208,12 @@ fn parse_body<'a>(partial_result:PartialParseResult<'a>, input:~str)
 
   if is_end || !trimmed.starts_with(format.body_line_start) {
     let mut issue = with_line.issue_in_progress.take_unwrap();
-    let nbody = with_line.body_in_progress.take().unwrap_or(~"");
+    let nbody = with_line.body_in_progress.take().unwrap_or("".to_owned());
     issue.body_text = nbody;
     with_line.new_issues.push(issue);
     fsm::ChangeState(main_parse_handler, with_line)
   }else{
-    let body_so_far = with_line.body_in_progress.take().unwrap_or(~"");
+    let body_so_far = with_line.body_in_progress.take().unwrap_or("".to_owned());
     let stripped_body_line = input.slice_from(format.body_line_start.len())
                                   .trim();
     let new_body = body_so_far + stripped_body_line;
@@ -223,7 +223,7 @@ fn parse_body<'a>(partial_result:PartialParseResult<'a>, input:~str)
 }
 
 fn add_line<'a>(presult:PartialParseResult<'a>, line:&str) -> PartialParseResult<'a> {
-  let contents = if presult.new_contents == ~"" {
+  let contents = if presult.new_contents == "".to_owned() {
     line.to_owned()
   }else{
     presult.new_contents + "\n" + line

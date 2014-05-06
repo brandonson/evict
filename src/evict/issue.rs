@@ -241,7 +241,7 @@ impl Issue{
   }
 
   pub fn new(title:~str, body:~str, author:~str) -> Issue{
-    let branch = vcs_status::current_branch().unwrap_or(~"<unknown>");
+    let branch = vcs_status::current_branch().unwrap_or("<unknown>".to_owned());
     Issue{title:title,
            body_text:body,
            author:author,
@@ -365,7 +365,7 @@ impl IssueComment{
   }
   
   pub fn new(author:~str, body:~str) -> IssueComment{
-    let branch = vcs_status::current_branch().unwrap_or(~"<unknown>");
+    let branch = vcs_status::current_branch().unwrap_or("<unknown>".to_owned());
     IssueComment{author:author, body_text:body, creation_time:time::now(),
                   branch: branch, id:generate_id()}
   }
@@ -382,9 +382,9 @@ impl json::ToJson for IssueTimelineEvent{
 impl IssueTimelineEvent{
   pub fn event_type(&self) -> ~str {
     match self {
-      &TimelineComment(_) => ~"comment",
-      &TimelineTag(_) => ~"tag"
-    }
+      &TimelineComment(_) => "comment",
+      &TimelineTag(_) => "tag"
+    }.to_owned()
   }
 
   pub fn event_data(&self) -> json::Json {

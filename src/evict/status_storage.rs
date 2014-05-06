@@ -46,7 +46,7 @@ fn full_default_status_filename() -> ~str {
 
 pub fn read_status_options() -> Vec<StatusOption> {
   let fullString = file_util::read_string_from_file(full_status_filename())
-                             .unwrap_or(~"");
+                             .unwrap_or("".to_owned());
   fullString.lines_any().map(|x| StatusOption{name:x.to_owned()}).collect()
 }
 

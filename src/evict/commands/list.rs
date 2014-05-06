@@ -71,7 +71,7 @@ pub fn list_issues(args:~[~str]) -> int{
   let paginate_proc = process::Process::configure(
                           process::ProcessConfig{
                             program:"less",
-                            args:&[~"-RXF", TMP_OUTPUT_FILE.to_owned()],
+                            args:&["-RXF".to_owned(), TMP_OUTPUT_FILE.to_owned()],
                             stdout:process::InheritFd(libc::STDOUT_FILENO),
                             stderr:process::InheritFd(libc::STDERR_FILENO),
                             .. process::ProcessConfig::new()});
@@ -161,7 +161,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:~StrBuf)
                                comment.creation_time.strftime(issue::TIME_FORMAT)));
               comment_output.push_strln(format!("  For branch {}", comment.branch));
               for line in comment.body_text.lines() {
-                comment_output.push_strln(~"    " + line);
+                comment_output.push_strln(format!("    {}", line));
               }
               comment_output.push_strln("");
             }

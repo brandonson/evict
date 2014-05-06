@@ -43,33 +43,34 @@ mod tag;
 pub type Command = fn (~[~str]) -> int;
 
 pub fn execute_command(command:&~str, 
-                      commandList:&~std::container::Map<~str, Command>, 
+                      commandList:&HashMap<~str, Command>, 
                       argList: ~[~str]) -> bool{
   match commandList.find(command) {
     Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
     None => {
-     println!("Command {} not found", *command); 
+     println!("Command {} not found", command); 
      std::os::set_exit_status(1); 
      false
     } 
   }
 }
 
-pub fn standard_commands() -> ~std::container::Map<~str, Command> {
+pub fn standard_commands() -> ~HashMap<~str, Command> {
   let mut hmap:~HashMap<~str, Command> = ~HashMap::new();
-  hmap.insert(~"create", create::create_issue);
-  hmap.insert(~"clear", clear::clear_data);
-  hmap.insert(~"init", init::initialize);
-  hmap.insert(~"list", list::list_issues); 
-  hmap.insert(~"delete", delete::delete_issue);
-  hmap.insert(~"comment", comment::new_comment); 
-  hmap.insert(~"new-status", new_status::new_status);
-  hmap.insert(~"default-author", default_author::default_author);
-  hmap.insert(~"set-status", set_status::set_status);
-  hmap.insert(~"default-status", default_status::default_status);
-  hmap.insert(~"tag", tag::tag);
-  hmap.insert(~"untag", tag::untag);
-  hmap as ~std::container::Map<~str, Command>
+  hmap.insert("create".to_owned(), create::create_issue);
+  hmap.insert("clear".to_owned(), clear::clear_data);
+  hmap.insert("init".to_owned(), init::initialize);
+  hmap.insert("list".to_owned(), list::list_issues); 
+  hmap.insert("delete".to_owned(), delete::delete_issue);
+  hmap.insert("comment".to_owned(), comment::new_comment); 
+  hmap.insert("new-status".to_owned(), new_status::new_status);
+  hmap.insert("default-author".to_owned(), default_author::default_author);
+  hmap.insert("set-status".to_owned(), set_status::set_status);
+  hmap.insert("default-status".to_owned(), default_status::default_status);
+  hmap.insert("tag".to_owned(), tag::tag);
+  hmap.insert("untag".to_owned(), tag::untag);
+  
+  hmap
 }
 
 pub fn prompt(prompt:&str) -> ~str{

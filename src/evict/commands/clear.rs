@@ -27,7 +27,7 @@ pub fn clear_data(_:~[~str]) -> int {
   let res = commands::prompt(
              format!("Really clear everything from {}? [y/n]", 
                      absolute.display()));
-  if res == ~"y" {
+  if res.as_slice() == "y" {
     let mut success = true;
     //try to delete, if we fail the just set success to false
     //(no point in retries or anything else, user can just

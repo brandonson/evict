@@ -35,6 +35,6 @@ fn main(){
     
      
     let cmd = args[1];
-    commands::execute_command(&cmd, &commands::standard_commands(), cmd_args);
+    commands::execute_command(&cmd, commands::standard_commands(), cmd_args);
   }
 }
