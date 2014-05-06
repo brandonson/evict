@@ -35,6 +35,7 @@ mod default_author;
 mod set_status;
 mod default_status;
 mod tag;
+mod parse;
 
 /* A command takes a list of argument strings,
  * performs some action, then returns an
@@ -69,6 +70,7 @@ pub fn standard_commands() -> ~HashMap<~str, Command> {
   hmap.insert("default-status".to_owned(), default_status::default_status);
   hmap.insert("tag".to_owned(), tag::tag);
   hmap.insert("untag".to_owned(), tag::untag);
+  hmap.insert("parse".to_owned(), parse::parse_issues);
   
   hmap
 }

@@ -18,6 +18,8 @@ pub mod date_sort;
 
 pub mod source{
   pub mod parse;
+  pub mod file_parser;
+  pub mod recursive_parser;
 }
 
 pub mod evict{

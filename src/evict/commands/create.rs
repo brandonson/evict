@@ -57,7 +57,7 @@ pub fn create_issue(args:~[~str]) -> int {
                                            Flags{hasBody:true, 
                                                  bodyFile:None, 
                                                  title:None,
-						 author:None});
+	                                    					 author:None});
   for argVal in args.move_iter() {
     stateMachine.process(argVal);
   };

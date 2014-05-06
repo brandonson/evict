@@ -184,8 +184,8 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:~StrBuf)
           for (tagname,_) in tag_map.iter() {
             if !isStart {
               tag_output.push_str(", "); 
-              isStart = true;
             }
+            isStart = false;
             tag_output.push_str(*tagname);
           }
         }
