@@ -1,0 +1,25 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "",
+  "branch": "sourced-issues",
+  "events": [
+    [
+      "tag",
+      {
+        "author": "Brandon Sanderson",
+        "enabled": true,
+        "id": "1399720517922151930",
+        "name": "conventions",
+        "time": "2014-05-10 2014 at 04:15:17"
+      }
+    ]
+  ],
+  "evict-version": "1",
+  "id": "1399720517980750949",
+  "status": {
+    "name": "open",
+    "time": "2014-05-10 2014 at 04:15:17"
+  },
+  "time": "2014-05-10 2014 at 04:15:17",
+  "title": "bodyFile in Flags should be body_file"
+}
