@@ -22,13 +22,23 @@
         "id": "1393963730561539263",
         "time": "2014-03-04 2014 at 12:08:50"
       }
+    ],
+    [
+      "comment",
+      {
+        "author": "Brandon Sanderson",
+        "bodyText": "Changing to low-pri, as this is mostly just going to get done when\nthings are found while making other changes.\n",
+        "branch": "sourced-issues",
+        "id": "1399720285185816708",
+        "time": "2014-05-10 2014 at 04:11:25"
+      }
     ]
   ],
   "evict-version": "1",
   "id": "1387512496686356667",
   "status": {
-    "name": "open",
-    "time": "2013-12-19 2013 at 20:08:16"
+    "name": "low-pri",
+    "time": "2014-05-10 2014 at 04:11:37"
   },
   "time": "2013-12-19 2013 at 20:08:16",
   "title": "Start using coding conventions for rust"

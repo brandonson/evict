@@ -18,10 +18,10 @@
  */
 use issue::Issue;
 
-pub fn find_matching_issues(idEndPart:&str, searchIn:&[Issue]) -> Vec<Issue> {
+pub fn find_matching_issues(idPart:&str, searchIn:&[Issue]) -> Vec<Issue> {
   let mut matching:Vec<Issue> = vec!();
   for issue in searchIn.iter() {
-    if issue.id.ends_with(idEndPart) {
+    if issue.id.ends_with(idPart) || issue.id.starts_with(idPart) {
       matching.push(issue.clone());
     }
   }
