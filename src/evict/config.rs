@@ -30,7 +30,7 @@ pub struct Config{
 
 impl ToJson for Config{
   fn to_json(&self) -> json::Json {
-    let mut map:~treemap::TreeMap<~str, json::Json> = ~treemap::TreeMap::new();
+    let mut map:Box<treemap::TreeMap<~str, json::Json>> = box treemap::TreeMap::new();
     match self.author {
       Some(ref auth) => {map.insert(AUTHOR_KEY.to_owned(),json::String(auth.to_owned()));}
       None => {}

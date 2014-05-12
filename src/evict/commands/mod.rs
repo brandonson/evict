@@ -56,8 +56,8 @@ pub fn execute_command(command:&~str,
   }
 }
 
-pub fn standard_commands() -> ~HashMap<~str, Command> {
-  let mut hmap:~HashMap<~str, Command> = ~HashMap::new();
+pub fn standard_commands() -> Box<HashMap<~str, Command>> {
+  let mut hmap:Box<HashMap<~str, Command>> = box HashMap::new();
   hmap.insert("create".to_owned(), create::create_issue);
   hmap.insert("clear".to_owned(), clear::clear_data);
   hmap.insert("init".to_owned(), init::initialize);

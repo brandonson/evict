@@ -165,16 +165,16 @@ fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, input:~str)
 }
 
 fn read_tags<'a>(line_text:&'a str, format:&SourceSearcher)
-    -> (Option<~[IssueTag]>, &'a str) {
+    -> (Option<Vec<IssueTag>>, &'a str) {
   let trimmed = line_text.trim();
   if trimmed.char_at(0) == format.tag_start_delim {
     let with_tags = trimmed.slice_from(1);
-    let split:~[&str] =  with_tags.split(format.tag_end_delim).collect();
+    let split:Vec<&str> =  with_tags.split(format.tag_end_delim).collect();
     if split.len() < 2 {
       (None, line_text)
     }else{
-      let tag_part = split[0];
-      let title_part = split[1].trim();
+      let tag_part = split.get(0);
+      let title_part = split.get(1).trim();
       let split_tags = tag_part.split(format.tag_split_delim);
       let mut tag_vec = split_tags.filter_map(|tag| {
         tag_from_nonempty_str(tag, format.issue_author_name)
@@ -269,8 +269,8 @@ fn basic_parse_test(){
   use issue::TimelineTag;
   use std::vec::MoveItems;
 
-  let searcher = SourceSearcher::new_default_searcher(~"me");
-  let lines:MoveItems<IoResult<~str>> = vec!(Ok(~"//[sometag] This is a title"))
+  let searcher = SourceSearcher::new_default_searcher(box "me");
+  let lines:MoveItems<IoResult<~str>> = vec!(Ok(box "//[sometag] This is a title"))
                                             .move_iter();
   let result = searcher.parse_file_lines(lines);  
   assert!(result.is_ok());
@@ -284,12 +284,12 @@ fn basic_parse_test(){
 
   let issue = result.new_issues.get(0);
 
-  assert!(issue.title == ~"This is a title");
-  assert!(issue.author == ~"me");
-  assert!(issue.body_text == ~"");
+  assert!(issue.title == box "This is a title");
+  assert!(issue.author == box "me");
+  assert!(issue.body_text == box "");
   assert!(issue.events.len() == 1);
   match issue.events.get(0) {
-    &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == &~"sometag"),
+    &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & box "sometag"),
     _ => fail!("Didn't get a tag")
   }
 

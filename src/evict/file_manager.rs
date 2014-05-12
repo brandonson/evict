@@ -106,13 +106,13 @@ fn read_issue_from_dir(basePath:Path) -> Option<Issue> {
   let files = io::fs::readdir(&basePath);
   let bodyPath = Path::new(BODY_FILENAME);
   let issueBodyPath = basePath.join(bodyPath);
-  let noBodyFiles:~[Path] = files.ok().unwrap_or(vec!())
+  let noBodyFiles:Vec<Path> = files.ok().unwrap_or(vec!())
                                  .move_iter()
                                  .filter(|x| x != &issueBodyPath)
                                  .collect();
   let bodyIssue = read_issue_body(issueBodyPath);
   bodyIssue.map (|mut bIssue| {
-    let events = read_issue_events(noBodyFiles);
+    let events = read_issue_events(noBodyFiles.as_slice());
     bIssue.events = events;
     bIssue
   })
@@ -147,7 +147,7 @@ fn read_comment(commentFile:&Path) -> Option<IssueTimelineEvent> {
 pub fn write_read_issue_file(){
   file_util::create_directory_path(&Path::new(EVICT_DIRECTORY));
   file_util::create_directory_path(&issue_directory_path());
-  let issues = vec!(Issue::new(~"A", ~"B", ~"C"));
+  let issues = vec!(Issue::new(box "A", box "B", box "C"));
   write_issues(issues.as_slice());
   let read = read_issues();
   assert!(issues == read);

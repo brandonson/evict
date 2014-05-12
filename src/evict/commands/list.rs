@@ -119,7 +119,7 @@ fn get_id(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
 
 fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> ~str{
   let date_sorted = date_sort::sort_by_time(issues);
-  let mut to_print = ~StrBuf::new();
+  let mut to_print = box StrBuf::new();
   //reverse because they're sorted in ascending order
   //and we want descending
   for issue in date_sorted.iter().rev() {
@@ -131,8 +131,8 @@ fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> ~str{
   to_print.into_owned()
 }
 
-fn print_issue(issue:&Issue, flags:&Flags, mut to_print:~StrBuf)
-  -> ~StrBuf {
+fn print_issue(issue:&Issue, flags:&Flags, mut to_print:Box<StrBuf>)
+  -> Box<StrBuf> {
   to_print.push_strln("");
   to_print.push_strln(format!("\x1b[33m{} (Issue ID: {})\x1b[0m",
                               issue.title, issue.id));

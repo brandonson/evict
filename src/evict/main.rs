@@ -36,7 +36,7 @@ fn main(){
     let cmd_args = args.tailn(2).to_owned();
     
      
-    let cmd = args[1];
-    commands::execute_command(&cmd, commands::standard_commands(), cmd_args);
+    let cmd = args.get(1);
+    commands::execute_command(cmd, commands::standard_commands(), cmd_args);
   }
 }

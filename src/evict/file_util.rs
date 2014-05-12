@@ -58,7 +58,7 @@ pub fn create_directory(name:&str) -> bool {
 
 pub fn create_directory_path(p:&Path) -> bool {
   io_to_success (
-    || io::fs::mkdir(p, 0400 | 0200 | 0040 | 0020 | 0004)
+    || io::fs::mkdir(p, io::UserDir)
   )
 }
 
@@ -79,7 +79,7 @@ pub fn io_to_success(ioCall:| | -> io::IoResult<()>) -> bool {
 
 #[test]
 pub fn create_delete_and_existence(){
-  let testname = ~"file_util_testCDAE";
+  let testname = box "file_util_testCDAE";
 
   assert!(create_empty(testname));
   assert!(file_exists(testname));
@@ -89,17 +89,17 @@ pub fn create_delete_and_existence(){
 
 #[test]
 pub fn create_empty_is_empty(){
-  let testname = ~"file_util_testCEIE";
+  let testname = box "file_util_testCEIE";
   
   assert!(create_empty(testname));
-  assert!(read_string_from_file(testname) == Some(~""));
+  assert!(read_string_from_file(testname) == Some(box ""));
   assert!(delete_file(testname));
 }
 
 #[test]
 pub fn write_read_str(){
-  let testname = ~"file_util_testWRS";
-  let testString = ~"This is a test string";
+  let testname = box "file_util_testWRS";
+  let testString = box "This is a test string";
 
   assert!(write_string_to_file(testString, testname, false));
   assert!(read_string_from_file(testname) == Some(testString));
