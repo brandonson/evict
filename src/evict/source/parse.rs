@@ -269,8 +269,8 @@ fn basic_parse_test(){
   use issue::TimelineTag;
   use std::vec::MoveItems;
 
-  let searcher = SourceSearcher::new_default_searcher(box "me");
-  let lines:MoveItems<IoResult<~str>> = vec!(Ok(box "//[sometag] This is a title"))
+  let searcher = SourceSearcher::new_default_searcher("me".to_owned());
+  let lines:MoveItems<IoResult<~str>> = vec!(Ok("//[sometag] This is a title".to_owned()))
                                             .move_iter();
   let result = searcher.parse_file_lines(lines);  
   assert!(result.is_ok());
@@ -284,12 +284,12 @@ fn basic_parse_test(){
 
   let issue = result.new_issues.get(0);
 
-  assert!(issue.title == box "This is a title");
-  assert!(issue.author == box "me");
-  assert!(issue.body_text == box "");
+  assert!(issue.title == "This is a title".to_owned());
+  assert!(issue.author == "me".to_owned());
+  assert!(issue.body_text == "".to_owned());
   assert!(issue.events.len() == 1);
   match issue.events.get(0) {
-    &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & box "sometag"),
+    &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & "sometag".to_owned()),
     _ => fail!("Didn't get a tag")
   }
 
