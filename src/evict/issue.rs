@@ -24,6 +24,7 @@ use collections::treemap;
 use evict;
 use vcs_status;
 use status_storage::DEFAULT_STATUS_NAME;
+
 pub static TIME_FORMAT:&'static str = "%F %Y at %T";
 
 pub static BODY_KEY:&'static str = "bodyText";
@@ -139,6 +140,29 @@ impl Issue{
     recent
   }
 
+  ///Returns a vector of all tags currently enabled on this Issue.
+  ///Assumes that the list of events is sorted by date.  Issue::from_json
+  ///applies this sorting, so it rarely needs to be done by callers of
+  ///this function.
+  pub fn all_tags(&self) -> Vec<~str> {
+    let mut untagged:Vec<~str> = vec!();
+    let mut tag_list:Vec<~str> = vec!();
+    for evt in self.events.iter().rev() {
+      match evt {
+        &TimelineTag(ref tag) => {
+          let is_untag = untagged.contains(&tag.tag_name);
+          if !is_untag && tag.enabled {
+            tag_list.push(tag.tag_name.clone());
+          }else if !is_untag && !tag.enabled{
+            untagged.push(tag.tag_name.clone());
+          }
+        }
+        _ => {}
+      }
+    }
+    tag_list
+  }
+
   pub fn to_json(&self) -> json::Json {
     let mut map:Box<json::Object> = box treemap::TreeMap::new();
     map.insert(VERSION_KEY.to_owned(), json::String(evict::CURRENT_VERSION.to_str()));
@@ -178,10 +202,16 @@ impl Issue{
   }
 
   pub fn from_json(json:&json::Json) -> Option<Issue> {
+    //reads issue. also sorts so that the events are in order by time
+    //this time ordering is necessary for all_tags to work properly
+
     match json {
       &json::Object(ref map) => Issue::read_from_map(*map),
       _ => None
-    }
+    }.map(|x| ::date_sort::sort_by_time(vec!(x)).pop().unwrap())
+    // [code smell] Fix date sorting individual issue events
+    // This will fix the line above.  Probably just means splitting out
+    // part of date_sort::sort_by_time
   }
 
   fn read_from_map(map:&json::Object) -> Option<Issue>{

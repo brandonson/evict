@@ -18,14 +18,12 @@
  */
 use file_manager;
 use issue;
-use issue::{Issue,TimelineComment, TimelineTag};
+use issue::{Issue,TimelineComment};
 
 use std::io::process;
 
 use file_util;
 use libc;
-use time;
-use collections::treemap::TreeMap;
 use fsm;
 use selection;
 use date_sort;
@@ -50,7 +48,8 @@ pub fn list_issues(args:~[~str]) -> int{
                                                       committed:false,
                                                       statuses:vec!(),
                                                       noComments:false,
-                                                      id:None});
+                                                      id:None,
+                                                      tags:vec!()});
 
   for arg in args.move_iter(){
     stateMachine.process(arg);
@@ -62,6 +61,17 @@ pub fn list_issues(args:~[~str]) -> int{
   for id in final_flags.id.iter() {
     issues = selection::find_matching_issues(id.as_slice(), issues.as_slice());
   }
+
+  issues = issues.move_iter().filter(|check| {
+    //if there are no tags, then we keep all issues
+    let mut found = final_flags.tags.len() == 0;
+    let all_tags = check.all_tags();
+
+    for tag in final_flags.tags.iter() {
+      found = found || all_tags.contains(tag)
+    }
+    found
+  }).collect(); 
 
   let to_print = print_issue_vec(issues, &final_flags);
 
@@ -93,7 +103,8 @@ struct Flags{
   committed: bool,
   statuses: Vec<~str>,
   noComments: bool,
-  id:Option<~str>
+  id:Option<~str>,
+  tags:Vec<~str>
 }
 
 fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
@@ -104,6 +115,7 @@ fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
     "--status" => fsm::ChangeState(get_status, flags),
     "--nocomment" => fsm::Continue(Flags{noComments:true, .. flags}),
     "--id" => fsm::ChangeState(get_id, flags),
+    "--tag" => fsm::ChangeState(get_tag, flags),
     _ => fsm::Continue(flags)
   }
 }
@@ -115,6 +127,11 @@ fn get_status(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
 
 fn get_id(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
   flags.id = Some(input);
+  fsm::ChangeState(std_handler, flags)
+}
+
+fn get_tag(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+  flags.tags.push(input);
   fsm::ChangeState(std_handler, flags)
 }
 
@@ -152,8 +169,6 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:Box<StrBuf>)
       }else{
         //the string for all comment info
         let mut comment_output = StrBuf::new();
-        //the tags for this comment
-        let mut tag_map:TreeMap<~str, time::Tm> = TreeMap::new();
         for evt in issue.events.iter() {
           match evt {
             &TimelineComment(ref comment) => {
@@ -166,23 +181,18 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:Box<StrBuf>)
               }
               comment_output.push_strln("");
             }
-            &TimelineTag(ref tag) => {
-              if tag.enabled {
-                tag_map.insert(tag.tag_name.clone(), tag.time.clone());
-              }else{
-                tag_map.remove(&tag.tag_name);
-              }
-            }
+            _ => {}
           }
         }
+
+        let tag_list = issue.all_tags();
         let mut tag_output = StrBuf::new();
-        if tag_map.len() == 0 {
+        if tag_list.len() == 0 {
           tag_output.push_str("  No tags for this issue");
         }else {
           tag_output.push_str("  Tags: ");
           let mut isStart = true;
-          let tag_map = tag_map; //freeze to allow iteration
-          for (tagname,_) in tag_map.iter() {
+          for tagname in tag_list.iter() {
             if !isStart {
               tag_output.push_str(", "); 
             }
