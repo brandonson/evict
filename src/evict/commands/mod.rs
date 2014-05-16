@@ -76,7 +76,7 @@ pub fn standard_commands() -> Box<HashMap<~str, Command>> {
 }
 
 pub fn prompt(prompt:&str) -> ~str{
-  println!("{}", prompt);
+  print!("{}", prompt);
   //TODO do we need to check this?
   let withNewline = BufferedReader::new(stdin()).read_line().unwrap();
   withNewline.replace("\n", "").replace("\r", "")
