@@ -1,0 +1,14 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "",
+  "branch": "master",
+  "events": [],
+  "evict-version": "1",
+  "id": "1400208862543812680",
+  "status": {
+    "name": "open",
+    "time": "2014-05-15 2014 at 19:54:22"
+  },
+  "time": "2014-05-15 2014 at 19:54:22",
+  "title": "Fix prompt to stop printing newline at end."
+}

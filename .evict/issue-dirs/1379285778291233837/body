@@ -28,6 +28,16 @@
       {
         "author": "Brandon Sanderson",
         "enabled": true,
+        "id": "1399720422315257985",
+        "name": "code-quality",
+        "time": "2014-05-10 2014 at 04:13:42"
+      }
+    ],
+    [
+      "tag",
+      {
+        "author": "Brandon Sanderson",
+        "enabled": true,
         "id": "1399720397485748505",
         "name": "code quality",
         "time": "2014-05-10 2014 at 04:13:17"
@@ -41,16 +51,6 @@
         "id": "1386142418117495544",
         "name": "clarity",
         "time": "2013-12-03 2013 at 23:33:38"
-      }
-    ],
-    [
-      "tag",
-      {
-        "author": "Brandon Sanderson",
-        "enabled": true,
-        "id": "1399720422315257985",
-        "name": "code-quality",
-        "time": "2014-05-10 2014 at 04:13:42"
       }
     ]
   ],

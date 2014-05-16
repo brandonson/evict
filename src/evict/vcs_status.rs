@@ -26,12 +26,11 @@ impl VCS {
   fn current_branch_cmd_output(&self) -> Option<~str>{
     match self {
       &Git => {
-        let output = process::Process::output("git", ["rev-parse".to_owned(), 
-                                                    "--abbrev-ref".to_owned(), 
-                                                    "HEAD".to_owned()])
-                         .map(|x| x.output);
+        let mut gitcmd = process::Command::new("git");
+        gitcmd.arg("rev-parse").arg("--abbrev-ref").arg("HEAD");
+        let output = gitcmd.output();
         match output {
-          Ok(out) => str::from_utf8_owned(out.as_slice().to_owned()),
+          Ok(out) => str::from_utf8_owned(out.output.as_slice().to_owned()),
           Err(_) => None
         }
       }

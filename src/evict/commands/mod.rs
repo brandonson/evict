@@ -93,19 +93,25 @@ pub fn get_author() -> ~str {
 pub fn edit_file(filename:&str) -> bool{
   match std::os::getenv("EDITOR") {
     Some(editorName) => {
-      let editor = process::Process::configure(
-                 process::ProcessConfig{
-                   program: editorName,
-                   args:&[filename.to_owned()],
-                   stdin:process::InheritFd(libc::STDIN_FILENO),
-                   stdout:process::InheritFd(libc::STDOUT_FILENO),
-                   stderr:process::InheritFd(libc::STDERR_FILENO),
-                   .. process::ProcessConfig::new()});
+      let mut editor_command = process::Command::new(editorName.clone());
+      editor_command.arg(filename);
+      editor_command.stdin(process::InheritFd(libc::STDIN_FILENO));
+      editor_command.stdout(process::InheritFd(libc::STDOUT_FILENO));
+      editor_command.stderr(process::InheritFd(libc::STDERR_FILENO));
+
+      let editor = editor_command.spawn();
+
       if editor.is_err() {
         println!("Couldn't launch editor {}", editorName);
         false
       }else{
-        editor.ok().unwrap().wait().success()
+        let wait_res = editor.ok().unwrap().wait();
+        if !wait_res.is_ok() {
+          println!("Something went wrong with the editor");
+          false
+        }else{
+          wait_res.ok().unwrap().success()
+        }
       }
     }
     None => false

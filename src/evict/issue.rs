@@ -145,7 +145,7 @@ impl Issue{
     map.insert(TITLE_KEY.to_owned(), json::String(self.title.to_owned()));
     map.insert(BODY_KEY.to_owned(), json::String(self.body_text.to_owned()));
     map.insert(TIME_KEY.to_owned(), 
-               json::String(time::strftime(TIME_FORMAT, &self.creation_time)));
+               json::String(time::strftime(TIME_FORMAT, &self.creation_time).into_owned()));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
 
@@ -164,7 +164,7 @@ impl Issue{
     map.insert(TITLE_KEY.to_owned(), json::String(self.title.to_owned()));
     map.insert(BODY_KEY.to_owned(), json::String(self.body_text.to_owned()));
     map.insert(TIME_KEY.to_owned(), 
-               json::String(time::strftime(TIME_FORMAT, &self.creation_time)));
+               json::String(time::strftime(TIME_FORMAT, &self.creation_time).into_owned()));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
     
@@ -323,7 +323,7 @@ impl json::ToJson for IssueComment{
     let mut map:Box<json::Object> = box treemap::TreeMap::new();
     map.insert(BODY_KEY.to_owned(), json::String(self.body_text.to_owned()));
     map.insert(TIME_KEY.to_owned(), 
-               json::String(time::strftime(TIME_FORMAT, &self.creation_time)));
+               json::String(time::strftime(TIME_FORMAT, &self.creation_time).into_owned()));
     map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
     map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
     map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
@@ -469,7 +469,7 @@ pub fn generate_id() -> ~str {
 }
 
 fn json_time(time:&time::Tm) -> json::Json {
-  json::String(time::strftime(TIME_FORMAT, time))
+  json::String(time::strftime(TIME_FORMAT, time).into_owned())
 }
 
 #[test]
