@@ -1,11 +1,7 @@
 before_install:
-  - git clone https://github.com/mozilla/rust
+  - yes | sudo add-apt-repository ppa:hansjorg/rust
+  - sudo apt-get update
 install:
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install g++-4.8
-  - cd rust
-  - ./configure
-  - sudo make install
+  - sudo apt-get install rust-nightly
 script:
   - make test
