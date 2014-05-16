@@ -1,0 +1,14 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "",
+  "branch": "master",
+  "events": [],
+  "evict-version": "1",
+  "id": "1400212051665700432",
+  "status": {
+    "name": "open",
+    "time": "2014-05-15 2014 at 20:47:31"
+  },
+  "time": "2014-05-15 2014 at 20:47:31",
+  "title": "Add tag filtering to the list command"
+}

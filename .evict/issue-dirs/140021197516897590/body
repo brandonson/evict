@@ -1,0 +1,25 @@
+{
+  "author": "Brandon Sanderson",
+  "bodyText": "",
+  "branch": "master",
+  "events": [
+    [
+      "tag",
+      {
+        "author": "Brandon Sanderson",
+        "enabled": true,
+        "id": "1400211991764566636",
+        "name": "parsing",
+        "time": "2014-05-15 2014 at 20:46:31"
+      }
+    ]
+  ],
+  "evict-version": "1",
+  "id": "140021197516897590",
+  "status": {
+    "name": "open",
+    "time": "2014-05-15 2014 at 20:46:15"
+  },
+  "time": "2014-05-15 2014 at 20:46:15",
+  "title": "Make source parsing include file and line number at the end of the issue body."
+}
