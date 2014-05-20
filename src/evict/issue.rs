@@ -97,7 +97,7 @@ impl IssueStatus{
 }
 
 fn get_string_for_key(map:&json::Object, key:&str) -> Option<~str>{
-  let value_opt = map.find(&key.to_owned());
+  let value_opt = map.find(&key.to_owned().into_strbuf());
   value_opt.and_then (|value| {
     match value {
       &json::String(ref strVal) => Some(strVal.to_owned()),
@@ -165,39 +165,39 @@ impl Issue{
 
   pub fn to_json(&self) -> json::Json {
     let mut map:Box<json::Object> = box treemap::TreeMap::new();
-    map.insert(VERSION_KEY.to_owned(), json::String(evict::CURRENT_VERSION.to_str()));
-    map.insert(TITLE_KEY.to_owned(), json::String(self.title.to_owned()));
-    map.insert(BODY_KEY.to_owned(), json::String(self.body_text.to_owned()));
-    map.insert(TIME_KEY.to_owned(), 
-               json::String(time::strftime(TIME_FORMAT, &self.creation_time).into_owned()));
-    map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
-    map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
+    map.insert(VERSION_KEY.to_owned().into_strbuf(), json::String(evict::CURRENT_VERSION.to_str().to_owned().into_strbuf()));
+    map.insert(TITLE_KEY.to_owned().into_strbuf(), json::String(self.title.to_owned().into_strbuf()));
+    map.insert(BODY_KEY.to_owned().into_strbuf(), json::String(self.body_text.to_owned().into_strbuf()));
+    map.insert(TIME_KEY.to_owned().into_strbuf(), 
+               json::String(time::strftime(TIME_FORMAT, &self.creation_time).to_owned().into_strbuf()));
+    map.insert(AUTHOR_KEY.to_owned().into_strbuf(), json::String(self.author.to_owned().into_strbuf()));
+    map.insert(ID_KEY.to_owned().into_strbuf(), json::String(self.id.to_owned().into_strbuf()));
 
 
     let mut event_json = self.events.iter().map(|c| c.to_json());
 
-    map.insert(I_EVENT_KEY.to_owned(), json::List(event_json.collect()));
-    map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
-    map.insert(STATE_KEY.to_owned(), self.status.to_json());
+    map.insert(I_EVENT_KEY.to_owned().into_strbuf(), json::List(event_json.collect()));
+    map.insert(BRANCH_KEY.to_owned().into_strbuf(), json::String(self.branch.to_owned().into_strbuf()));
+    map.insert(STATE_KEY.to_owned().into_strbuf(), self.status.to_json());
     json::Object(map)
   }
 
   pub fn no_comment_json(&self) -> json::Json {
     let mut map:Box<json::Object> = box treemap::TreeMap::new();
-    map.insert(VERSION_KEY.to_owned(), json::String(evict::CURRENT_VERSION.to_str()));
-    map.insert(TITLE_KEY.to_owned(), json::String(self.title.to_owned()));
-    map.insert(BODY_KEY.to_owned(), json::String(self.body_text.to_owned()));
-    map.insert(TIME_KEY.to_owned(), 
-               json::String(time::strftime(TIME_FORMAT, &self.creation_time).into_owned()));
-    map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
-    map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
+    map.insert(VERSION_KEY.to_owned().into_strbuf(), json::String(evict::CURRENT_VERSION.to_str().to_owned().into_strbuf()));
+    map.insert(TITLE_KEY.to_owned().into_strbuf(), json::String(self.title.to_owned().into_strbuf()));
+    map.insert(BODY_KEY.to_owned().into_strbuf(), json::String(self.body_text.to_owned().into_strbuf()));
+    map.insert(TIME_KEY.to_owned().into_strbuf(), 
+               json::String(time::strftime(TIME_FORMAT, &self.creation_time).to_owned().into_strbuf()));
+    map.insert(AUTHOR_KEY.to_owned().into_strbuf(), json::String(self.author.to_owned().into_strbuf()));
+    map.insert(ID_KEY.to_owned().into_strbuf(), json::String(self.id.to_owned().into_strbuf()));
     
     let mut event_json = self.events.iter().map(|c| c.to_json());
 
-    map.insert(I_EVENT_KEY.to_owned(), json::List(event_json.collect()));
+    map.insert(I_EVENT_KEY.to_owned().into_strbuf(), json::List(event_json.collect()));
     
-    map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
-    map.insert(STATE_KEY.to_owned(), self.status.to_json());
+    map.insert(BRANCH_KEY.to_owned().into_strbuf(), json::String(self.branch.to_owned().into_strbuf()));
+    map.insert(STATE_KEY.to_owned().into_strbuf(), self.status.to_json());
     json::Object(map)
   }
 
@@ -229,12 +229,12 @@ impl Issue{
           let author_opt = get_string_for_key(map, AUTHOR_KEY);
           author_opt.and_then (|author| {
             let branch_opt = get_string_for_key(map, BRANCH_KEY);
-	    branch_opt.and_then (|branch| {
+            branch_opt.and_then (|branch| {
               let id_opt = get_string_for_key(map, ID_KEY);
               id_opt.and_then (|id| {
-                let events = map.find(&I_EVENT_KEY.to_owned()).map_or(vec!(),
+                let events = map.find(&I_EVENT_KEY.to_owned().into_strbuf()).map_or(vec!(),
                                                                       Issue::load_events);
-		let status = map.find(&STATE_KEY.to_owned())
+		let status = map.find(&STATE_KEY.to_owned().into_strbuf())
                                   .map_or(IssueStatus::default(), |json| {
 		  IssueStatus::from_json(json)
                 });
@@ -287,11 +287,11 @@ impl Issue{
 impl json::ToJson for IssueTag{
   fn to_json(&self) -> json::Json {
     let mut map:Box<json::Object> = box treemap::TreeMap::new();
-    map.insert(TIME_KEY.to_owned(), json_time(&self.time));
-    map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
-    map.insert(NAME_KEY.to_owned(), json::String(self.tag_name.to_owned()));
-    map.insert(ENABLED_KEY.to_owned(), json::Boolean(self.enabled));
-    map.insert(ID_KEY.to_owned(), json::String(self.change_id.to_owned()));
+    map.insert(TIME_KEY.to_owned().into_strbuf(), json_time(&self.time));
+    map.insert(AUTHOR_KEY.to_owned().into_strbuf(), json::String(self.author.to_owned().into_strbuf()));
+    map.insert(NAME_KEY.to_owned().into_strbuf(), json::String(self.tag_name.to_owned().into_strbuf()));
+    map.insert(ENABLED_KEY.to_owned().into_strbuf(), json::Boolean(self.enabled));
+    map.insert(ID_KEY.to_owned().into_strbuf(), json::String(self.change_id.to_owned().into_strbuf()));
     json::Object(map)
   }
 }
@@ -333,7 +333,7 @@ impl IssueTag{
   }
   
   fn read_enabled(map:&json::Object) -> Option<bool> {
-    let e_opt = map.find(&ENABLED_KEY.to_owned());
+    let e_opt = map.find(&ENABLED_KEY.to_owned().into_strbuf());
     e_opt.and_then(|json| {
       match json {
         &json::Boolean(b) => Some(b),
@@ -351,12 +351,12 @@ impl IssueTag{
 impl json::ToJson for IssueComment{
   fn to_json(&self) -> json::Json {
     let mut map:Box<json::Object> = box treemap::TreeMap::new();
-    map.insert(BODY_KEY.to_owned(), json::String(self.body_text.to_owned()));
-    map.insert(TIME_KEY.to_owned(), 
-               json::String(time::strftime(TIME_FORMAT, &self.creation_time).into_owned()));
-    map.insert(AUTHOR_KEY.to_owned(), json::String(self.author.to_owned()));
-    map.insert(BRANCH_KEY.to_owned(), json::String(self.branch.to_owned()));
-    map.insert(ID_KEY.to_owned(), json::String(self.id.to_owned()));
+    map.insert(BODY_KEY.to_owned().into_strbuf(), json::String(self.body_text.to_owned().into_strbuf()));
+    map.insert(TIME_KEY.to_owned().into_strbuf(), 
+               json::String(time::strftime(TIME_FORMAT, &self.creation_time).to_owned().into_strbuf()));
+    map.insert(AUTHOR_KEY.to_owned().into_strbuf(), json::String(self.author.to_owned().into_strbuf()));
+    map.insert(BRANCH_KEY.to_owned().into_strbuf(), json::String(self.branch.to_owned().into_strbuf()));
+    map.insert(ID_KEY.to_owned().into_strbuf(), json::String(self.id.to_owned().into_strbuf()));
     json::Object(map) 
   }
 }
@@ -403,7 +403,7 @@ impl IssueComment{
 
 impl json::ToJson for IssueTimelineEvent{
   fn to_json(&self) -> json::Json {
-    let data:Vec<json::Json> = vec!(json::String(self.event_type()),
+    let data:Vec<json::Json> = vec!(json::String(self.event_type().to_owned().into_strbuf()),
                                     self.event_data());
     json::List(data)
   }
@@ -463,9 +463,9 @@ impl IssueTimelineEvent{
 
 impl json::ToJson for IssueStatus{
   fn to_json(&self) -> json::Json {
-    let mut map:Box<treemap::TreeMap<~str, json::Json>> = box treemap::TreeMap::new();
-    map.insert(NAME_KEY.to_owned(), self.name.to_json());
-    map.insert(TIME_KEY.to_owned(), json_time(&self.last_change_time));
+    let mut map:Box<treemap::TreeMap<StrBuf, json::Json>> = box treemap::TreeMap::new();
+    map.insert(NAME_KEY.to_owned().into_strbuf(), self.name.to_owned().into_strbuf().to_json());
+    map.insert(TIME_KEY.to_owned().into_strbuf(), json_time(&self.last_change_time));
     json::Object(map)
   }
 }
@@ -499,7 +499,7 @@ pub fn generate_id() -> ~str {
 }
 
 fn json_time(time:&time::Tm) -> json::Json {
-  json::String(time::strftime(TIME_FORMAT, time).into_owned())
+  json::String(time::strftime(TIME_FORMAT, time).to_owned().into_strbuf())
 }
 
 #[test]

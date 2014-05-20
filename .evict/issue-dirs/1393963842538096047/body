@@ -6,8 +6,8 @@
   "evict-version": "1",
   "id": "1393963842538096047",
   "status": {
-    "name": "open",
-    "time": "2014-03-04 2014 at 12:10:42"
+    "name": "closed",
+    "time": "2014-05-20 2014 at 11:32:01"
   },
   "time": "2014-03-04 2014 at 12:10:42",
   "title": "Stop editing body files after creation"

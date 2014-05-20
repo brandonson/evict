@@ -65,7 +65,7 @@ fn write_single_issue(issue:&Issue) -> bool {
 fn write_issue_body(issue:&Issue) -> bool {
   let filename = issue_body_filename(issue);
   let output = issue.no_comment_json().to_pretty_str();
-  file_util::write_string_to_file(output, filename, true)
+  file_util::write_string_to_file(output.as_slice(), filename, true)
 }
 
 fn issue_body_filename(issue:&Issue) -> ~str {
@@ -75,7 +75,7 @@ fn issue_body_filename(issue:&Issue) -> ~str {
 fn write_issue_event(issueId:&str, event:&IssueTimelineEvent) -> bool{
   let filename = issue_event_filename(issueId, event);
   let jsonStr = event.to_json().to_pretty_str();
-  file_util::write_string_to_file(jsonStr, filename, true)
+  file_util::write_string_to_file(jsonStr.as_slice(), filename, true)
 }
 
 fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> ~str {

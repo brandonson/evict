@@ -30,9 +30,11 @@ pub struct Config{
 
 impl ToJson for Config{
   fn to_json(&self) -> json::Json {
-    let mut map:Box<treemap::TreeMap<~str, json::Json>> = box treemap::TreeMap::new();
+    let mut map:Box<treemap::TreeMap<StrBuf, json::Json>> = box treemap::TreeMap::new();
     match self.author {
-      Some(ref auth) => {map.insert(AUTHOR_KEY.to_owned(),json::String(auth.to_owned()));}
+      Some(ref auth) => {
+        map.insert(AUTHOR_KEY.into_strbuf(),json::String(auth.to_owned().into_strbuf()));
+      }
       None => {}
     };
     json::Object(map)
@@ -65,7 +67,7 @@ impl Config{
   
   fn from_json(json:json::Json) -> Config {
     match json {
-      json::Object(map) => Config{author:map.find(&AUTHOR_KEY.to_owned())
+      json::Object(map) => Config{author:map.find(&AUTHOR_KEY.into_strbuf())
                                             .and_then(|x| extract_string(x)),
                            },
       _ => Config::default()
@@ -74,7 +76,7 @@ impl Config{
 
   pub fn save(&self){
     let json_str = self.to_json().to_pretty_str();
-    file_util::write_string_to_file(json_str, CONFIG_FILE, true);
+    file_util::write_string_to_file(json_str.as_slice(), CONFIG_FILE, true);
   }
 }
 
