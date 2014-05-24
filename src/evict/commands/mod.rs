@@ -41,11 +41,11 @@ mod parse;
  * performs some action, then returns an
  * exit code.
  */
-pub type Command = fn (~[~str]) -> int;
+pub type Command = fn (~[StrBuf]) -> int;
 
-pub fn execute_command(command:&~str, 
-                      commandList:&HashMap<~str, Command>, 
-                      argList: ~[~str]) -> bool{
+pub fn execute_command(command:&StrBuf, 
+                      commandList:&HashMap<StrBuf, Command>, 
+                      argList: ~[StrBuf]) -> bool{
   match commandList.find(command) {
     Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
     None => {
@@ -56,8 +56,8 @@ pub fn execute_command(command:&~str,
   }
 }
 
-pub fn standard_commands() -> Box<HashMap<~str, Command>> {
-  let mut hmap:Box<HashMap<~str, Command>> = box HashMap::new();
+pub fn standard_commands() -> Box<HashMap<StrBuf, Command>> {
+  let mut hmap:Box<HashMap<StrBuf, Command>> = box HashMap::new();
   hmap.insert("create".to_owned(), create::create_issue);
   hmap.insert("clear".to_owned(), clear::clear_data);
   hmap.insert("init".to_owned(), init::initialize);
@@ -75,14 +75,14 @@ pub fn standard_commands() -> Box<HashMap<~str, Command>> {
   hmap
 }
 
-pub fn prompt(prompt:&str) -> ~str{
+pub fn prompt(prompt:&str) -> StrBuf{
   print!("{}", prompt);
   //TODO do we need to check this?
   let withNewline = BufferedReader::new(stdin()).read_line().unwrap();
   withNewline.replace("\n", "").replace("\r", "")
 }
 
-pub fn get_author() -> ~str {
+pub fn get_author() -> StrBuf {
   let config = config::Config::load();
   match config.author {
     Some(author) => author,

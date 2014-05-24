@@ -27,7 +27,7 @@ pub static DEFAULT_STATUS_NAME:&'static str = "<unknown>";
 
 #[deriving(Clone, Eq)]
 pub struct StatusOption{
-  pub name:~str
+  pub name:StrBuf
 }
 
 impl StatusOption{
@@ -36,30 +36,34 @@ impl StatusOption{
   }
 }
 
-fn full_status_filename() -> ~str {
+fn full_status_filename() -> StrBuf {
   format!("{}/{}", file_manager::EVICT_DIRECTORY, STATUS_FILE)
 }
 
-fn full_default_status_filename() -> ~str {
+fn full_default_status_filename() -> StrBuf {
   format!("{}/{}", file_manager::EVICT_DIRECTORY, DEF_STATUS_FILE)
 }
 
 pub fn read_status_options() -> Vec<StatusOption> {
-  let fullString = file_util::read_string_from_file(full_status_filename())
+  let fullString = file_util::read_string_from_file(full_status_filename().as_slice())
                              .unwrap_or("".to_owned());
-  fullString.lines_any().map(|x| StatusOption{name:x.to_owned()}).collect()
+  fullString.as_slice().lines_any().map(
+    |x| StatusOption{name:x.to_owned()}
+  ).collect()
 }
 
 pub fn write_status_options(statuses:Vec<StatusOption>) -> bool {
-  let stringVec:Vec<~str> = statuses.move_iter().map(|x| x.name).collect();
+  let stringVec:Vec<StrBuf> = statuses.move_iter().map(|x| x.name).collect();
   let fullString = stringVec.connect("\n");
-  file_util::write_string_to_file(fullString, full_status_filename(), true)
+  file_util::write_string_to_file(fullString.as_slice(),
+                                  full_status_filename().as_slice(),
+                                  true)
 }
 
 pub fn read_default_status() -> StatusOption {
-  let fullFile = file_util::read_string_from_file(full_default_status_filename())
+  let fullFile = file_util::read_string_from_file(full_default_status_filename().as_slice())
                            .unwrap_or(DEFAULT_STATUS_NAME.to_owned());
-  let lineVec:Vec<&str> = fullFile.lines_any().collect();
+  let lineVec:Vec<&str> = fullFile.as_slice().lines_any().collect();
   let firstLine = lineVec.as_slice().head().unwrap_or(&DEFAULT_STATUS_NAME);
   
   let statusOption = StatusOption{name:firstLine.to_owned()};
@@ -70,11 +74,13 @@ pub fn read_default_status() -> StatusOption {
   }
 }
 
-pub fn write_default_status(status:&StatusOption) -> Result<bool, ~str> {
+pub fn write_default_status(status:&StatusOption) -> Result<bool, StrBuf> {
   let isOption = read_status_options().contains(status);
   if !isOption {
     Err(format!("{} is not a status option", status.name))
   }else{
-    Ok(file_util::write_string_to_file(status.name, full_default_status_filename(), true))
+    Ok(file_util::write_string_to_file(status.name.as_slice(),
+                                       full_default_status_filename().as_slice(),
+                                       true))
   }
 }

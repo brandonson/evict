@@ -24,16 +24,16 @@ use selection;
 
 #[deriving(Clone)]
 struct Flags{
-  issue:Option<~str>
+  issue:Option<StrBuf>
 }
 
-fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   match input {
     ident => fsm::Continue(Flags{issue:Some(ident), .. flags})
   }
 }
 
-pub fn delete_issue(args:~[~str]) -> int {
+pub fn delete_issue(args:~[StrBuf]) -> int {
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issue:None});
   for arg in args.move_iter() {
     stateMachine.process(arg);
@@ -48,9 +48,9 @@ pub fn delete_issue(args:~[~str]) -> int {
     exec_delete(issueIdPart)
   }
 }
-fn exec_delete(idPart:~str) -> int{
+fn exec_delete(idPart:StrBuf) -> int{
   let issues = file_manager::read_issues();
-  let matching = selection::find_matching_issues(idPart, issues.as_slice());
+  let matching = selection::find_matching_issues(idPart.as_slice(), issues.as_slice());
   if matching.len() == 0 {
     println!("No issue matching {} found.", idPart);
     4

@@ -42,7 +42,7 @@ impl LinePushingString for StrBuf{
 }
 
 
-pub fn list_issues(args:~[~str]) -> int{
+pub fn list_issues(args:~[StrBuf]) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{short:false,
                                                       committed:false,
@@ -75,7 +75,7 @@ pub fn list_issues(args:~[~str]) -> int{
 
   let to_print = print_issue_vec(issues, &final_flags);
 
-  let written = file_util::write_string_to_file(to_print, TMP_OUTPUT_FILE, true);
+  let written = file_util::write_string_to_file(to_print.as_slice(), TMP_OUTPUT_FILE, true);
   if !written {
     println!("File write failure.");
   }
@@ -101,13 +101,13 @@ pub fn list_issues(args:~[~str]) -> int{
 struct Flags{
   short:bool,
   committed: bool,
-  statuses: Vec<~str>,
+  statuses: Vec<StrBuf>,
   noComments: bool,
-  id:Option<~str>,
-  tags:Vec<~str>
+  id:Option<StrBuf>,
+  tags:Vec<StrBuf>
 }
 
-fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
+fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags,StrBuf> {
   match input.as_slice() {
     "--short" => fsm::Continue(Flags{short:true, .. flags}),
     "-s" => fsm::Continue(Flags{short:true, .. flags}),
@@ -120,22 +120,22 @@ fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
   }
 }
 
-fn get_status(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn get_status(mut flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   flags.statuses.push(input);
   fsm::ChangeState(std_handler, flags)
 }
 
-fn get_id(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn get_id(mut flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   flags.id = Some(input);
   fsm::ChangeState(std_handler, flags)
 }
 
-fn get_tag(mut flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn get_tag(mut flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   flags.tags.push(input);
   fsm::ChangeState(std_handler, flags)
 }
 
-fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> ~str{
+fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> StrBuf{
   let date_sorted = date_sort::sort_by_time(issues);
   let mut to_print = box StrBuf::new();
   //reverse because they're sorted in ascending order
@@ -176,7 +176,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:Box<StrBuf>)
                                comment.author, 
                                comment.creation_time.strftime(issue::TIME_FORMAT)));
               comment_output.push_strln(format!("  For branch {}", comment.branch));
-              for line in comment.body_text.lines() {
+              for line in comment.body_text.as_slice().lines() {
                 comment_output.push_strln(format!("    {}", line));
               }
               comment_output.push_strln("");
@@ -197,7 +197,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:Box<StrBuf>)
               tag_output.push_str(", "); 
             }
             isStart = false;
-            tag_output.push_str(*tagname);
+            tag_output.push_str(tagname.as_slice());
           }
         }
 

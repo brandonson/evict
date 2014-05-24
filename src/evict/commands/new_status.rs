@@ -19,7 +19,7 @@
 
 use status_storage;
 
-pub fn new_status(args:~[~str]) -> int {
+pub fn new_status(args:~[StrBuf]) -> int {
   if args.len() != 1 {
     println!("new-status usage: evict new-status <status-name>");
     1

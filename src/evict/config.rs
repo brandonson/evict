@@ -25,7 +25,7 @@ static CONFIG_FILE:&'static str = ".evict/config";
 static AUTHOR_KEY:&'static str = "author";
 
 pub struct Config{
-  pub author:Option<~str>,
+  pub author:Option<StrBuf>,
 }
 
 impl ToJson for Config{
@@ -57,7 +57,7 @@ impl Config{
   fn read_repo_config() -> Config {
     let json_str = file_util::read_string_from_file(CONFIG_FILE);
     let json_opt = json_str.and_then (|string| {
-                    match json::from_str(string){
+                    match json::from_str(string.as_slice()){
                       Ok(json) => Some(json),
                       Err(_) => None
                     }
@@ -80,7 +80,7 @@ impl Config{
   }
 }
 
-fn extract_string(json:&json::Json) -> Option<~str> {
+fn extract_string(json:&json::Json) -> Option<StrBuf> {
   match json {
     &json::String(ref string) => Some(string.to_owned()),
     _ => None

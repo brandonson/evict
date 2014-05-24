@@ -22,7 +22,7 @@ use status_storage::{StatusOption,
                      write_default_status};
 use file_util;
 
-pub fn initialize(_:~[~str]) -> int {
+pub fn initialize(_:~[StrBuf]) -> int {
   let createSuccess = file_util::create_directory(file_manager::EVICT_DIRECTORY);
   if createSuccess {
     let defaultStatus = StatusOption{name:"open".to_owned()};
@@ -32,7 +32,7 @@ pub fn initialize(_:~[~str]) -> int {
       let defaultResult = write_default_status(&defaultStatus);
       if defaultResult.is_ok() {
         let idirSuccess = file_util::create_directory(
-                                          file_manager::issue_directory());
+                                          file_manager::issue_directory().as_slice());
         if idirSuccess {0}else{1}
       }else{
         2

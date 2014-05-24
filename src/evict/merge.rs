@@ -21,7 +21,7 @@ use issue::{Issue,IssueTimelineEvent};
 use std::vec::Vec;
 
 pub fn merge_issues(incoming:Vec<Issue>,merge_into:Vec<Issue>) -> Vec<Issue> {
-  let mut ident_map:HashMap<~str, (Option<Issue>, Option<Issue>)> = HashMap::new();
+  let mut ident_map:HashMap<StrBuf, (Option<Issue>, Option<Issue>)> = HashMap::new();
   for issue in incoming.move_iter() {
     ident_map.insert(issue.id.to_owned(), (Some(issue), None));
   }

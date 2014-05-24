@@ -21,12 +21,12 @@ use commands;
 use file_manager;
 
 
-pub fn clear_data(_:~[~str]) -> int {
+pub fn clear_data(_:~[StrBuf]) -> int {
   let evictPath = &std::path::Path::new(file_manager::EVICT_DIRECTORY);
   let absolute = std::os::make_absolute(evictPath);
   let res = commands::prompt(
              format!("Really clear everything from {}? [y/n]", 
-                     absolute.display()));
+                     absolute.display()).as_slice());
   if res.as_slice() == "y" {
     let mut success = true;
     //try to delete, if we fail the just set success to false

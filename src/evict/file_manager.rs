@@ -31,13 +31,13 @@ static ISSUE_DIRECTORY:&'static str = "issue-dirs";
 
 static BODY_FILENAME:&'static str = "body";
 
-pub fn issue_directory() -> ~str {format!("{}/{}",
+pub fn issue_directory() -> StrBuf {format!("{}/{}",
                                           EVICT_DIRECTORY,
                                           ISSUE_DIRECTORY)}
 
 pub fn issue_directory_path() -> Path {Path::new(issue_directory())}
 
-pub fn single_issue_filename(issue:&Issue) -> ~str {
+pub fn single_issue_filename(issue:&Issue) -> StrBuf {
   format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id)
 }
 
@@ -54,10 +54,10 @@ pub fn write_issues_to_file(issues:&[Issue]) -> bool {
 }
 
 fn write_single_issue(issue:&Issue) -> bool {
-  file_util::create_directory(single_issue_filename(issue));
+  file_util::create_directory(single_issue_filename(issue).as_slice());
   let mut allSuccess = write_issue_body(issue);
   for event in issue.events.iter() {
-    allSuccess = allSuccess && write_issue_event(issue.id, event);
+    allSuccess = allSuccess && write_issue_event(issue.id.as_slice(), event);
   }
   allSuccess
 }
@@ -65,20 +65,20 @@ fn write_single_issue(issue:&Issue) -> bool {
 fn write_issue_body(issue:&Issue) -> bool {
   let filename = issue_body_filename(issue);
   let output = issue.no_comment_json().to_pretty_str();
-  file_util::write_string_to_file(output.as_slice(), filename, true)
+  file_util::write_string_to_file(output.as_slice(), filename.as_slice(), true)
 }
 
-fn issue_body_filename(issue:&Issue) -> ~str {
+fn issue_body_filename(issue:&Issue) -> StrBuf {
   format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id, BODY_FILENAME)
 }
 
 fn write_issue_event(issueId:&str, event:&IssueTimelineEvent) -> bool{
   let filename = issue_event_filename(issueId, event);
   let jsonStr = event.to_json().to_pretty_str();
-  file_util::write_string_to_file(jsonStr.as_slice(), filename, true)
+  file_util::write_string_to_file(jsonStr.as_slice(), filename.as_slice(), true)
 }
 
-fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> ~str {
+fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> StrBuf {
   format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issueId, event.id())
 }
 
@@ -124,7 +124,7 @@ fn read_issue_body(bodyPath:Path) -> Option<Issue> {
    */
   let dataStrOpt = file_util::read_string_from_path(&bodyPath);
   dataStrOpt.and_then(|dataStr| {
-     json::from_str(dataStr).ok()
+     json::from_str(dataStr.as_slice()).ok()
   }).and_then(|jsonVal| {
     Issue::from_json(&jsonVal)
   })
@@ -137,7 +137,7 @@ fn read_issue_events(bodyFiles:&[Path]) -> Vec<IssueTimelineEvent> {
 fn read_comment(commentFile:&Path) -> Option<IssueTimelineEvent> {
   let dataStrOpt = file_util::read_string_from_path(commentFile);
   dataStrOpt.and_then(|dataStr| {
-    json::from_str(dataStr).ok()
+    json::from_str(dataStr.as_slice()).ok()
   }).and_then(|jsonVal| {
     IssueTimelineEvent::from_json(&jsonVal)
   })

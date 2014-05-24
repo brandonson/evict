@@ -23,14 +23,14 @@ enum VCS{
 }
 
 impl VCS {
-  fn current_branch_cmd_output(&self) -> Option<~str>{
+  fn current_branch_cmd_output(&self) -> Option<StrBuf>{
     match self {
       &Git => {
         let mut gitcmd = process::Command::new("git");
         gitcmd.arg("rev-parse").arg("--abbrev-ref").arg("HEAD");
         let output = gitcmd.output();
         match output {
-          Ok(out) => str::from_utf8_owned(out.output.as_slice().to_owned()).ok(),
+          Ok(out) => str::from_utf8_owned(out.output).ok(),
           Err(_) => None
         }
       }
@@ -42,15 +42,15 @@ impl VCS {
   }
 }
 
-pub fn current_branch() -> Option<~str> {
+pub fn current_branch() -> Option<StrBuf> {
   let output = VCS::current().current_branch_cmd_output(); 
-  output.and_then(grab_first_line)
+  output.and_then(grab_first_line).map(|x| x.into_strbuf())
 }
 
-fn grab_first_line(grab_from:~str) -> Option<~str> {
+fn grab_first_line(grab_from:StrBuf) -> Option<StrBuf> {
   //'loop' through the lines but just return
   //the first line we get
-  for first in grab_from.lines_any() {
+  for first in grab_from.as_slice().lines_any() {
     return Some(first.to_owned());
   }
   //there were no lines, return None

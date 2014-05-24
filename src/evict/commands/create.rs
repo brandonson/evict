@@ -30,12 +30,12 @@ use status_storage;
 static DEFAULT_ISSUE_BODY_FILE:&'static str = "ISSUE_MSG";
 struct Flags{
   hasBody:bool,
-  bodyFile:Option<~str>,
-  title:Option<~str>,
-  author:Option<~str>,
+  bodyFile:Option<StrBuf>,
+  title:Option<StrBuf>,
+  author:Option<StrBuf>,
 }
 
-fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
+fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags,StrBuf> {
   match input.as_slice() {
     "--no-body" => fsm::Continue(Flags{hasBody:false, 
                                          .. flags}),
@@ -45,17 +45,17 @@ fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags,~str> {
     _ => fsm::Continue(flags)
   }
 }
-fn get_body_file(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn get_body_file(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   fsm::ChangeState(std_handler, Flags{bodyFile:Some(input), .. flags})
 }
-fn get_title(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn get_title(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   fsm::ChangeState(std_handler, Flags{title:Some(input), .. flags})
 }
-fn get_author(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn get_author(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   fsm::ChangeState(std_handler, Flags{author:Some(input), .. flags})
 }
 
-pub fn create_issue(args:~[~str]) -> int {
+pub fn create_issue(args:~[StrBuf]) -> int {
   let mut stateMachine = fsm::StateMachine::new(std_handler, 
                                            Flags{hasBody:true, 
                                                  bodyFile:None, 
@@ -95,11 +95,11 @@ pub fn create_issue(args:~[~str]) -> int {
   }
 }
 
-fn do_issue_creation(title:~str, author:~str, bodyFile:Option<~str>) -> Option<Issue>{
+fn do_issue_creation(title:StrBuf, author:StrBuf, bodyFile:Option<StrBuf>) -> Option<Issue>{
   let issueOpt = if bodyFile.is_none() {
                    Some(Issue::new(title, "".to_owned(), author))
                  }else{
-                   let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap());
+                   let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap().as_slice());
                    bodyTextOpt.map(
                      |text| Issue::new(title.clone(), text, author.clone())
                    )

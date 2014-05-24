@@ -26,16 +26,16 @@ use selection;
 
 #[deriving(Clone)]
 struct Flags{
-  issueIdPart:Option<~str>
+  issueIdPart:Option<StrBuf>
 }
 
-fn std_handler(flags:Flags, arg:~str) -> fsm::NextState<Flags, ~str> {
+fn std_handler(flags:Flags, arg:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   match arg {
     idPart => fsm::Continue(Flags{issueIdPart:Some(idPart), .. flags})
   }
 }
 
-pub fn new_comment(args:~[~str]) -> int{
+pub fn new_comment(args:~[StrBuf]) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issueIdPart:None});
   for a in args.move_iter(){
     stateMachine.process(a);
@@ -48,7 +48,7 @@ pub fn new_comment(args:~[~str]) -> int{
   }else{
     let issues = file_manager::read_issues();
 
-    let updated = selection::update_issue(finalFlags.issueIdPart.unwrap(), 
+    let updated = selection::update_issue(finalFlags.issueIdPart.unwrap().as_slice(), 
                                           issues,
                                           comment_on_matching);
     if file_manager::write_issues(updated.as_slice()) {
@@ -62,13 +62,13 @@ pub fn new_comment(args:~[~str]) -> int{
 fn comment_on_matching(matching:Issue) -> Issue {
   let author = commands::get_author();
   let filename = format!("COMMENT_ON_{}",matching.id);
-  let edited = commands::edit_file(filename);
+  let edited = commands::edit_file(filename.as_slice());
   if !edited {
     println!("No comment body provided");
     matching 
   }else{
-    let text = file_util::read_string_from_file(filename);
-    file_util::delete_file(filename);
+    let text = file_util::read_string_from_file(filename.as_slice());
+    file_util::delete_file(filename.as_slice());
     if text.is_none() {
       println!("Could not read comment body from file");
       matching

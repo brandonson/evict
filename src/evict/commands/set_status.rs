@@ -22,17 +22,17 @@ use file_manager;
 use status_storage;
 use issue::IssueStatus;
 
-pub fn set_status(args:~[~str]) -> int {
+pub fn set_status(args:~[StrBuf]) -> int {
   if args.len() != 2 {
     println!("set-status usage: evict set-status <issue-id> <status>");
     println!("    Where <status> is either the full name of a status");
     println!("    or the index of a status");
     1
   }else{
-    match resolve_new_status(args[1]) {
+    match resolve_new_status(args[1].as_slice()) {
       Some(newStatus) => {
         let issues = file_manager::read_issues();
-        let edited = selection::update_issue(args[0], issues, |mut oldIssue| {
+        let edited = selection::update_issue(args[0].as_slice(), issues, |mut oldIssue| {
           oldIssue.status = newStatus.clone();
           oldIssue
         });

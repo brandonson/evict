@@ -43,19 +43,19 @@ pub static TIMELINE_EVT_KEY:&'static str = "t-evt-type";
 #[deriving(Clone, Eq)]
 pub struct IssueComment{
   pub creation_time: time::Tm,
-  pub author:~str,
-  pub body_text:~str,
-  pub branch:~str,
-  pub id:~str
+  pub author:StrBuf,
+  pub body_text:StrBuf,
+  pub branch:StrBuf,
+  pub id:StrBuf
 }
 
 #[deriving(Clone, Eq)]
 pub struct IssueTag{
   pub time: time::Tm,
-  pub tag_name: ~str,
+  pub tag_name: StrBuf,
   pub enabled: bool,
-  pub author: ~str,
-  pub change_id: ~str
+  pub author: StrBuf,
+  pub change_id: StrBuf
 }
 
 #[deriving(Clone, Eq)]
@@ -66,20 +66,20 @@ pub enum IssueTimelineEvent{
 
 #[deriving(Clone, Eq)]
 pub struct IssueStatus{
-  pub name:~str,
+  pub name:StrBuf,
   pub last_change_time: time::Tm
 }
 
 #[deriving(Clone)]
 pub struct Issue{
-  pub title:~str,
+  pub title:StrBuf,
   pub creation_time: time::Tm,
-  pub author:~str,
+  pub author:StrBuf,
 
-  pub body_text:~str,
-  pub id:~str,
+  pub body_text:StrBuf,
+  pub id:StrBuf,
   pub events:Vec<IssueTimelineEvent>,
-  pub branch:~str,
+  pub branch:StrBuf,
   pub status:IssueStatus
 }
 
@@ -91,12 +91,12 @@ impl Eq for Issue{
 }
 
 impl IssueStatus{
-  pub fn new(name:~str) -> IssueStatus {
+  pub fn new(name:StrBuf) -> IssueStatus {
     IssueStatus{name:name, last_change_time:time::now()}
   }
 }
 
-fn get_string_for_key(map:&json::Object, key:&str) -> Option<~str>{
+fn get_string_for_key(map:&json::Object, key:&str) -> Option<StrBuf>{
   let value_opt = map.find(&key.to_owned().into_strbuf());
   value_opt.and_then (|value| {
     match value {
@@ -144,9 +144,9 @@ impl Issue{
   ///Assumes that the list of events is sorted by date.  Issue::from_json
   ///applies this sorting, so it rarely needs to be done by callers of
   ///this function.
-  pub fn all_tags(&self) -> Vec<~str> {
-    let mut untagged:Vec<~str> = vec!();
-    let mut tag_list:Vec<~str> = vec!();
+  pub fn all_tags(&self) -> Vec<StrBuf> {
+    let mut untagged:Vec<StrBuf> = vec!();
+    let mut tag_list:Vec<StrBuf> = vec!();
     for evt in self.events.iter().rev() {
       match evt {
         &TimelineTag(ref tag) => {
@@ -219,7 +219,7 @@ impl Issue{
     let version:int = if version_opt.is_none() {
                     fail!("No version on json for an issue.");
                   }else{
-                    from_str::<int>(version_opt.unwrap()).unwrap()
+                    from_str::<int>(version_opt.unwrap().as_slice()).unwrap()
 		  };
     if version == 1 {
       let title_opt = get_string_for_key(map, TITLE_KEY);
@@ -240,7 +240,7 @@ impl Issue{
                 });
                 let time_opt = get_string_for_key(map, TIME_KEY);
                 time_opt.and_then (|time| {
-                  let timeResult = time::strptime(time,TIME_FORMAT);
+                  let timeResult = time::strptime(time.as_slice(),TIME_FORMAT);
                   match timeResult {
                     Ok(tm) => Some(Issue{title:title.clone(), body_text:body.clone(), 
                                         author:author.clone(), 
@@ -270,7 +270,7 @@ impl Issue{
     }
   }
 
-  pub fn new(title:~str, body:~str, author:~str) -> Issue{
+  pub fn new(title:StrBuf, body:StrBuf, author:StrBuf) -> Issue{
     let branch = vcs_status::current_branch().unwrap_or("<unknown>".to_owned());
     Issue{title:title,
            body_text:body,
@@ -315,7 +315,7 @@ impl IssueTag{
           id_opt.and_then(|id| {
             let time_opt = get_string_for_key(map, TIME_KEY);
             time_opt.and_then(|timeStr| {
-              let timeResult = time::strptime(timeStr, TIME_FORMAT);
+              let timeResult = time::strptime(timeStr.as_slice(), TIME_FORMAT);
               match timeResult {
                 Ok(time) => 
                   Some(IssueTag{time:time,
@@ -342,7 +342,7 @@ impl IssueTag{
     })
   }
 
-  pub fn new(name:~str, author:~str, enabled:bool) -> IssueTag{
+  pub fn new(name:StrBuf, author:StrBuf, enabled:bool) -> IssueTag{
     IssueTag{time:time::now(), author:author, enabled:enabled,
              tag_name:name, change_id:generate_id()}
   }
@@ -378,7 +378,7 @@ impl IssueComment{
 	branch_opt.and_then (|branch| {
           let time_opt = get_string_for_key(map, TIME_KEY);
           time_opt.and_then (|time| {
-            let time_result = time::strptime(time,TIME_FORMAT);
+            let time_result = time::strptime(time.as_slice(),TIME_FORMAT);
             match time_result {
               Ok(tm) => Some(IssueComment{body_text:body.clone(),
                                     author:author.clone(),
@@ -394,7 +394,7 @@ impl IssueComment{
     })
   }
   
-  pub fn new(author:~str, body:~str) -> IssueComment{
+  pub fn new(author:StrBuf, body:StrBuf) -> IssueComment{
     let branch = vcs_status::current_branch().unwrap_or("<unknown>".to_owned());
     IssueComment{author:author, body_text:body, creation_time:time::now(),
                   branch: branch, id:generate_id()}
@@ -410,7 +410,7 @@ impl json::ToJson for IssueTimelineEvent{
 }
 
 impl IssueTimelineEvent{
-  pub fn event_type(&self) -> ~str {
+  pub fn event_type(&self) -> StrBuf {
     match self {
       &TimelineComment(_) => "comment",
       &TimelineTag(_) => "tag"
@@ -477,7 +477,7 @@ impl IssueStatus{
         let map = map_ref.clone();
         get_string_for_key(map, NAME_KEY).and_then (|name| {
           get_string_for_key(map, TIME_KEY).and_then (|time| {
-            match time::strptime(time, TIME_FORMAT) {
+            match time::strptime(time.as_slice(), TIME_FORMAT) {
               Ok(tm) => Some(IssueStatus{name:name.clone(), last_change_time:tm}),
               Err(_) => None
             }
@@ -493,9 +493,9 @@ impl IssueStatus{
   }
 }
 
-pub fn generate_id() -> ~str {
+pub fn generate_id() -> StrBuf {
   let ctime = time::get_time();
-  ctime.sec.to_str() + ctime.nsec.to_str()
+  ctime.sec.to_str().append(ctime.nsec.to_str().as_slice())
 }
 
 fn json_time(time:&time::Tm) -> json::Json {

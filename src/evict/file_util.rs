@@ -29,18 +29,18 @@ pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool
     //successful by default, then set to false
     //if an error is encountered
     io_to_success(||io::File::create(&Path::new(filename))
-                           .write(content.to_owned().into_bytes()))
+                           .write(content.to_owned().into_bytes().as_slice()))
 
   }
 }
-pub fn read_string_from_file(filename:&str) -> Option<~str> {
+pub fn read_string_from_file(filename:&str) -> Option<StrBuf> {
   read_string_from_path(&Path::new(filename)) 
 }
 
-pub fn read_string_from_path(path:&Path) -> Option<~str> {
+pub fn read_string_from_path(path:&Path) -> Option<StrBuf> {
   match io::File::open(path).read_to_end() {
     Err(_) => None,
-    Ok(u8bytes) => str::from_utf8_owned(u8bytes.as_slice().to_owned()).ok()
+    Ok(u8bytes) => str::from_utf8_owned(u8bytes).ok()
   }
 }
 
@@ -101,7 +101,7 @@ pub fn write_read_str(){
   let testname = "file_util_testWRS";
   let testString = "This is a test string".to_owned();
 
-  assert!(write_string_to_file(testString, testname, false));
+  assert!(write_string_to_file(testString.as_slice(), testname, false));
   assert!(read_string_from_file(testname) == Some(testString));
   assert!(delete_file(testname));
 }

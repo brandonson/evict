@@ -25,10 +25,10 @@ use commands;
 use fsm;
 
 struct Flags{
-  source_dir:Option<~str>
+  source_dir:Option<StrBuf>
 }
 
-pub fn parse_issues(args:~[~str]) -> int{
+pub fn parse_issues(args:~[StrBuf]) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{source_dir:None});
 
@@ -48,13 +48,13 @@ pub fn parse_issues(args:~[~str]) -> int{
   0
 }
 
-fn std_handler(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str> {
+fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
   match input.as_slice() {
     "--src-dir" => fsm::ChangeState(get_source_dir, flags),
     _ => fsm::Continue(flags)
   }
 }
 
-fn get_source_dir(flags:Flags, input:~str) -> fsm::NextState<Flags, ~str>{
+fn get_source_dir(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf>{
   fsm::ChangeState(std_handler, Flags{source_dir:Some(input)})
 }
