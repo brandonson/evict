@@ -8,7 +8,9 @@ pub fn parse_and_rewrite_file(searcher:&SourceSearcher, file_path:&Path)
   -> IoResult<Vec<Issue>>{
   let mut file_reader = BufferedReader::new(File::open(file_path));
   
-  match searcher.parse_file(&mut file_reader) {
+  let filename = file_path.as_str().unwrap_or("").to_string();
+
+  match searcher.parse_file(&mut file_reader, filename) {
     Ok(parse_result) => handle_parse_result(parse_result, file_path),
     Err(msg) => Err(msg)
   }

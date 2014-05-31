@@ -42,7 +42,9 @@ pub fn parse_directory(searcher:&SourceSearcher, file_path:Path)
   while file_count > 0 {
     let file_result = recvr.recv();
     match file_result {
-      Ok(issues) => result.new_issues.push_all(issues.as_slice()),
+      Ok(issues) => {
+        result.new_issues.push_all(issues.as_slice());
+      }
       Err(msg) => result.failures.push(msg)
     }
     file_count = file_count - 1;

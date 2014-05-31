@@ -24,6 +24,9 @@ use std::io::BufferedReader;
 use collections::hashmap::HashMap;
 use std::io::process;
 
+use file_util;
+use file_manager;
+
 mod init;
 mod create;
 mod clear;
@@ -46,6 +49,13 @@ pub type Command = fn (~[String]) -> int;
 pub fn execute_command(command:&String, 
                       commandList:&HashMap<String, Command>, 
                       argList: ~[String]) -> bool{
+  // [quality] This should be done without hardcoding init as the exception
+  if command != &"init".to_string() && 
+     !file_util::file_exists(file_manager::EVICT_DIRECTORY) {
+    println!("There is no evict directory.  Run evict init.");
+    std::os::set_exit_status(2);
+    return false;
+  }
   match commandList.find(command) {
     Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
     None => {

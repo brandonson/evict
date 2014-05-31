@@ -60,6 +60,12 @@ struct PartialParseResult<'a>{
   searcher:&'a SourceSearcher
 }
 
+struct ParseLineInfo{
+  content:String,
+  filename:String,
+  line_number:uint
+}
+
 impl<'a> PartialParseResult<'a> {
   fn to_final_result(mut self) -> ParseResult {
     if self.issue_in_progress.is_some() {
@@ -93,13 +99,13 @@ impl SourceSearcher {
                    issue_status:status}
   }
 
-  pub fn parse_file<R:Reader>(&self, reader:&mut BufferedReader<R>)
+  pub fn parse_file<R:Reader>(&self, reader:&mut BufferedReader<R>, filename:String)
           -> IoResult<ParseResult>{
-    self.parse_file_lines(reader.lines())
+    self.parse_file_lines(reader.lines(), filename)
   }
 
   pub fn parse_file_lines<'a, ITER:Iterator<IoResult<String>>>
-          (&self, mut iter: ITER) -> IoResult<ParseResult> {
+          (&self, mut iter: ITER, filename:String) -> IoResult<ParseResult> {
     let partial_result = PartialParseResult{new_issues:vec!(),
                            issue_in_progress:None, body_in_progress:None,
                            current_comment_format:None,
@@ -107,21 +113,28 @@ impl SourceSearcher {
                            searcher:self};
     let mut state_machine = fsm::StateMachine::new(main_parse_handler,
                                                    partial_result);
+
+    let mut linenum = 1u;
                                           
     for lineRes in iter {
       match lineRes {
         Ok(line) =>{
-          state_machine.process(line);
+          let info = ParseLineInfo{content:line,
+                                   filename:filename.clone(),
+                                   line_number:linenum};
+          state_machine.process(info);
         }
         Err(message) => return Err(message)
       }
+      linenum = linenum + 1;
     }
     return Ok(state_machine.move_state().to_final_result())
   }
 }
 
-fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, input:String)
-    -> fsm::NextState<PartialParseResult<'a>, String> {
+fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, lineinfo:ParseLineInfo)
+    -> fsm::NextState<PartialParseResult<'a>, ParseLineInfo> {
+  let ParseLineInfo{content:input, filename:file, line_number:linenum} = lineinfo;
   let trimmed = input.as_slice().trim();
 
   if trimmed.starts_with(partial_result.searcher.issue_id_comment_start.as_slice()) {
@@ -131,34 +144,51 @@ fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, input:String)
     let comment_formats = &partial_result.searcher.comment_fmts;
     for cformat in comment_formats.iter() {
       if trimmed.starts_with(cformat.issue_start.as_slice()) &&
-         trimmed.len() > cformat.issue_start.len() {
-         let rem_text = trimmed.slice_from(cformat.issue_start.len());
-         let (tags, title_text) = read_tags(rem_text, partial_result.searcher);
-         
-         if tags.is_some() {
-         
-           let mut new_issue = Issue::new(title_text.into_string(), "".into_string(),
-                                          partial_result.searcher
-                                                        .issue_author_name.clone());
-           new_issue.status = partial_result.searcher.issue_status.clone(); 
-           let tags = tags.unwrap();
-           for t in tags.move_iter(){
-             new_issue.add_tag(t);
-           }
+        trimmed.len() > cformat.issue_start.len() {
+        let rem_text = trimmed.slice_from(cformat.issue_start.len());
+        let (tags, title_text) = read_tags(rem_text, partial_result.searcher);
+        
+        if tags.is_some() {
+        
+          let mut new_issue = Issue::new(title_text.into_string(), "".into_string(),
+                                         partial_result.searcher
+                                                       .issue_author_name.clone());
+          new_issue.status = partial_result.searcher.issue_status.clone(); 
+          let tags = tags.unwrap();
+          for t in tags.move_iter(){
+            new_issue.add_tag(t);
+          }
 
-           let id_line = partial_result.searcher
-                                       .issue_id_comment_start.clone()
-                                       .append(new_issue.id.as_slice())
-                                       .append("\n");
-           let with_issue_line = add_line(partial_result, id_line.as_slice());
-           let issue_and_input = add_line(with_issue_line, input.as_slice());
-           let new_presult = PartialParseResult{
-                               issue_in_progress:Some(new_issue),
-                               current_comment_format:Some(cformat),
-                               body_in_progress:None,
-                               .. issue_and_input};
-           return fsm::ChangeState(parse_body, new_presult);
-         }
+          //whitespace ends when the issue starter starts
+          let whitespace_end = cformat.issue_start.as_slice().char_at(0);
+        
+          let split_vec:Vec<&str> = input.as_slice().splitn(whitespace_end, 1).collect();
+
+          //get the whitespace so we keep indentation
+          let whitespace = split_vec.get(0);
+
+          //convenience - the id line starter
+          let id_start = partial_result.searcher.issue_id_comment_start.as_slice();
+
+          //create the id line
+          let id_line = whitespace.into_string()
+                                  .append(id_start)
+                                  .append(new_issue.id.as_slice())
+                                  .append("\n");
+
+          //add onto file contents
+          let with_issue_line = add_line(partial_result, id_line.as_slice());
+          let issue_and_input = add_line(with_issue_line, input.as_slice());
+
+          let bodyStart = format!("Parsed from {} line {}\n\n", file, linenum);
+          
+          let new_presult = PartialParseResult{
+                              issue_in_progress:Some(new_issue),
+                              current_comment_format:Some(cformat),
+                              body_in_progress:Some(bodyStart),
+                              .. issue_and_input};
+          return fsm::ChangeState(parse_body, new_presult);
+        }
       }
     }
     let with_line = add_line(partial_result, input.as_slice());
@@ -197,8 +227,9 @@ fn tag_from_nonempty_str(tag_name:&str, author:&str) -> Option<IssueTag> {
   }
 }
 
-fn read_to_issue_end<'a>(partial_result:PartialParseResult<'a>, input:String)
-    -> fsm::NextState<PartialParseResult<'a>, String>{
+fn read_to_issue_end<'a>(partial_result:PartialParseResult<'a>, line_info:ParseLineInfo)
+    -> fsm::NextState<PartialParseResult<'a>, ParseLineInfo>{
+  let input = line_info.content;
   let trimmed = input.as_slice().trim();
   let result_w_line = add_line(partial_result, input.as_slice());
 
@@ -214,8 +245,9 @@ fn read_to_issue_end<'a>(partial_result:PartialParseResult<'a>, input:String)
   fsm::ChangeState(main_parse_handler, result_w_line)
 }
 
-fn read_to_issue_end_formatted<'a>(partial_result:PartialParseResult<'a>, input:String)
-    -> fsm::NextState<PartialParseResult<'a>, String>{
+fn read_to_issue_end_formatted<'a>(partial_result:PartialParseResult<'a>, line_info:ParseLineInfo)
+    -> fsm::NextState<PartialParseResult<'a>, ParseLineInfo>{
+  let input = line_info.content;
   let trimmed = input.as_slice().trim();
   let npresult = add_line(partial_result, input.as_slice());
   let format = npresult.current_comment_format.unwrap();
@@ -228,8 +260,10 @@ fn read_to_issue_end_formatted<'a>(partial_result:PartialParseResult<'a>, input:
   }
 }
 
-fn parse_body<'a>(partial_result:PartialParseResult<'a>, input:String)
-    -> fsm::NextState<PartialParseResult<'a>, String> {
+fn parse_body<'a>(partial_result:PartialParseResult<'a>, line_info:ParseLineInfo)
+    -> fsm::NextState<PartialParseResult<'a>, ParseLineInfo> {
+  let input = line_info.content;
+
   let trimmed = input.as_slice().trim();
   let mut with_line = add_line(partial_result, input.as_slice());
   let format = with_line.current_comment_format.unwrap();
@@ -262,7 +296,6 @@ fn add_line<'a>(presult:PartialParseResult<'a>, line:&str) -> PartialParseResult
 
 fn line_ends_format(input:&str, format:&CommentFormat) -> bool {
   let result_opt = format.body_end_line_start.as_ref().map(|x| input.starts_with(x.as_slice()));
-  println!("{}", result_opt);
   result_opt.unwrap_or(false)
 }
 
@@ -272,9 +305,9 @@ fn basic_parse_test(){
   use std::vec::MoveItems;
 
   let searcher = SourceSearcher::new_default_searcher("me".into_string());
-  let lines:MoveItems<IoResult<String>> = vec!(Ok("//[sometag] This is a title".into_string()))
+  let lines:MoveItems<IoResult<String>> = vec!(Ok("  //[sometag] This is a title".into_string()))
                                             .move_iter();
-  let result = searcher.parse_file_lines(lines);  
+  let result = searcher.parse_file_lines(lines, "foo".to_string());  
   assert!(result.is_ok());
   let result = result.unwrap();
   assert!(result.new_issues.len() == 1);
@@ -283,12 +316,17 @@ fn basic_parse_test(){
   println!("{}", result.new_file_contents);
 
   assert!(result.new_file_contents.as_slice().lines().len() == 2);
+  assert!(result.new_file_contents.as_slice()
+                                  .lines()
+                                  .collect::<Vec<&str>>()
+                                  .get(0)
+                                  .starts_with("  "));
 
   let issue = result.new_issues.get(0);
 
   assert!(issue.title == "This is a title".into_string());
   assert!(issue.author == "me".into_string());
-  assert!(issue.body_text == "".into_string());
+  assert!(issue.body_text == "Parsed from foo line 1\n\n".into_string());
   assert!(issue.events.len() == 1);
   match issue.events.get(0) {
     &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & "sometag".into_string()),
