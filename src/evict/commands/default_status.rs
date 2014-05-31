@@ -19,7 +19,7 @@
 
 use status_storage;
 
-pub fn default_status(args:~[StrBuf]) -> int {
+pub fn default_status(args:~[String]) -> int {
   if args.len() > 1 {
     println! ("default-status usage: evict default-status [new-status]");
     1

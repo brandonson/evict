@@ -25,10 +25,10 @@ use commands;
 use fsm;
 
 struct Flags{
-  source_dir:Option<StrBuf>
+  source_dir:Option<String>
 }
 
-pub fn parse_issues(args:~[StrBuf]) -> int{
+pub fn parse_issues(args:~[String]) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{source_dir:None});
 
@@ -40,7 +40,7 @@ pub fn parse_issues(args:~[StrBuf]) -> int{
 
   let author = commands::get_author();
   let result = parse_directory(&SourceSearcher::new_default_searcher(author),
-                               Path::new(flags.source_dir.unwrap_or("".to_owned())));
+                               Path::new(flags.source_dir.unwrap_or("".into_string())));
   file_manager::write_issues(result.new_issues.as_slice());
   for errstr in result.failures.iter(){
     println!("Parser error: {}", errstr);
@@ -48,13 +48,13 @@ pub fn parse_issues(args:~[StrBuf]) -> int{
   0
 }
 
-fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
+fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   match input.as_slice() {
     "--src-dir" => fsm::ChangeState(get_source_dir, flags),
     _ => fsm::Continue(flags)
   }
 }
 
-fn get_source_dir(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf>{
+fn get_source_dir(_:Flags, input:String) -> fsm::NextState<Flags, String>{
   fsm::ChangeState(std_handler, Flags{source_dir:Some(input)})
 }

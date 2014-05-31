@@ -21,15 +21,15 @@ use issue::{IssueTag, Issue};
 use commands;
 use file_manager;
 
-pub fn tag(args:~[StrBuf]) -> int {
+pub fn tag(args:~[String]) -> int {
   tag_cmd(args, "tag", true)
 }
 
-pub fn untag(args:~[StrBuf]) -> int {
+pub fn untag(args:~[String]) -> int {
   tag_cmd(args, "untag", false)
 }
 
-pub fn tag_cmd(args:~[StrBuf], cmdName:&str, enabledAfter:bool) -> int {
+pub fn tag_cmd(args:~[String], cmdName:&str, enabledAfter:bool) -> int {
   if args.len() != 2 {
     println!("{} usage: evict {} <issue-id> <tag>", cmdName, cmdName);
     1
@@ -55,7 +55,7 @@ fn modify_tag(mut issue:Issue, tag:&str, enabledAfter:bool) -> Issue {
     optTag.map(|tag| tag.clone())
   };
   if lastTag.is_none() || lastTag.unwrap().enabled != enabledAfter {
-    issue.add_tag(IssueTag::new(tag.to_owned(), author, enabledAfter));
+    issue.add_tag(IssueTag::new(tag.to_string(), author, enabledAfter));
   }
   issue
 }

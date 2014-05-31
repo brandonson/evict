@@ -21,7 +21,7 @@ use commands;
 use file_manager;
 
 
-pub fn clear_data(_:~[StrBuf]) -> int {
+pub fn clear_data(_:~[String]) -> int {
   let evictPath = &std::path::Path::new(file_manager::EVICT_DIRECTORY);
   let absolute = std::os::make_absolute(evictPath);
   let res = commands::prompt(

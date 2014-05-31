@@ -30,12 +30,12 @@ use status_storage;
 static DEFAULT_ISSUE_BODY_FILE:&'static str = "ISSUE_MSG";
 struct Flags{
   hasBody:bool,
-  bodyFile:Option<StrBuf>,
-  title:Option<StrBuf>,
-  author:Option<StrBuf>,
+  bodyFile:Option<String>,
+  title:Option<String>,
+  author:Option<String>,
 }
 
-fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags,StrBuf> {
+fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags,String> {
   match input.as_slice() {
     "--no-body" => fsm::Continue(Flags{hasBody:false, 
                                          .. flags}),
@@ -45,17 +45,17 @@ fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags,StrBuf> {
     _ => fsm::Continue(flags)
   }
 }
-fn get_body_file(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
+fn get_body_file(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   fsm::ChangeState(std_handler, Flags{bodyFile:Some(input), .. flags})
 }
-fn get_title(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
+fn get_title(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   fsm::ChangeState(std_handler, Flags{title:Some(input), .. flags})
 }
-fn get_author(flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
+fn get_author(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   fsm::ChangeState(std_handler, Flags{author:Some(input), .. flags})
 }
 
-pub fn create_issue(args:~[StrBuf]) -> int {
+pub fn create_issue(args:~[String]) -> int {
   let mut stateMachine = fsm::StateMachine::new(std_handler, 
                                            Flags{hasBody:true, 
                                                  bodyFile:None, 
@@ -66,11 +66,11 @@ pub fn create_issue(args:~[StrBuf]) -> int {
   };
   let finalFlags = stateMachine.move_state();
   let title = match finalFlags.title {
-    Some(ref titleVal) => titleVal.to_owned(),
+    Some(ref titleVal) => titleVal.to_string(),
     None => commands::prompt("Title: ")
   };
   let author = match finalFlags.author {
-    Some(ref authorVal) => authorVal.to_owned(),
+    Some(ref authorVal) => authorVal.to_string(),
     None => commands::get_author()
   };
   let mut editedBodyFile = false;
@@ -79,7 +79,7 @@ pub fn create_issue(args:~[StrBuf]) -> int {
     if !editedBodyFile {
       return 2;
     }
-    Some(DEFAULT_ISSUE_BODY_FILE.to_owned())
+    Some(DEFAULT_ISSUE_BODY_FILE.into_string())
   }else if !finalFlags.hasBody {
     None
   }else{
@@ -95,9 +95,9 @@ pub fn create_issue(args:~[StrBuf]) -> int {
   }
 }
 
-fn do_issue_creation(title:StrBuf, author:StrBuf, bodyFile:Option<StrBuf>) -> Option<Issue>{
+fn do_issue_creation(title:String, author:String, bodyFile:Option<String>) -> Option<Issue>{
   let issueOpt = if bodyFile.is_none() {
-                   Some(Issue::new(title, "".to_owned(), author))
+                   Some(Issue::new(title, "".into_string(), author))
                  }else{
                    let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap().as_slice());
                    bodyTextOpt.map(

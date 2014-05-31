@@ -31,13 +31,13 @@ static ISSUE_DIRECTORY:&'static str = "issue-dirs";
 
 static BODY_FILENAME:&'static str = "body";
 
-pub fn issue_directory() -> StrBuf {format!("{}/{}",
+pub fn issue_directory() -> String {format!("{}/{}",
                                           EVICT_DIRECTORY,
                                           ISSUE_DIRECTORY)}
 
 pub fn issue_directory_path() -> Path {Path::new(issue_directory())}
 
-pub fn single_issue_filename(issue:&Issue) -> StrBuf {
+pub fn single_issue_filename(issue:&Issue) -> String {
   format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id)
 }
 
@@ -68,7 +68,7 @@ fn write_issue_body(issue:&Issue) -> bool {
   file_util::write_string_to_file(output.as_slice(), filename.as_slice(), true)
 }
 
-fn issue_body_filename(issue:&Issue) -> StrBuf {
+fn issue_body_filename(issue:&Issue) -> String {
   format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id, BODY_FILENAME)
 }
 
@@ -78,7 +78,7 @@ fn write_issue_event(issueId:&str, event:&IssueTimelineEvent) -> bool{
   file_util::write_string_to_file(jsonStr.as_slice(), filename.as_slice(), true)
 }
 
-fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> StrBuf {
+fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> String {
   format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issueId, event.id())
 }
 
@@ -147,7 +147,7 @@ fn read_comment(commentFile:&Path) -> Option<IssueTimelineEvent> {
 pub fn write_read_issue_file(){
   file_util::create_directory_path(&Path::new(EVICT_DIRECTORY));
   file_util::create_directory_path(&issue_directory_path());
-  let issues = vec!(Issue::new("A".to_owned(), "B".to_owned(), "C".to_owned()));
+  let issues = vec!(Issue::new("A".into_string(), "B".into_string(), "C".into_string()));
   write_issues(issues.as_slice());
   let read = read_issues();
   assert!(issues == read);

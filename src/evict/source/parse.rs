@@ -30,33 +30,33 @@ use fsm;
 
 #[deriving(Clone)]
 pub struct CommentFormat{
-  issue_start:StrBuf,
-  body_line_start:StrBuf,
-  body_end_line_start:Option<StrBuf>
+  issue_start:String,
+  body_line_start:String,
+  body_end_line_start:Option<String>
 }
 
 #[deriving(Clone)]
 pub struct SourceSearcher{
   comment_fmts:Vec<CommentFormat>,
-  issue_id_comment_start:StrBuf,
+  issue_id_comment_start:String,
   tag_start_delim:char,
   tag_end_delim:char,
   tag_split_delim:char,
-  issue_author_name:StrBuf,
+  issue_author_name:String,
   issue_status:IssueStatus
 }
 
 pub struct ParseResult{
   pub new_issues:Vec<Issue>,
-  pub new_file_contents:StrBuf
+  pub new_file_contents:String
 }
 
 struct PartialParseResult<'a>{
   new_issues:Vec<Issue>,
   issue_in_progress:Option<Issue>,
-  body_in_progress:Option<StrBuf>,
+  body_in_progress:Option<String>,
   current_comment_format:Option<&'a CommentFormat>,
-  new_contents:StrBuf,
+  new_contents:String,
   searcher:&'a SourceSearcher
 }
 
@@ -75,17 +75,17 @@ impl<'a> PartialParseResult<'a> {
 }
 
 impl SourceSearcher {
-  pub fn new_default_searcher(auth:StrBuf) -> SourceSearcher {
-    let double_slash_format = CommentFormat{issue_start:"//".to_owned(),
-                                            body_line_start:"//".to_owned(),
+  pub fn new_default_searcher(auth:String) -> SourceSearcher {
+    let double_slash_format = CommentFormat{issue_start:"//".into_string(),
+                                            body_line_start:"//".into_string(),
                                             body_end_line_start:None};
-    let mline_comment_format = CommentFormat{issue_start:"/*".to_owned(),
-                                             body_line_start:"*".to_owned(),
-                                             body_end_line_start:Some("*/".to_owned())};
+    let mline_comment_format = CommentFormat{issue_start:"/*".into_string(),
+                                             body_line_start:"*".into_string(),
+                                             body_end_line_start:Some("*/".into_string())};
     let status = status_storage::read_default_status().make_status();
     SourceSearcher{comment_fmts:vec!(double_slash_format,
                                      mline_comment_format),
-                   issue_id_comment_start:"// EVICT-BT-ID: ".to_owned(),
+                   issue_id_comment_start:"// EVICT-BT-ID: ".into_string(),
                    tag_start_delim: '[',
                    tag_end_delim: ']',
                    tag_split_delim: ',',
@@ -98,12 +98,12 @@ impl SourceSearcher {
     self.parse_file_lines(reader.lines())
   }
 
-  pub fn parse_file_lines<'a, ITER:Iterator<IoResult<StrBuf>>>
+  pub fn parse_file_lines<'a, ITER:Iterator<IoResult<String>>>
           (&self, mut iter: ITER) -> IoResult<ParseResult> {
     let partial_result = PartialParseResult{new_issues:vec!(),
                            issue_in_progress:None, body_in_progress:None,
                            current_comment_format:None,
-                           new_contents:"".to_owned(),
+                           new_contents:"".into_string(),
                            searcher:self};
     let mut state_machine = fsm::StateMachine::new(main_parse_handler,
                                                    partial_result);
@@ -120,8 +120,8 @@ impl SourceSearcher {
   }
 }
 
-fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, input:StrBuf)
-    -> fsm::NextState<PartialParseResult<'a>, StrBuf> {
+fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, input:String)
+    -> fsm::NextState<PartialParseResult<'a>, String> {
   let trimmed = input.as_slice().trim();
 
   if trimmed.starts_with(partial_result.searcher.issue_id_comment_start.as_slice()) {
@@ -137,7 +137,7 @@ fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, input:StrBuf)
          
          if tags.is_some() {
          
-           let mut new_issue = Issue::new(title_text.to_owned(), "".to_owned(),
+           let mut new_issue = Issue::new(title_text.into_string(), "".into_string(),
                                           partial_result.searcher
                                                         .issue_author_name.clone());
            new_issue.status = partial_result.searcher.issue_status.clone(); 
@@ -191,14 +191,14 @@ fn read_tags<'a>(line_text:&'a str, format:&SourceSearcher)
 fn tag_from_nonempty_str(tag_name:&str, author:&str) -> Option<IssueTag> {
   let trimmed_str = tag_name.trim();
   if trimmed_str.len() > 0 {
-    Some(IssueTag::new(tag_name.to_owned(), author.to_owned(), true))
+    Some(IssueTag::new(tag_name.into_string(), author.into_string(), true))
   }else{
     None
   }
 }
 
-fn read_to_issue_end<'a>(partial_result:PartialParseResult<'a>, input:StrBuf)
-    -> fsm::NextState<PartialParseResult<'a>, StrBuf>{
+fn read_to_issue_end<'a>(partial_result:PartialParseResult<'a>, input:String)
+    -> fsm::NextState<PartialParseResult<'a>, String>{
   let trimmed = input.as_slice().trim();
   let result_w_line = add_line(partial_result, input.as_slice());
 
@@ -214,8 +214,8 @@ fn read_to_issue_end<'a>(partial_result:PartialParseResult<'a>, input:StrBuf)
   fsm::ChangeState(main_parse_handler, result_w_line)
 }
 
-fn read_to_issue_end_formatted<'a>(partial_result:PartialParseResult<'a>, input:StrBuf)
-    -> fsm::NextState<PartialParseResult<'a>, StrBuf>{
+fn read_to_issue_end_formatted<'a>(partial_result:PartialParseResult<'a>, input:String)
+    -> fsm::NextState<PartialParseResult<'a>, String>{
   let trimmed = input.as_slice().trim();
   let npresult = add_line(partial_result, input.as_slice());
   let format = npresult.current_comment_format.unwrap();
@@ -228,8 +228,8 @@ fn read_to_issue_end_formatted<'a>(partial_result:PartialParseResult<'a>, input:
   }
 }
 
-fn parse_body<'a>(partial_result:PartialParseResult<'a>, input:StrBuf)
-    -> fsm::NextState<PartialParseResult<'a>, StrBuf> {
+fn parse_body<'a>(partial_result:PartialParseResult<'a>, input:String)
+    -> fsm::NextState<PartialParseResult<'a>, String> {
   let trimmed = input.as_slice().trim();
   let mut with_line = add_line(partial_result, input.as_slice());
   let format = with_line.current_comment_format.unwrap();
@@ -237,12 +237,12 @@ fn parse_body<'a>(partial_result:PartialParseResult<'a>, input:StrBuf)
 
   if is_end || !trimmed.starts_with(format.body_line_start.as_slice()) {
     let mut issue = with_line.issue_in_progress.take_unwrap();
-    let nbody = with_line.body_in_progress.take().unwrap_or("".to_owned());
+    let nbody = with_line.body_in_progress.take().unwrap_or("".into_string());
     issue.body_text = nbody;
     with_line.new_issues.push(issue);
     fsm::ChangeState(main_parse_handler, with_line)
   }else{
-    let body_so_far = with_line.body_in_progress.take().unwrap_or("".to_owned());
+    let body_so_far = with_line.body_in_progress.take().unwrap_or("".into_string());
     let stripped_body_line = trimmed.slice_from(format.body_line_start.len())
                                     .trim();
     let new_body = body_so_far.append(stripped_body_line).append("\n");
@@ -252,10 +252,10 @@ fn parse_body<'a>(partial_result:PartialParseResult<'a>, input:StrBuf)
 }
 
 fn add_line<'a>(presult:PartialParseResult<'a>, line:&str) -> PartialParseResult<'a> {
-  let contents = if presult.new_contents == "".to_owned() {
-    line.to_owned()
+  let contents = if presult.new_contents == "".into_string() {
+    line.into_string()
   }else{
-    presult.new_contents.to_owned().append(line)
+    presult.new_contents.to_string().append(line)
   };
   PartialParseResult{new_contents:contents, .. presult}
 }
@@ -271,8 +271,8 @@ fn basic_parse_test(){
   use issue::TimelineTag;
   use std::vec::MoveItems;
 
-  let searcher = SourceSearcher::new_default_searcher("me".to_owned());
-  let lines:MoveItems<IoResult<StrBuf>> = vec!(Ok("//[sometag] This is a title".to_owned()))
+  let searcher = SourceSearcher::new_default_searcher("me".into_string());
+  let lines:MoveItems<IoResult<String>> = vec!(Ok("//[sometag] This is a title".into_string()))
                                             .move_iter();
   let result = searcher.parse_file_lines(lines);  
   assert!(result.is_ok());
@@ -286,12 +286,12 @@ fn basic_parse_test(){
 
   let issue = result.new_issues.get(0);
 
-  assert!(issue.title == "This is a title".to_owned());
-  assert!(issue.author == "me".to_owned());
-  assert!(issue.body_text == "".to_owned());
+  assert!(issue.title == "This is a title".into_string());
+  assert!(issue.author == "me".into_string());
+  assert!(issue.body_text == "".into_string());
   assert!(issue.events.len() == 1);
   match issue.events.get(0) {
-    &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & "sometag".to_owned()),
+    &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & "sometag".into_string()),
     _ => fail!("Didn't get a tag")
   }
 

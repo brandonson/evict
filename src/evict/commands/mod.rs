@@ -41,11 +41,11 @@ mod parse;
  * performs some action, then returns an
  * exit code.
  */
-pub type Command = fn (~[StrBuf]) -> int;
+pub type Command = fn (~[String]) -> int;
 
-pub fn execute_command(command:&StrBuf, 
-                      commandList:&HashMap<StrBuf, Command>, 
-                      argList: ~[StrBuf]) -> bool{
+pub fn execute_command(command:&String, 
+                      commandList:&HashMap<String, Command>, 
+                      argList: ~[String]) -> bool{
   match commandList.find(command) {
     Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
     None => {
@@ -56,33 +56,33 @@ pub fn execute_command(command:&StrBuf,
   }
 }
 
-pub fn standard_commands() -> Box<HashMap<StrBuf, Command>> {
-  let mut hmap:Box<HashMap<StrBuf, Command>> = box HashMap::new();
-  hmap.insert("create".to_owned(), create::create_issue);
-  hmap.insert("clear".to_owned(), clear::clear_data);
-  hmap.insert("init".to_owned(), init::initialize);
-  hmap.insert("list".to_owned(), list::list_issues); 
-  hmap.insert("delete".to_owned(), delete::delete_issue);
-  hmap.insert("comment".to_owned(), comment::new_comment); 
-  hmap.insert("new-status".to_owned(), new_status::new_status);
-  hmap.insert("default-author".to_owned(), default_author::default_author);
-  hmap.insert("set-status".to_owned(), set_status::set_status);
-  hmap.insert("default-status".to_owned(), default_status::default_status);
-  hmap.insert("tag".to_owned(), tag::tag);
-  hmap.insert("untag".to_owned(), tag::untag);
-  hmap.insert("parse".to_owned(), parse::parse_issues);
+pub fn standard_commands() -> Box<HashMap<String, Command>> {
+  let mut hmap:Box<HashMap<String, Command>> = box HashMap::new();
+  hmap.insert("create".into_string(), create::create_issue);
+  hmap.insert("clear".into_string(), clear::clear_data);
+  hmap.insert("init".into_string(), init::initialize);
+  hmap.insert("list".into_string(), list::list_issues); 
+  hmap.insert("delete".into_string(), delete::delete_issue);
+  hmap.insert("comment".into_string(), comment::new_comment); 
+  hmap.insert("new-status".into_string(), new_status::new_status);
+  hmap.insert("default-author".into_string(), default_author::default_author);
+  hmap.insert("set-status".into_string(), set_status::set_status);
+  hmap.insert("default-status".into_string(), default_status::default_status);
+  hmap.insert("tag".into_string(), tag::tag);
+  hmap.insert("untag".into_string(), tag::untag);
+  hmap.insert("parse".into_string(), parse::parse_issues);
   
   hmap
 }
 
-pub fn prompt(prompt:&str) -> StrBuf{
+pub fn prompt(prompt:&str) -> String{
   print!("{}", prompt);
   //TODO do we need to check this?
   let withNewline = BufferedReader::new(stdin()).read_line().unwrap();
   withNewline.replace("\n", "").replace("\r", "")
 }
 
-pub fn get_author() -> StrBuf {
+pub fn get_author() -> String {
   let config = config::Config::load();
   match config.author {
     Some(author) => author,

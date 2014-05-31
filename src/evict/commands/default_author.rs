@@ -18,7 +18,7 @@
  */
 use config;
 
-pub fn default_author(args:~[StrBuf]) -> int {
+pub fn default_author(args:~[String]) -> int {
   if args.len() > 1 {
     println!("default-author usage: evict default-author [new-author]");
     1

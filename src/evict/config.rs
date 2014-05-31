@@ -25,15 +25,15 @@ static CONFIG_FILE:&'static str = ".evict/config";
 static AUTHOR_KEY:&'static str = "author";
 
 pub struct Config{
-  pub author:Option<StrBuf>,
+  pub author:Option<String>,
 }
 
 impl ToJson for Config{
   fn to_json(&self) -> json::Json {
-    let mut map:Box<treemap::TreeMap<StrBuf, json::Json>> = box treemap::TreeMap::new();
+    let mut map:Box<treemap::TreeMap<String, json::Json>> = box treemap::TreeMap::new();
     match self.author {
       Some(ref auth) => {
-        map.insert(AUTHOR_KEY.into_strbuf(),json::String(auth.to_owned().into_strbuf()));
+        map.insert(AUTHOR_KEY.to_string(),json::String(auth.to_string()));
       }
       None => {}
     };
@@ -67,7 +67,7 @@ impl Config{
   
   fn from_json(json:json::Json) -> Config {
     match json {
-      json::Object(map) => Config{author:map.find(&AUTHOR_KEY.into_strbuf())
+      json::Object(map) => Config{author:map.find(&AUTHOR_KEY.into_string())
                                             .and_then(|x| extract_string(x)),
                            },
       _ => Config::default()
@@ -80,9 +80,9 @@ impl Config{
   }
 }
 
-fn extract_string(json:&json::Json) -> Option<StrBuf> {
+fn extract_string(json:&json::Json) -> Option<String> {
   match json {
-    &json::String(ref string) => Some(string.to_owned()),
+    &json::String(ref string) => Some(string.to_string()),
     _ => None
   }
 }

@@ -22,11 +22,11 @@ use status_storage::{StatusOption,
                      write_default_status};
 use file_util;
 
-pub fn initialize(_:~[StrBuf]) -> int {
+pub fn initialize(_:~[String]) -> int {
   let createSuccess = file_util::create_directory(file_manager::EVICT_DIRECTORY);
   if createSuccess {
-    let defaultStatus = StatusOption{name:"open".to_owned()};
-    let statusOpts = vec!(defaultStatus.clone(), StatusOption{name:"closed".to_owned()});
+    let defaultStatus = StatusOption{name:"open".into_string()};
+    let statusOpts = vec!(defaultStatus.clone(), StatusOption{name:"closed".into_string()});
     let optionSuccess = write_status_options(statusOpts);
     if optionSuccess {
       let defaultResult = write_default_status(&defaultStatus);

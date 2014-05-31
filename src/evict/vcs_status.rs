@@ -23,7 +23,7 @@ enum VCS{
 }
 
 impl VCS {
-  fn current_branch_cmd_output(&self) -> Option<StrBuf>{
+  fn current_branch_cmd_output(&self) -> Option<String>{
     match self {
       &Git => {
         let mut gitcmd = process::Command::new("git");
@@ -42,16 +42,16 @@ impl VCS {
   }
 }
 
-pub fn current_branch() -> Option<StrBuf> {
+pub fn current_branch() -> Option<String> {
   let output = VCS::current().current_branch_cmd_output(); 
-  output.and_then(grab_first_line).map(|x| x.into_strbuf())
+  output.and_then(grab_first_line).map(|x| x.into_string())
 }
 
-fn grab_first_line(grab_from:StrBuf) -> Option<StrBuf> {
+fn grab_first_line(grab_from:String) -> Option<String> {
   //'loop' through the lines but just return
   //the first line we get
   for first in grab_from.as_slice().lines_any() {
-    return Some(first.to_owned());
+    return Some(first.to_string());
   }
   //there were no lines, return None
   None

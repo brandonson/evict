@@ -21,14 +21,14 @@ use issue::{Issue,IssueTimelineEvent};
 use std::vec::Vec;
 
 pub fn merge_issues(incoming:Vec<Issue>,merge_into:Vec<Issue>) -> Vec<Issue> {
-  let mut ident_map:HashMap<StrBuf, (Option<Issue>, Option<Issue>)> = HashMap::new();
+  let mut ident_map:HashMap<String, (Option<Issue>, Option<Issue>)> = HashMap::new();
   for issue in incoming.move_iter() {
-    ident_map.insert(issue.id.to_owned(), (Some(issue), None));
+    ident_map.insert(issue.id.to_string(), (Some(issue), None));
   }
   for issue in merge_into.move_iter() {
     match ident_map.pop(&issue.id) {
-      Some((i, _)) => ident_map.insert(issue.id.to_owned(), (i, Some(issue))),
-      None => ident_map.insert(issue.id.to_owned(), (None, Some(issue)))
+      Some((i, _)) => ident_map.insert(issue.id.to_string(), (i, Some(issue))),
+      None => ident_map.insert(issue.id.to_string(), (None, Some(issue)))
     };
   }
   let mut merged:Vec<Issue> = vec!();

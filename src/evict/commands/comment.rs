@@ -26,16 +26,16 @@ use selection;
 
 #[deriving(Clone)]
 struct Flags{
-  issueIdPart:Option<StrBuf>
+  issueIdPart:Option<String>
 }
 
-fn std_handler(flags:Flags, arg:StrBuf) -> fsm::NextState<Flags, StrBuf> {
+fn std_handler(flags:Flags, arg:String) -> fsm::NextState<Flags, String> {
   match arg {
     idPart => fsm::Continue(Flags{issueIdPart:Some(idPart), .. flags})
   }
 }
 
-pub fn new_comment(args:~[StrBuf]) -> int{
+pub fn new_comment(args:~[String]) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issueIdPart:None});
   for a in args.move_iter(){
     stateMachine.process(a);

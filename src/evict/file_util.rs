@@ -29,15 +29,15 @@ pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool
     //successful by default, then set to false
     //if an error is encountered
     io_to_success(||io::File::create(&Path::new(filename))
-                           .write(content.to_owned().into_bytes().as_slice()))
+                           .write(content.to_string().into_bytes().as_slice()))
 
   }
 }
-pub fn read_string_from_file(filename:&str) -> Option<StrBuf> {
+pub fn read_string_from_file(filename:&str) -> Option<String> {
   read_string_from_path(&Path::new(filename)) 
 }
 
-pub fn read_string_from_path(path:&Path) -> Option<StrBuf> {
+pub fn read_string_from_path(path:&Path) -> Option<String> {
   match io::File::open(path).read_to_end() {
     Err(_) => None,
     Ok(u8bytes) => str::from_utf8_owned(u8bytes).ok()
@@ -92,14 +92,14 @@ pub fn create_empty_is_empty(){
   let testname = "file_util_testCEIE";
   
   assert!(create_empty(testname));
-  assert!(read_string_from_file(testname) == Some("".to_owned()));
+  assert!(read_string_from_file(testname) == Some("".into_string()));
   assert!(delete_file(testname));
 }
 
 #[test]
 pub fn write_read_str(){
   let testname = "file_util_testWRS";
-  let testString = "This is a test string".to_owned();
+  let testString = "This is a test string".into_string();
 
   assert!(write_string_to_file(testString.as_slice(), testname, false));
   assert!(read_string_from_file(testname) == Some(testString));

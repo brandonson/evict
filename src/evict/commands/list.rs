@@ -34,7 +34,7 @@ trait LinePushingString{
   fn push_strln<S:Str>(&mut self, rhs:S);
 }
 
-impl LinePushingString for StrBuf{
+impl LinePushingString for String{
   fn push_strln<S:Str>(&mut self, rhs:S){
     self.push_str(rhs.as_slice());
     self.push_str("\n");
@@ -42,7 +42,7 @@ impl LinePushingString for StrBuf{
 }
 
 
-pub fn list_issues(args:~[StrBuf]) -> int{
+pub fn list_issues(args:~[String]) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{short:false,
                                                       committed:false,
@@ -101,13 +101,13 @@ pub fn list_issues(args:~[StrBuf]) -> int{
 struct Flags{
   short:bool,
   committed: bool,
-  statuses: Vec<StrBuf>,
+  statuses: Vec<String>,
   noComments: bool,
-  id:Option<StrBuf>,
-  tags:Vec<StrBuf>
+  id:Option<String>,
+  tags:Vec<String>
 }
 
-fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags,StrBuf> {
+fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags,String> {
   match input.as_slice() {
     "--short" => fsm::Continue(Flags{short:true, .. flags}),
     "-s" => fsm::Continue(Flags{short:true, .. flags}),
@@ -120,24 +120,24 @@ fn std_handler(flags:Flags, input:StrBuf) -> fsm::NextState<Flags,StrBuf> {
   }
 }
 
-fn get_status(mut flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
+fn get_status(mut flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   flags.statuses.push(input);
   fsm::ChangeState(std_handler, flags)
 }
 
-fn get_id(mut flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
+fn get_id(mut flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   flags.id = Some(input);
   fsm::ChangeState(std_handler, flags)
 }
 
-fn get_tag(mut flags:Flags, input:StrBuf) -> fsm::NextState<Flags, StrBuf> {
+fn get_tag(mut flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   flags.tags.push(input);
   fsm::ChangeState(std_handler, flags)
 }
 
-fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> StrBuf{
+fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> String{
   let date_sorted = date_sort::sort_by_time(issues);
-  let mut to_print = box StrBuf::new();
+  let mut to_print = String::new();
   //reverse because they're sorted in ascending order
   //and we want descending
   for issue in date_sorted.iter().rev() {
@@ -146,11 +146,11 @@ fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> StrBuf{
       to_print = print_issue(issue, flags, to_print);
     }
   }
-  to_print.into_owned()
+  to_print
 }
 
-fn print_issue(issue:&Issue, flags:&Flags, mut to_print:Box<StrBuf>)
-  -> Box<StrBuf> {
+fn print_issue(issue:&Issue, flags:&Flags, mut to_print:String)
+  -> String {
   to_print.push_strln("");
   to_print.push_strln(format!("\x1b[33m{} (Issue ID: {})\x1b[0m",
                               issue.title, issue.id));
@@ -168,7 +168,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:Box<StrBuf>)
         to_print.push_strln("    Nothing here for this issue.");
       }else{
         //the string for all comment info
-        let mut comment_output = StrBuf::new();
+        let mut comment_output = String::new();
         for evt in issue.events.iter() {
           match evt {
             &TimelineComment(ref comment) => {
@@ -186,7 +186,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:Box<StrBuf>)
         }
 
         let tag_list = issue.all_tags();
-        let mut tag_output = StrBuf::new();
+        let mut tag_output = String::new();
         if tag_list.len() == 0 {
           tag_output.push_str("  No tags for this issue");
         }else {
