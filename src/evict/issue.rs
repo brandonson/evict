@@ -40,7 +40,7 @@ pub static NAME_KEY:&'static str = "name";
 pub static ENABLED_KEY:&'static str = "enabled";
 pub static TIMELINE_EVT_KEY:&'static str = "t-evt-type";
 
-#[deriving(Clone, Eq)]
+#[deriving(Clone, PartialEq)]
 pub struct IssueComment{
   pub creation_time: time::Tm,
   pub author:String,
@@ -49,7 +49,7 @@ pub struct IssueComment{
   pub id:String
 }
 
-#[deriving(Clone, Eq)]
+#[deriving(Clone, PartialEq)]
 pub struct IssueTag{
   pub time: time::Tm,
   pub tag_name: String,
@@ -58,13 +58,13 @@ pub struct IssueTag{
   pub change_id: String
 }
 
-#[deriving(Clone, Eq)]
+#[deriving(Clone, PartialEq)]
 pub enum IssueTimelineEvent{
   TimelineComment(IssueComment),
   TimelineTag(IssueTag)
 }
 
-#[deriving(Clone, Eq)]
+#[deriving(Clone, PartialEq)]
 pub struct IssueStatus{
   pub name:String,
   pub last_change_time: time::Tm
@@ -84,7 +84,7 @@ pub struct Issue{
 }
 
 
-impl Eq for Issue{
+impl PartialEq for Issue{
   fn eq(&self, other:&Issue) -> bool {
     return self.id == other.id;
   }

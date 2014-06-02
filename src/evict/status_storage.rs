@@ -25,7 +25,7 @@ static STATUS_FILE:&'static str = "status_types";
 static DEF_STATUS_FILE:&'static str = "default_status";
 pub static DEFAULT_STATUS_NAME:&'static str = "<unknown>";
 
-#[deriving(Clone, Eq)]
+#[deriving(Clone, PartialEq)]
 pub struct StatusOption{
   pub name:String
 }

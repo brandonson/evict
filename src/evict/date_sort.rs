@@ -52,13 +52,13 @@ impl TimeSorted{
   }
 }
 
-impl Ord for TimeSorted{
+impl PartialOrd for TimeSorted{
   fn lt(&self, other:&TimeSorted) -> bool{
     (*self).creation().to_timespec().lt(&(*other).creation().to_timespec())
   }
 }
 
-impl Eq for TimeSorted{
+impl PartialEq for TimeSorted{
   fn eq(&self, other:&TimeSorted) -> bool {
     (*self).creation().to_timespec() == (*other).creation().to_timespec()
   }
