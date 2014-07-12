@@ -42,10 +42,9 @@ impl LinePushingString for String{
 }
 
 
-pub fn list_issues(args:~[String]) -> int{
+pub fn list_issues(args:Vec<String>) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{short:false,
-                                                      committed:false,
                                                       statuses:vec!(),
                                                       noComments:false,
                                                       id:None,
@@ -100,7 +99,6 @@ pub fn list_issues(args:~[String]) -> int{
 
 struct Flags{
   short:bool,
-  committed: bool,
   statuses: Vec<String>,
   noComments: bool,
   id:Option<String>,
@@ -111,7 +109,6 @@ fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags,String> {
   match input.as_slice() {
     "--short" => fsm::Continue(Flags{short:true, .. flags}),
     "-s" => fsm::Continue(Flags{short:true, .. flags}),
-    "--committed" => fsm::Continue(Flags{committed:true, .. flags}),
     "--status" => fsm::ChangeState(get_status, flags),
     "--nocomment" => fsm::Continue(Flags{noComments:true, .. flags}),
     "--id" => fsm::ChangeState(get_id, flags),

@@ -35,7 +35,7 @@ fn std_handler(flags:Flags, arg:String) -> fsm::NextState<Flags, String> {
   }
 }
 
-pub fn new_comment(args:~[String]) -> int{
+pub fn new_comment(args:Vec<String>) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issueIdPart:None});
   for a in args.move_iter(){
     stateMachine.process(a);

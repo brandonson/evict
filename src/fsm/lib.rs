@@ -1,4 +1,4 @@
-#![crate_id = "fsm#0.1"]
+#![crate_name = "fsm"]
 #![crate_type="lib"]
 pub enum NextState<S,I>{
   ChangeState(Executor<S,I>, S),

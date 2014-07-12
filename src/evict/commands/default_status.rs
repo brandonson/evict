@@ -19,7 +19,7 @@
 
 use status_storage;
 
-pub fn default_status(args:~[String]) -> int {
+pub fn default_status(args:Vec<String>) -> int {
   if args.len() > 1 {
     println! ("default-status usage: evict default-status [new-status]");
     1
@@ -29,7 +29,7 @@ pub fn default_status(args:~[String]) -> int {
       println!("Current default status is: {}", default.name);
       2
     }else{
-      let status = status_storage::StatusOption{name:args[0]};
+      let status = status_storage::StatusOption{name:args.get(0).to_string()};
       match status_storage::write_default_status(&status) {
         Ok(true) => {0}
         Ok(false) => {println!("Could not write to file"); 3}

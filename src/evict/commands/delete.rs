@@ -33,7 +33,7 @@ fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   }
 }
 
-pub fn delete_issue(args:~[String]) -> int {
+pub fn delete_issue(args:Vec<String>) -> int {
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issue:None});
   for arg in args.move_iter() {
     stateMachine.process(arg);

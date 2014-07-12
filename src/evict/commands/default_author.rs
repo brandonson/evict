@@ -18,7 +18,7 @@
  */
 use config;
 
-pub fn default_author(args:~[String]) -> int {
+pub fn default_author(args:Vec<String>) -> int {
   if args.len() > 1 {
     println!("default-author usage: evict default-author [new-author]");
     1
@@ -31,7 +31,7 @@ pub fn default_author(args:~[String]) -> int {
       };
       0
     }else{
-      config::Config{author:Some(args[0]), .. config}.save();
+      config::Config{author:Some(args.get(0).to_string()), .. config}.save();
       0
     }
   }

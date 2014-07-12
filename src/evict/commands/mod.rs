@@ -21,7 +21,7 @@ use libc;
 use config;
 use std::io::stdin;
 use std::io::BufferedReader;
-use collections::hashmap::HashMap;
+use std::collections::hashmap::HashMap;
 use std::io::process;
 
 use file_util;
@@ -44,11 +44,11 @@ mod parse;
  * performs some action, then returns an
  * exit code.
  */
-pub type Command = fn (~[String]) -> int;
+pub type Command = fn (Vec<String>) -> int;
 
 pub fn execute_command(command:&String, 
                       commandList:&HashMap<String, Command>, 
-                      argList: ~[String]) -> bool{
+                      argList: Vec<String>) -> bool{
   // [quality] This should be done without hardcoding init as the exception
   if command != &"init".to_string() && 
      !file_util::file_exists(file_manager::EVICT_DIRECTORY) {

@@ -312,10 +312,10 @@ fn basic_parse_test(){
   let result = result.unwrap();
   assert!(result.new_issues.len() == 1);
 
-  println!("{}", result.new_file_contents.as_slice().lines().len());
+  println!("{}", result.new_file_contents.as_slice().lines().count());
   println!("{}", result.new_file_contents);
 
-  assert!(result.new_file_contents.as_slice().lines().len() == 2);
+  assert!(result.new_file_contents.as_slice().lines().count() == 2);
   assert!(result.new_file_contents.as_slice()
                                   .lines()
                                   .collect::<Vec<&str>>()

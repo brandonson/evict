@@ -53,8 +53,8 @@ impl TimeSorted{
 }
 
 impl PartialOrd for TimeSorted{
-  fn lt(&self, other:&TimeSorted) -> bool{
-    (*self).creation().to_timespec().lt(&(*other).creation().to_timespec())
+  fn partial_cmp(&self, other:&TimeSorted) -> Option<Ordering>{
+    self.creation().to_timespec().partial_cmp(&other.creation().to_timespec())
   }
 }
 

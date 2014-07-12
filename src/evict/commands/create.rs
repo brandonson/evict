@@ -55,7 +55,7 @@ fn get_author(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   fsm::ChangeState(std_handler, Flags{author:Some(input), .. flags})
 }
 
-pub fn create_issue(args:~[String]) -> int {
+pub fn create_issue(args:Vec<String>) -> int {
   let mut stateMachine = fsm::StateMachine::new(std_handler, 
                                            Flags{hasBody:true, 
                                                  bodyFile:None, 

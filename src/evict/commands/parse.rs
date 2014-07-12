@@ -28,7 +28,7 @@ struct Flags{
   source_dir:Option<String>
 }
 
-pub fn parse_issues(args:~[String]) -> int{
+pub fn parse_issues(args:Vec<String>) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{source_dir:None});
 

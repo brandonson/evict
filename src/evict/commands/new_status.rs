@@ -19,13 +19,13 @@
 
 use status_storage;
 
-pub fn new_status(args:~[String]) -> int {
+pub fn new_status(args:Vec<String>) -> int {
   if args.len() != 1 {
     println!("new-status usage: evict new-status <status-name>");
     1
   }else{
     let mut newStatuses = status_storage::read_status_options();
-    newStatuses.push(status_storage::StatusOption{name:args[0]});
+    newStatuses.push(status_storage::StatusOption{name:args.get(0).to_string()});
     status_storage::write_status_options(newStatuses);
     0
   }

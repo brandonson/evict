@@ -16,7 +16,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use collections::HashMap;
+use std::collections::HashMap;
 use issue::{Issue,IssueTimelineEvent};
 use std::vec::Vec;
 
