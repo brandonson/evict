@@ -1,4 +1,7 @@
+before_install:
+  - sudo add-apt-repository --yes ppa:hansjorg/rust 
+  - sudo apt-get update -qq
 install:
-  - wget http://static.rust-lang.org/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.gz -O - | sudo tar zxf - --strip-components 1 -C /usr/local
+  sudo apt-get install -qq rust-nightly
 script:
   - make test
