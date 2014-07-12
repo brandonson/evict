@@ -2,6 +2,7 @@ before_install:
   - sudo add-apt-repository --yes ppa:hansjorg/rust 
   - sudo apt-get update -qq
 install:
-  sudo apt-get install -qq rust-nightly
+  - sudo apt-get install -qq rust-nightly
+  - sudo ldconfig
 script:
   - make test
