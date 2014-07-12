@@ -3,6 +3,7 @@ before_install:
   - sudo apt-get update -qq
 install:
   - sudo apt-get install -qq rust-nightly
-  - sudo ldconfig
+before_script:
+  - export LD_LIBRARY_PATH=/usr/lib/rust/rust-nightly/lib:${LD_LIBRARY_PATH}
 script:
   - make test
