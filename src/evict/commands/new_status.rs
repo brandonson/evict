@@ -25,7 +25,7 @@ pub fn new_status(args:Vec<String>) -> int {
     1
   }else{
     let mut newStatuses = status_storage::read_status_options();
-    newStatuses.push(status_storage::StatusOption{name:args.get(0).to_string()});
+    newStatuses.push(status_storage::StatusOption{name:args[0].to_string()});
     status_storage::write_status_options(newStatuses);
     0
   }

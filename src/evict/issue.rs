@@ -430,10 +430,10 @@ impl IssueTimelineEvent{
         if jlist.len() != 2 {
           None
         }else{
-          match jlist.get(0) {
-            &json::String(ref cmt) if cmt.as_slice() == "comment" => IssueComment::from_json(jlist.get(1))
+          match jlist[0] {
+            json::String(ref cmt) if cmt.as_slice() == "comment" => IssueComment::from_json(&jlist[1])
                                                     .map(|x| TimelineComment(x)),
-            &json::String(ref tg) if tg.as_slice() == "tag" => IssueTag::from_json(jlist.get(1))
+            json::String(ref tg) if tg.as_slice() == "tag" => IssueTag::from_json(&jlist[1])
                                             .map(|x| TimelineTag(x)),
             _ => None
           }

@@ -29,10 +29,10 @@ pub fn set_status(args:Vec<String>) -> int {
     println!("    or the index of a status");
     1
   }else{
-    match resolve_new_status(args.get(1).as_slice()) {
+    match resolve_new_status(args[1].as_slice()) {
       Some(newStatus) => {
         let issues = file_manager::read_issues();
-        let edited = selection::update_issue(args.get(0).as_slice(), issues, |mut oldIssue| {
+        let edited = selection::update_issue(args[0].as_slice(), issues, |mut oldIssue| {
           oldIssue.status = newStatus.clone();
           oldIssue
         });
@@ -49,7 +49,7 @@ fn resolve_new_status(statusIdent:&str) -> Option<IssueStatus> {
   match from_str::<uint>(statusIdent) {
     Some(index) =>
       if search.len() > index {
-        Some(search.get(index).clone())
+        Some(search[index].clone())
       } else {
         None
       },

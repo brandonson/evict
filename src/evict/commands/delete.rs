@@ -59,7 +59,7 @@ fn exec_delete(idPart:String) -> int{
 
     let mut remaining:Vec<Issue> = vec!();
     for issue in issues.move_iter() {
-       if issue != *matching.get(0) {
+       if issue != matching[0] {
          remaining.push(issue);
        }
     }

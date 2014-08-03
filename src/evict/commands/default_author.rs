@@ -31,7 +31,7 @@ pub fn default_author(args:Vec<String>) -> int {
       };
       0
     }else{
-      config::Config{author:Some(args.get(0).to_string()), .. config}.save();
+      config::Config{author:Some(args[0].to_string()), .. config}.save();
       0
     }
   }

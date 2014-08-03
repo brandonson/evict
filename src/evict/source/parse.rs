@@ -165,7 +165,7 @@ fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, lineinfo:ParseL
           let split_vec:Vec<&str> = input.as_slice().splitn(whitespace_end, 1).collect();
 
           //get the whitespace so we keep indentation
-          let whitespace = split_vec.get(0);
+          let whitespace = split_vec[0];
 
           //convenience - the id line starter
           let id_start = partial_result.searcher.issue_id_comment_start.as_slice();
@@ -205,8 +205,8 @@ fn read_tags<'a>(line_text:&'a str, format:&SourceSearcher)
     if split.len() < 2 {
       (None, line_text)
     }else{
-      let tag_part = split.get(0);
-      let title_part = split.get(1).trim();
+      let tag_part = split[0];
+      let title_part = split[1].trim();
       let split_tags = tag_part.split(format.tag_split_delim);
       let mut tag_vec = split_tags.filter_map(|tag| {
         tag_from_nonempty_str(tag, format.issue_author_name.as_slice())
@@ -319,17 +319,17 @@ fn basic_parse_test(){
   assert!(result.new_file_contents.as_slice()
                                   .lines()
                                   .collect::<Vec<&str>>()
-                                  .get(0)
+                                  [0]
                                   .starts_with("  "));
 
-  let issue = result.new_issues.get(0);
+  let ref issue = result.new_issues[0];
 
   assert!(issue.title == "This is a title".into_string());
   assert!(issue.author == "me".into_string());
   assert!(issue.body_text == "Parsed from foo line 1\n\n".into_string());
   assert!(issue.events.len() == 1);
-  match issue.events.get(0) {
-    &TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & "sometag".into_string()),
+  match issue.events[0] {
+    TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & "sometag".into_string()),
     _ => fail!("Didn't get a tag")
   }
 

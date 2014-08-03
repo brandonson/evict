@@ -29,7 +29,7 @@ pub fn default_status(args:Vec<String>) -> int {
       println!("Current default status is: {}", default.name);
       2
     }else{
-      let status = status_storage::StatusOption{name:args.get(0).to_string()};
+      let status = status_storage::StatusOption{name:args[0].clone()};
       match status_storage::write_default_status(&status) {
         Ok(true) => {0}
         Ok(false) => {println!("Could not write to file"); 3}
