@@ -7,6 +7,16 @@
       "comment",
       {
         "author": "Brandon Sanderson",
+        "bodyText": "Now have filtering based on status.\n",
+        "branch": "list-options",
+        "id": "1382149572157590191",
+        "time": "2013-09-11 2013 at 03:27:22"
+      }
+    ],
+    [
+      "comment",
+      {
+        "author": "Brandon Sanderson",
         "bodyText": "Need to add ability to print just a single issue.\n",
         "branch": "master",
         "id": "1382149572157629738",
@@ -21,16 +31,6 @@
         "branch": "list-options",
         "id": "1382149572173331172",
         "time": "2013-09-13 2013 at 15:51:58"
-      }
-    ],
-    [
-      "comment",
-      {
-        "author": "Brandon Sanderson",
-        "bodyText": "Now have filtering based on status.\n",
-        "branch": "list-options",
-        "id": "1382149572157590191",
-        "time": "2013-09-11 2013 at 03:27:22"
       }
     ]
   ],
