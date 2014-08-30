@@ -162,7 +162,7 @@ fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, lineinfo:ParseL
           //whitespace ends when the issue starter starts
           let whitespace_end = cformat.issue_start.as_slice().char_at(0);
         
-          let split_vec:Vec<&str> = input.as_slice().splitn(whitespace_end, 1).collect();
+          let split_vec:Vec<&str> = input.as_slice().splitn(1, whitespace_end).collect();
 
           //get the whitespace so we keep indentation
           let whitespace = split_vec[0];
