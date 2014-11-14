@@ -19,7 +19,7 @@
 use file_util;
 use serialize::json;
 use serialize::json::ToJson;
-use collections::treemap;
+use collections::tree_map;
 
 static CONFIG_FILE:&'static str = ".evict/config";
 static AUTHOR_KEY:&'static str = "author";
@@ -30,7 +30,7 @@ pub struct Config{
 
 impl ToJson for Config{
   fn to_json(&self) -> json::Json {
-    let mut map:json::Object = treemap::TreeMap::new();
+    let mut map:tree_map::TreeMap<String, json::Json> = tree_map::TreeMap::new();
     match self.author {
       Some(ref auth) => {
         map.insert(AUTHOR_KEY.to_string(),json::String(auth.to_string()));

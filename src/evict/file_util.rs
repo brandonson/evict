@@ -17,7 +17,7 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std::path::Path;
-use std::str;
+use std::io::fs::PathExtensions;
 use std::io;
 use std::io::Reader;
 use std::io::Writer;
@@ -40,7 +40,7 @@ pub fn read_string_from_file(filename:&str) -> Option<String> {
 pub fn read_string_from_path(path:&Path) -> Option<String> {
   match io::File::open(path).read_to_end() {
     Err(_) => None,
-    Ok(u8bytes) => str::from_utf8(u8bytes.as_slice()).map(|s| s.into_string())
+    Ok(u8bytes) => String::from_utf8(u8bytes).ok()
   }
 }
 

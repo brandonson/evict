@@ -22,10 +22,10 @@ use std::vec::Vec;
 
 pub fn merge_issues(incoming:Vec<Issue>,merge_into:Vec<Issue>) -> Vec<Issue> {
   let mut ident_map:HashMap<String, (Option<Issue>, Option<Issue>)> = HashMap::new();
-  for issue in incoming.move_iter() {
+  for issue in incoming.into_iter() {
     ident_map.insert(issue.id.to_string(), (Some(issue), None));
   }
-  for issue in merge_into.move_iter() {
+  for issue in merge_into.into_iter() {
     match ident_map.pop(&issue.id) {
       Some((i, _)) => ident_map.insert(issue.id.to_string(), (i, Some(issue))),
       None => ident_map.insert(issue.id.to_string(), (None, Some(issue)))
@@ -34,7 +34,7 @@ pub fn merge_issues(incoming:Vec<Issue>,merge_into:Vec<Issue>) -> Vec<Issue> {
   let mut merged:Vec<Issue> = vec!();
   merged.reserve(ident_map.len());
 
-  for (_, value) in ident_map.move_iter() {
+  for (_, value) in ident_map.into_iter() {
     merged.push(merge_pair(value));
   }
   merged
@@ -63,16 +63,16 @@ fn merge_pair(issues:(Option<Issue>, Option<Issue>)) -> Issue {
   }
 }
 
-fn merge_events(incoming:Vec<IssueTimelineEvent>,
-                  merge_into:Vec<IssueTimelineEvent>) -> Vec<IssueTimelineEvent> {
-  let mut joined = incoming.append(merge_into.as_slice());
+fn merge_events(mut incoming:Vec<IssueTimelineEvent>,
+                merge_into:Vec<IssueTimelineEvent>) -> Vec<IssueTimelineEvent> {
+  incoming.push_all(merge_into.as_slice());
   let mut merged:Vec<IssueTimelineEvent> = vec!();
-  while joined.len() > 0 {
-    match joined.iter().min_by(|ievt| ievt.time().to_timespec())
-                       .and_then(|minimum| joined.iter().position(|x| x == minimum)) {
+  while incoming.len() > 0 {
+    match incoming.iter().min_by(|ievt| ievt.time().to_timespec())
+                         .and_then(|minimum| incoming.iter().position(|x| x == minimum)) {
       Some(pos) => {
         //unwrap here is fine, we know pos is within index range.
-        merged.push(joined.swap_remove(pos).unwrap());
+        merged.push(incoming.swap_remove(pos).unwrap());
       }
       None => {}
     }

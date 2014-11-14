@@ -21,7 +21,7 @@ use libc;
 use config;
 use std::io::stdin;
 use std::io::BufferedReader;
-use std::collections::hashmap::HashMap;
+use std::collections::hash_map::HashMap;
 use std::io::process;
 
 use file_util;
@@ -66,8 +66,8 @@ pub fn execute_command(command:&String,
   }
 }
 
-pub fn standard_commands() -> Box<HashMap<String, Command>> {
-  let mut hmap:Box<HashMap<String, Command>> = box HashMap::new();
+pub fn standard_commands() -> HashMap<String, Command> {
+  let mut hmap:HashMap<String, Command> = HashMap::new();
   hmap.insert("create".into_string(), create::create_issue);
   hmap.insert("clear".into_string(), clear::clear_data);
   hmap.insert("init".into_string(), init::initialize);

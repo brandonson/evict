@@ -18,7 +18,7 @@ pub struct StateMachine<S, I> {
 impl<S,I> StateMachine<S,I>{
   pub fn process(&mut self, pVal:I){
     let mut nStateOpt:Option<NextState<S,I>> = None;
-    let oldState = self.currentState.take_unwrap();
+    let oldState = self.currentState.take().unwrap();
     match self.nextExecutor {
       None => {} 
       Some(ref executor) => 

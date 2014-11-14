@@ -1,4 +1,5 @@
 use std::io::{IoResult, IoError};
+use std::io::fs::PathExtensions;
 use std::io::fs;
 use std::task;
 use std::comm;
@@ -29,7 +30,7 @@ pub fn parse_directory(searcher:&SourceSearcher, file_path:Path)
 
   let (sender, recvr) = comm::channel();
 
-  for to_parse in files.move_iter() {
+  for to_parse in files.into_iter() {
     let task_searcher = searcher.clone();
     let task_sender = sender.clone();
     task::spawn(proc(){

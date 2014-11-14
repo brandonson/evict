@@ -61,7 +61,7 @@ pub fn create_issue(args:Vec<String>) -> int {
                                                  bodyFile:None, 
                                                  title:None,
 	                                    					 author:None});
-  for argVal in args.move_iter() {
+  for argVal in args.into_iter() {
     stateMachine.process(argVal);
   };
   let finalFlags = stateMachine.move_state();

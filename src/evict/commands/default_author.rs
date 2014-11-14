@@ -18,7 +18,7 @@
  */
 use config;
 
-pub fn default_author(args:Vec<String>) -> int {
+pub fn default_author(mut args:Vec<String>) -> int {
   if args.len() > 1 {
     println!("default-author usage: evict default-author [new-author]");
     1
@@ -31,7 +31,8 @@ pub fn default_author(args:Vec<String>) -> int {
       };
       0
     }else{
-      config::Config{author:Some(args[0].to_string()), .. config}.save();
+      //how do we get values out of a Vec nicely?  Can't move when indexing...
+      config::Config{author:Some(args.swap_remove(0).unwrap()), .. config}.save();
       0
     }
   }

@@ -35,7 +35,7 @@ fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
 
 pub fn delete_issue(args:Vec<String>) -> int {
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issue:None});
-  for arg in args.move_iter() {
+  for arg in args.into_iter() {
     stateMachine.process(arg);
   }
   let finalFlags = stateMachine.move_state();
@@ -58,7 +58,7 @@ fn exec_delete(idPart:String) -> int{
     let issueCount = issues.len();
 
     let mut remaining:Vec<Issue> = vec!();
-    for issue in issues.move_iter() {
+    for issue in issues.into_iter() {
        if issue != matching[0] {
          remaining.push(issue);
        }
@@ -66,7 +66,7 @@ fn exec_delete(idPart:String) -> int{
     //We really, REALLY don't want to be deleting issues we don't expect to be
     assert!(issueCount - 1 == remaining.len());
     file_manager::write_issues(remaining.as_slice());
-    println!("Issue {} ({}) deleted.", matching.get(0).id, matching.get(0).title);
+    println!("Issue {} ({}) deleted.", matching[0].id, matching[0].title);
     0
   }else{
     println!("Multiple matching issues found:");

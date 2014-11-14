@@ -30,7 +30,7 @@ impl VCS {
         gitcmd.arg("rev-parse").arg("--abbrev-ref").arg("HEAD");
         let output = gitcmd.output();
         match output {
-          Ok(out) => str::from_utf8(out.output.as_slice()).map(|s| s.into_string()),
+          Ok(out) => String::from_utf8(out.output).ok(),
           Err(_) => None
         }
       }

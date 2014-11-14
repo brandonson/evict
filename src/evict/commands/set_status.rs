@@ -53,7 +53,7 @@ fn resolve_new_status(statusIdent:&str) -> Option<IssueStatus> {
       } else {
         None
       },
-    None => search.move_iter().find(|x| x.name.as_slice() == statusIdent)
+    None => search.into_iter().find(|x| x.name.as_slice() == statusIdent)
   }.map(|x| x.make_status())
 }
 

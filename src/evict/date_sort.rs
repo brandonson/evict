@@ -40,21 +40,21 @@ impl TimeSorted{
   fn unwrap_to_issue(self) -> Issue {
     match self {
       TimeSortedIssue(i) => i,
-      _ => fail!("Tried to get issue from something that wasn't a TimeSortedIssue")
+      _ => panic!("Tried to get issue from something that wasn't a TimeSortedIssue")
     }
   }
 
   fn unwrap_to_event(self) -> IssueTimelineEvent{
     match self {
       TimeSortedEvent(e) => e,
-      _ => fail!("Tried to get comment from something that wasn't a TimeSortedComment")
+      _ => panic!("Tried to get comment from something that wasn't a TimeSortedComment")
     }
   }
 }
 
 impl PartialOrd for TimeSorted{
   fn partial_cmp(&self, other:&TimeSorted) -> Option<Ordering>{
-    self.creation().to_timespec().partial_cmp(&other.creation().to_timespec())
+    (*self).creation().to_timespec().partial_cmp(&(*other).creation().to_timespec())
   }
 }
 
@@ -76,19 +76,19 @@ fn ts_ordering(a:&TimeSorted, b:&TimeSorted) -> Ordering {
 
 pub fn sort_by_time(issues:Vec<Issue>) -> Vec<Issue>{
   let mut wrapped:Vec<TimeSorted> = 
-                             issues.move_iter().map(|x| TimeSortedIssue(x)).collect();
+                             issues.into_iter().map(|x| TimeSortedIssue(x)).collect();
 
   wrapped.sort_by(ts_ordering);
   
-  let mut sorted:Vec<Issue> = wrapped.move_iter().map(|x| x.unwrap_to_issue()).collect();
+  let mut sorted:Vec<Issue> = wrapped.into_iter().map(|x| x.unwrap_to_issue()).collect();
   
-  for x in sorted.mut_iter() {
+  for x in sorted.iter_mut() {
     let mut events:Vec<IssueTimelineEvent> = vec!();
     swap(&mut events, &mut x.events);
     
-    let mut wrappedComments:Vec<TimeSorted> = events.move_iter().map(|x| TimeSortedEvent(x)).collect();
+    let mut wrappedComments:Vec<TimeSorted> = events.into_iter().map(|x| TimeSortedEvent(x)).collect();
     wrappedComments.sort_by(ts_ordering);
-    events = wrappedComments.move_iter().map(|x| x.unwrap_to_event()).collect();
+    events = wrappedComments.into_iter().map(|x| x.unwrap_to_event()).collect();
     swap(&mut events, &mut x.events);
   }
   sorted

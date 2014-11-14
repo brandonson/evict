@@ -69,9 +69,9 @@ struct ParseLineInfo{
 impl<'a> PartialParseResult<'a> {
   fn to_final_result(mut self) -> ParseResult {
     if self.issue_in_progress.is_some() {
-      let mut issue = self.issue_in_progress.take_unwrap();
+      let mut issue = self.issue_in_progress.take().unwrap();
       if self.body_in_progress.is_some() {
-        issue.body_text = self.body_in_progress.take_unwrap();
+        issue.body_text = self.body_in_progress.take().unwrap();
       }
       self.new_issues.push(issue);
     }
@@ -155,7 +155,7 @@ fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, lineinfo:ParseL
                                                        .issue_author_name.clone());
           new_issue.status = partial_result.searcher.issue_status.clone(); 
           let tags = tags.unwrap();
-          for t in tags.move_iter(){
+          for t in tags.into_iter(){
             new_issue.add_tag(t);
           }
 
@@ -171,10 +171,10 @@ fn main_parse_handler<'a>(partial_result:PartialParseResult<'a>, lineinfo:ParseL
           let id_start = partial_result.searcher.issue_id_comment_start.as_slice();
 
           //create the id line
-          let id_line = whitespace.into_string()
-                                  .append(id_start)
-                                  .append(new_issue.id.as_slice())
-                                  .append("\n");
+          let id_line = vec!(whitespace.into_string(),
+                             id_start.into_string(),
+                             new_issue.id.to_string(),
+                             "\n".into_string()).concat();
 
           //add onto file contents
           let with_issue_line = add_line(partial_result, id_line.as_slice());
@@ -270,7 +270,7 @@ fn parse_body<'a>(partial_result:PartialParseResult<'a>, line_info:ParseLineInfo
   let is_end = line_ends_format(trimmed, format);
 
   if is_end || !trimmed.starts_with(format.body_line_start.as_slice()) {
-    let mut issue = with_line.issue_in_progress.take_unwrap();
+    let mut issue = with_line.issue_in_progress.take().unwrap();
     let nbody = with_line.body_in_progress.take().unwrap_or("".into_string());
     issue.body_text = nbody;
     with_line.new_issues.push(issue);
@@ -279,7 +279,7 @@ fn parse_body<'a>(partial_result:PartialParseResult<'a>, line_info:ParseLineInfo
     let body_so_far = with_line.body_in_progress.take().unwrap_or("".into_string());
     let stripped_body_line = trimmed.slice_from(format.body_line_start.len())
                                     .trim();
-    let new_body = body_so_far.append(stripped_body_line).append("\n");
+    let new_body = vec!(body_so_far.as_slice(), stripped_body_line, "\n").concat();
     with_line.body_in_progress = Some(new_body);
     fsm::Continue(with_line)
   }
@@ -289,7 +289,7 @@ fn add_line<'a>(presult:PartialParseResult<'a>, line:&str) -> PartialParseResult
   let contents = if presult.new_contents == "".into_string() {
     line.into_string()
   }else{
-    presult.new_contents.to_string().append(line)
+    (vec!(presult.new_contents.as_slice(), line)).concat()
   };
   PartialParseResult{new_contents:contents, .. presult}
 }
@@ -306,7 +306,7 @@ fn basic_parse_test(){
 
   let searcher = SourceSearcher::new_default_searcher("me".into_string());
   let lines:MoveItems<IoResult<String>> = vec!(Ok("  //[sometag] This is a title".into_string()))
-                                            .move_iter();
+                                            .into_iter();
   let result = searcher.parse_file_lines(lines, "foo".to_string());  
   assert!(result.is_ok());
   let result = result.unwrap();
@@ -322,7 +322,7 @@ fn basic_parse_test(){
                                   [0]
                                   .starts_with("  "));
 
-  let ref issue = result.new_issues[0];
+  let issue = &result.new_issues[0];
 
   assert!(issue.title == "This is a title".into_string());
   assert!(issue.author == "me".into_string());
@@ -330,7 +330,7 @@ fn basic_parse_test(){
   assert!(issue.events.len() == 1);
   match issue.events[0] {
     TimelineTag(IssueTag{ref tag_name, ..}) => assert!(tag_name == & "sometag".into_string()),
-    _ => fail!("Didn't get a tag")
+    _ => panic!("Didn't get a tag")
   }
 
 }
