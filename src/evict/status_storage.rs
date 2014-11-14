@@ -53,7 +53,7 @@ pub fn read_status_options() -> Vec<StatusOption> {
 }
 
 pub fn write_status_options(statuses:Vec<StatusOption>) -> bool {
-  let stringVec:Vec<String> = statuses.move_iter().map(|x| x.name).collect();
+  let stringVec:Vec<String> = statuses.into_iter().map(|x| x.name).collect();
   let fullString = stringVec.connect("\n");
   file_util::write_string_to_file(fullString.as_slice(),
                                   full_status_filename().as_slice(),

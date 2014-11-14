@@ -19,13 +19,15 @@
 
 use status_storage;
 
-pub fn new_status(args:~[String]) -> int {
+pub fn new_status(mut args:Vec<String>) -> int {
   if args.len() != 1 {
     println!("new-status usage: evict new-status <status-name>");
     1
   }else{
     let mut newStatuses = status_storage::read_status_options();
-    newStatuses.push(status_storage::StatusOption{name:args[0]});
+
+    //need a better way to move a value out of a vec
+    newStatuses.push(status_storage::StatusOption{name:args.swap_remove(0).unwrap()});
     status_storage::write_status_options(newStatuses);
     0
   }

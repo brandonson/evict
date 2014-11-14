@@ -96,7 +96,7 @@ fn read_issues_from_folders() -> Vec<Issue> {
   let issueDirResult = io::fs::readdir(&dirPath);
   let issueDirs = issueDirResult.ok().unwrap_or(vec!());
   
-  issueDirs.move_iter().filter_map (
+  issueDirs.into_iter().filter_map (
     |path| read_issue_from_dir(path)
   ).collect()
 }
@@ -107,7 +107,7 @@ fn read_issue_from_dir(basePath:Path) -> Option<Issue> {
   let bodyPath = Path::new(BODY_FILENAME);
   let issueBodyPath = basePath.join(bodyPath);
   let noBodyFiles:Vec<Path> = files.ok().unwrap_or(vec!())
-                                 .move_iter()
+                                 .into_iter()
                                  .filter(|x| x != &issueBodyPath)
                                  .collect();
   let bodyIssue = read_issue_body(issueBodyPath);

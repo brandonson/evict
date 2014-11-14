@@ -21,15 +21,15 @@ use issue::{IssueTag, Issue};
 use commands;
 use file_manager;
 
-pub fn tag(args:~[String]) -> int {
+pub fn tag(args:Vec<String>) -> int {
   tag_cmd(args, "tag", true)
 }
 
-pub fn untag(args:~[String]) -> int {
+pub fn untag(args:Vec<String>) -> int {
   tag_cmd(args, "untag", false)
 }
 
-pub fn tag_cmd(args:~[String], cmdName:&str, enabledAfter:bool) -> int {
+pub fn tag_cmd(args:Vec<String>, cmdName:&str, enabledAfter:bool) -> int {
   if args.len() != 2 {
     println!("{} usage: evict {} <issue-id> <tag>", cmdName, cmdName);
     1

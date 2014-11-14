@@ -33,10 +33,10 @@ fn main(){
     // < 2 because the first arg is the name of the binary
     println!("No command given");
   }else{
-    let cmd_args = args.tailn(2).to_owned();
+    let cmd_args = args.iter().skip(2).map(|s_ref| s_ref.to_string()).collect();
     
      
-    let cmd = args.get(1);
-    commands::execute_command(cmd, commands::standard_commands(), cmd_args);
+    let cmd = &args[1];
+    commands::execute_command(cmd, &commands::standard_commands(), cmd_args);
   }
 }

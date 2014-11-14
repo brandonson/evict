@@ -20,7 +20,7 @@ use serialize::json;
 use serialize::json::ToJson;
 
 use time;
-use collections::treemap;
+use collections::tree_map;
 use evict;
 use vcs_status;
 use status_storage::DEFAULT_STATUS_NAME;
@@ -96,7 +96,7 @@ impl IssueStatus{
   }
 }
 
-fn get_string_for_key(map:&json::Object, key:&str) -> Option<String>{
+fn get_string_for_key(map:&json::JsonObject, key:&str) -> Option<String>{
   let value_opt = map.find(&key.to_string().into_string());
   value_opt.and_then (|value| {
     match value {
@@ -125,7 +125,7 @@ impl Issue{
             if recent.is_none() {
               recent = Some(tag);
             }else{
-              let old_tag = recent.take_unwrap();
+              let old_tag = recent.take().unwrap();
               if old_tag.time.to_timespec() < tag.time.to_timespec() {
                 recent = Some(tag);
               }else{
@@ -164,8 +164,8 @@ impl Issue{
   }
 
   pub fn to_json(&self) -> json::Json {
-    let mut map:Box<json::Object> = box treemap::TreeMap::new();
-    map.insert(VERSION_KEY.to_string().into_string(), json::String(evict::CURRENT_VERSION.to_str().to_string().into_string()));
+    let mut map:json::JsonObject = tree_map::TreeMap::new();
+    map.insert(VERSION_KEY.to_string().into_string(), json::String(evict::CURRENT_VERSION.to_string().to_string().into_string()));
     map.insert(TITLE_KEY.to_string().into_string(), json::String(self.title.to_string().into_string()));
     map.insert(BODY_KEY.to_string().into_string(), json::String(self.body_text.to_string().into_string()));
     map.insert(TIME_KEY.to_string().into_string(), 
@@ -183,8 +183,8 @@ impl Issue{
   }
 
   pub fn no_comment_json(&self) -> json::Json {
-    let mut map:Box<json::Object> = box treemap::TreeMap::new();
-    map.insert(VERSION_KEY.to_string().into_string(), json::String(evict::CURRENT_VERSION.to_str().to_string().into_string()));
+    let mut map:json::JsonObject = tree_map::TreeMap::new();
+    map.insert(VERSION_KEY.to_string().into_string(), json::String(evict::CURRENT_VERSION.to_string().to_string().into_string()));
     map.insert(TITLE_KEY.to_string().into_string(), json::String(self.title.to_string().into_string()));
     map.insert(BODY_KEY.to_string().into_string(), json::String(self.body_text.to_string().into_string()));
     map.insert(TIME_KEY.to_string().into_string(), 
@@ -206,18 +206,18 @@ impl Issue{
     //this time ordering is necessary for all_tags to work properly
 
     match json {
-      &json::Object(ref map) => Issue::read_from_map(*map),
+      &json::Object(ref map) => Issue::read_from_map(map),
       _ => None
     }.map(|x| ::date_sort::sort_by_time(vec!(x)).pop().unwrap())
-    // [code smell] Fix date sorting individual issue events
+    // [ugly] Fix date sorting individual issue events
     // This will fix the line above.  Probably just means splitting out
     // part of date_sort::sort_by_time
   }
 
-  fn read_from_map(map:&json::Object) -> Option<Issue>{
+  fn read_from_map(map:&json::JsonObject) -> Option<Issue>{
     let version_opt = get_string_for_key(map, VERSION_KEY);
     let version:int = if version_opt.is_none() {
-                    fail!("No version on json for an issue.");
+                    panic!("No version on json for an issue.");
                   }else{
                     from_str::<int>(version_opt.unwrap().as_slice()).unwrap()
 		  };
@@ -286,7 +286,7 @@ impl Issue{
 
 impl json::ToJson for IssueTag{
   fn to_json(&self) -> json::Json {
-    let mut map:Box<json::Object> = box treemap::TreeMap::new();
+    let mut map:json::JsonObject = tree_map::TreeMap::new();
     map.insert(TIME_KEY.to_string().into_string(), json_time(&self.time));
     map.insert(AUTHOR_KEY.to_string().into_string(), json::String(self.author.to_string().into_string()));
     map.insert(NAME_KEY.to_string().into_string(), json::String(self.tag_name.to_string().into_string()));
@@ -299,12 +299,12 @@ impl json::ToJson for IssueTag{
 impl IssueTag{
   pub fn from_json(json:&json::Json) -> Option<IssueTag> {
     match json {
-      &json::Object(ref map) => IssueTag::read_from_map(*map),
+      &json::Object(ref map) => IssueTag::read_from_map(map),
       _ => None
     }
   }
   
-  fn read_from_map(map:&json::Object) -> Option<IssueTag> {
+  fn read_from_map(map:&json::JsonObject) -> Option<IssueTag> {
     let name_opt = get_string_for_key(map, NAME_KEY);
     name_opt.and_then(|tname| {
       let author_opt = get_string_for_key(map, AUTHOR_KEY);
@@ -332,7 +332,7 @@ impl IssueTag{
     })
   }
   
-  fn read_enabled(map:&json::Object) -> Option<bool> {
+  fn read_enabled(map:&json::JsonObject) -> Option<bool> {
     let e_opt = map.find(&ENABLED_KEY.to_string().into_string());
     e_opt.and_then(|json| {
       match json {
@@ -350,7 +350,7 @@ impl IssueTag{
 
 impl json::ToJson for IssueComment{
   fn to_json(&self) -> json::Json {
-    let mut map:Box<json::Object> = box treemap::TreeMap::new();
+    let mut map:json::JsonObject = tree_map::TreeMap::new();
     map.insert(BODY_KEY.to_string().into_string(), json::String(self.body_text.to_string().into_string()));
     map.insert(TIME_KEY.to_string().into_string(), 
                json::String(time::strftime(TIME_FORMAT, &self.creation_time).to_string().into_string()));
@@ -369,14 +369,14 @@ impl IssueComment{
     }
   }
   
-  fn read_from_map(map:Box<json::Object>) -> Option<IssueComment> {
-    let body_opt = get_string_for_key(map, BODY_KEY);
+  fn read_from_map(map:json::JsonObject) -> Option<IssueComment> {
+    let body_opt = get_string_for_key(&map, BODY_KEY);
     body_opt.and_then (|body| {
-      let author_opt = get_string_for_key(map, AUTHOR_KEY);
+      let author_opt = get_string_for_key(&map, AUTHOR_KEY);
       author_opt.and_then (|author| {
-        let branch_opt = get_string_for_key(map, BRANCH_KEY);
+        let branch_opt = get_string_for_key(&map, BRANCH_KEY);
 	branch_opt.and_then (|branch| {
-          let time_opt = get_string_for_key(map, TIME_KEY);
+          let time_opt = get_string_for_key(&map, TIME_KEY);
           time_opt.and_then (|time| {
             let time_result = time::strptime(time.as_slice(),TIME_FORMAT);
             match time_result {
@@ -384,7 +384,7 @@ impl IssueComment{
                                     author:author.clone(),
                                     creation_time:tm,
                                     branch:branch.clone(),
-                                    id:get_string_for_key(map, ID_KEY)
+                                    id:get_string_for_key(&map, ID_KEY)
                                           .unwrap_or(generate_id())}),
               Err(_) => None
             }
@@ -430,10 +430,10 @@ impl IssueTimelineEvent{
         if jlist.len() != 2 {
           None
         }else{
-          match jlist.get(0) {
-            &json::String(ref cmt) if cmt.as_slice() == "comment" => IssueComment::from_json(jlist.get(1))
+          match jlist[0] {
+            json::String(ref cmt) if cmt.as_slice() == "comment" => IssueComment::from_json(&jlist[1])
                                                     .map(|x| TimelineComment(x)),
-            &json::String(ref tg) if tg.as_slice() == "tag" => IssueTag::from_json(jlist.get(1))
+            json::String(ref tg) if tg.as_slice() == "tag" => IssueTag::from_json(&jlist[1])
                                             .map(|x| TimelineTag(x)),
             _ => None
           }
@@ -463,7 +463,7 @@ impl IssueTimelineEvent{
 
 impl json::ToJson for IssueStatus{
   fn to_json(&self) -> json::Json {
-    let mut map:Box<treemap::TreeMap<String, json::Json>> = box treemap::TreeMap::new();
+    let mut map:tree_map::TreeMap<String, json::Json> = tree_map::TreeMap::new();
     map.insert(NAME_KEY.to_string().into_string(), self.name.to_string().into_string().to_json());
     map.insert(TIME_KEY.to_string().into_string(), json_time(&self.last_change_time));
     json::Object(map)
@@ -475,8 +475,8 @@ impl IssueStatus{
     match json {
       &json::Object(ref map_ref) => {
         let map = map_ref.clone();
-        get_string_for_key(map, NAME_KEY).and_then (|name| {
-          get_string_for_key(map, TIME_KEY).and_then (|time| {
+        get_string_for_key(&map, NAME_KEY).and_then (|name| {
+          get_string_for_key(&map, TIME_KEY).and_then (|time| {
             match time::strptime(time.as_slice(), TIME_FORMAT) {
               Ok(tm) => Some(IssueStatus{name:name.clone(), last_change_time:tm}),
               Err(_) => None
@@ -494,8 +494,9 @@ impl IssueStatus{
 }
 
 pub fn generate_id() -> String {
+  // [id, todo] Make this generate a proper unique id
   let ctime = time::get_time();
-  ctime.sec.to_str().append(ctime.nsec.to_str().as_slice())
+  format!("{}{}", ctime.sec, ctime.nsec)
 }
 
 fn json_time(time:&time::Tm) -> json::Json {

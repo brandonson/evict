@@ -42,7 +42,7 @@ impl LinePushingString for String{
 }
 
 
-pub fn list_issues(args:~[String]) -> int{
+pub fn list_issues(args:Vec<String>) -> int{
   let mut stateMachine = fsm::StateMachine::new(std_handler,
                                                 Flags{short:false,
                                                       committed:false,
@@ -51,7 +51,7 @@ pub fn list_issues(args:~[String]) -> int{
                                                       id:None,
                                                       tags:vec!()});
 
-  for arg in args.move_iter(){
+  for arg in args.into_iter(){
     stateMachine.process(arg);
   }
   let final_flags = stateMachine.move_state();
@@ -62,7 +62,7 @@ pub fn list_issues(args:~[String]) -> int{
     issues = selection::find_matching_issues(id.as_slice(), issues.as_slice());
   }
 
-  issues = issues.move_iter().filter(|check| {
+  issues = issues.into_iter().filter(|check| {
     //if there are no tags, then we keep all issues
     let mut found = final_flags.tags.len() == 0;
     let all_tags = check.all_tags();

@@ -39,8 +39,8 @@ pub fn update_issue(idEndPart:&str, searchIn:Vec<Issue>, update:|Issue| -> Issue
     }
     searchIn
   }else{
-    let mut filtered:Vec<Issue> = searchIn.move_iter()
-                                         .filter(|x| x.id != matching.get(0).id)
+    let mut filtered:Vec<Issue> = searchIn.into_iter()
+                                         .filter(|x| x.id != matching[0].id)
                                          .collect();
     filtered.push(update(matching.pop().unwrap()));
     filtered

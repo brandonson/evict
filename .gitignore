@@ -8,3 +8,5 @@ rustpkg_db.json
 *.swp
 .evict/config
 .DS_Store
+target
+Cargo.lock

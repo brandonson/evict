@@ -19,7 +19,7 @@
 
 use status_storage;
 
-pub fn default_status(args:~[String]) -> int {
+pub fn default_status(mut args:Vec<String>) -> int {
   if args.len() > 1 {
     println! ("default-status usage: evict default-status [new-status]");
     1
@@ -29,7 +29,9 @@ pub fn default_status(args:~[String]) -> int {
       println!("Current default status is: {}", default.name);
       2
     }else{
-      let status = status_storage::StatusOption{name:args[0]};
+      // w.r.t the swap_remove - there has got to be a better way to take an
+      // element out of a vector. Would make it immut, too.
+      let status = status_storage::StatusOption{name:args.swap_remove(0).unwrap()};
       match status_storage::write_default_status(&status) {
         Ok(true) => {0}
         Ok(false) => {println!("Could not write to file"); 3}
