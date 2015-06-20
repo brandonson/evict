@@ -21,6 +21,9 @@ use file_util;
 use std::io;
 use serialize::json;
 use serialize::json::ToJson;
+use std::fs;
+
+use std::path::Path;
 
 #[cfg(not(test))]
 pub static EVICT_DIRECTORY:&'static str = ".evict";
@@ -90,10 +93,10 @@ fn read_issues_from_folders() -> Vec<Issue> {
   /*! Reads all issues from the folders located in the
    *  folder returned by full_issue_directory.
    *  If a folder/file in the issue directory does not parse
-   *  into an issue, it is ignored.
+   *  isizeo an issue, it is ignored.
    */
   let dirPath = issue_directory_path();
-  let issueDirResult = io::fs::readdir(&dirPath);
+  let issueDirResult = fs::read_dir(&dirPath);
   let issueDirs = issueDirResult.ok().unwrap_or(vec!());
   
   issueDirs.into_iter().filter_map (
@@ -103,7 +106,7 @@ fn read_issues_from_folders() -> Vec<Issue> {
 
 
 fn read_issue_from_dir(basePath:Path) -> Option<Issue> {
-  let files = io::fs::readdir(&basePath);
+  let files = fs::read_dir(&basePath);
   let bodyPath = Path::new(BODY_FILENAME);
   let issueBodyPath = basePath.join(bodyPath);
   let noBodyFiles:Vec<Path> = files.ok().unwrap_or(vec!())
@@ -151,5 +154,5 @@ pub fn write_read_issue_file(){
   write_issues(issues.as_slice());
   let read = read_issues();
   assert!(issues == read);
-  let _ = io::fs::rmdir_recursive(&Path::new(EVICT_DIRECTORY));
+  let _ = fs::rmdir_recursive(&Path::new(EVICT_DIRECTORY));
 }

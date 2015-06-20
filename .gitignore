@@ -7,6 +7,8 @@ rustpkg_db.json
 *.ebtdlocal
 *.swp
 .evict/config
+.evict-test
 .DS_Store
 target
 Cargo.lock
+rusty-tags.vi

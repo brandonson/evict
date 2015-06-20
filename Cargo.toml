@@ -4,13 +4,11 @@ name = "evict"
 version = "0.0.2"
 authors = ["Brandon Sanderson <bas.bsanders@gmail.com>"]
 
-[lib]
-name = "fsm"
-path = "src/fsm/lib.rs"
-test = true
-
 [[bin]]
 name = "evict"
 path = "src/evict/main.rs"
 test = true
 
+[dependencies]
+genfsm = "*"
+time = "*"

@@ -16,7 +16,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use fsm;
+use fsm::NextState::*;
+use fsm::*;
 use issue::Issue;
 use file_manager;
 use file_util;
@@ -35,32 +36,32 @@ struct Flags{
   author:Option<String>,
 }
 
-fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags,String> {
+fn std_handler(flags:Flags, input:String) -> NextState<Flags,String> {
   match input.as_slice() {
-    "--no-body" => fsm::Continue(Flags{hasBody:false, 
+    "--no-body" => Continue(Flags{hasBody:false, 
                                          .. flags}),
-    "--body-file" => fsm::ChangeState(get_body_file, flags),
-    "--title" => fsm::ChangeState(get_title, flags),
-    "--author" => fsm::ChangeState(get_author, flags),
-    _ => fsm::Continue(flags)
+    "--body-file" => ChangeState(get_body_file, flags),
+    "--title" => ChangeState(get_title, flags),
+    "--author" => ChangeState(get_author, flags),
+    _ => Continue(flags)
   }
 }
-fn get_body_file(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
-  fsm::ChangeState(std_handler, Flags{bodyFile:Some(input), .. flags})
+fn get_body_file(flags:Flags, input:String) -> NextState<Flags, String> {
+  ChangeState(std_handler, Flags{bodyFile:Some(input), .. flags})
 }
-fn get_title(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
-  fsm::ChangeState(std_handler, Flags{title:Some(input), .. flags})
+fn get_title(flags:Flags, input:String) -> NextState<Flags, String> {
+  ChangeState(std_handler, Flags{title:Some(input), .. flags})
 }
-fn get_author(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
-  fsm::ChangeState(std_handler, Flags{author:Some(input), .. flags})
+fn get_author(flags:Flags, input:String) -> NextState<Flags, String> {
+  ChangeState(std_handler, Flags{author:Some(input), .. flags})
 }
 
-pub fn create_issue(args:Vec<String>) -> int {
-  let mut stateMachine = fsm::StateMachine::new(std_handler, 
+pub fn create_issue(args:Vec<String>) -> isize {
+  let mut stateMachine = StateMachine::new(std_handler, 
                                            Flags{hasBody:true, 
                                                  bodyFile:None, 
                                                  title:None,
-	                                    					 author:None});
+	                                         author:None});
   for argVal in args.into_iter() {
     stateMachine.process(argVal);
   };

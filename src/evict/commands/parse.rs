@@ -22,15 +22,17 @@ use source::recursive_parser::parse_directory;
 use source::parse::SourceSearcher;
 use std::path::Path;
 use commands;
+use fsm::NextState::*;
 use fsm;
+use fsm::StateMachine;
 
 struct Flags{
   source_dir:Option<String>
 }
 
-pub fn parse_issues(args:Vec<String>) -> int{
-  let mut stateMachine = fsm::StateMachine::new(std_handler,
-                                                Flags{source_dir:None});
+pub fn parse_issues(args:Vec<String>) -> isize{
+  let mut stateMachine = StateMachine::new(std_handler,
+                                           Flags{source_dir:None});
 
   for argVal in args.into_iter() {
     stateMachine.process(argVal)
@@ -50,11 +52,11 @@ pub fn parse_issues(args:Vec<String>) -> int{
 
 fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
   match input.as_slice() {
-    "--src-dir" => fsm::ChangeState(get_source_dir, flags),
-    _ => fsm::Continue(flags)
+    "--src-dir" => ChangeState(get_source_dir, flags),
+    _ => Continue(flags)
   }
 }
 
 fn get_source_dir(_:Flags, input:String) -> fsm::NextState<Flags, String>{
-  fsm::ChangeState(std_handler, Flags{source_dir:Some(input)})
+  ChangeState(std_handler, Flags{source_dir:Some(input)})
 }

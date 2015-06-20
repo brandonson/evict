@@ -22,7 +22,7 @@ use status_storage::{StatusOption,
                      write_default_status};
 use file_util;
 
-pub fn initialize(_:Vec<String>) -> int {
+pub fn initialize(_:Vec<String>) -> isize {
   let createSuccess = file_util::create_directory(file_manager::EVICT_DIRECTORY);
   if createSuccess {
     let defaultStatus = StatusOption{name:"open".into_string()};

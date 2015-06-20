@@ -19,7 +19,7 @@
 use file_util;
 use serialize::json;
 use serialize::json::ToJson;
-use collections::tree_map;
+use std::collections::HashMap;
 
 static CONFIG_FILE:&'static str = ".evict/config";
 static AUTHOR_KEY:&'static str = "author";
@@ -30,14 +30,14 @@ pub struct Config{
 
 impl ToJson for Config{
   fn to_json(&self) -> json::Json {
-    let mut map:tree_map::TreeMap<String, json::Json> = tree_map::TreeMap::new();
+    let mut map:HashMap<String, json::Json> = HashMap::new();
     match self.author {
       Some(ref auth) => {
-        map.insert(AUTHOR_KEY.to_string(),json::String(auth.to_string()));
+        map.insert(AUTHOR_KEY.to_string(),json::Json::String(auth.to_string()));
       }
       None => {}
     };
-    json::Object(map)
+    json::Json::Object(map)
   }
 }
 
@@ -67,7 +67,7 @@ impl Config{
   
   fn from_json(json:json::Json) -> Config {
     match json {
-      json::Object(map) => Config{author:map.find(&AUTHOR_KEY.into_string())
+      json::Json::Object(map) => Config{author:map.find(&AUTHOR_KEY.into_string())
                                             .and_then(|x| extract_string(x)),
                            },
       _ => Config::default()
@@ -82,7 +82,7 @@ impl Config{
 
 fn extract_string(json:&json::Json) -> Option<String> {
   match json {
-    &json::String(ref string) => Some(string.to_string()),
+    &json::Json::String(ref string) => Some(string.to_string()),
     _ => None
   }
 }

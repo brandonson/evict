@@ -19,7 +19,7 @@
 
 use status_storage;
 
-pub fn new_status(mut args:Vec<String>) -> int {
+pub fn new_status(mut args:Vec<String>) -> isize {
   if args.len() != 1 {
     println!("new-status usage: evict new-status <status-name>");
     1

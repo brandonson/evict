@@ -17,9 +17,13 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use issue::{Issue, IssueTimelineEvent};
-use issue::{TimelineComment, TimelineTag};
+use issue::IssueTimelineEvent::{TimelineComment, TimelineTag};
 use time;
 use std::mem::swap;
+
+use std::cmp::Ordering;
+
+use self::TimeSorted::{TimeSortedEvent,TimeSortedIssue};
 
 enum TimeSorted{
   TimeSortedIssue(Issue),
@@ -66,11 +70,11 @@ impl PartialEq for TimeSorted{
 
 fn ts_ordering(a:&TimeSorted, b:&TimeSorted) -> Ordering {
   if a.eq(b) {
-    Equal
+    Ordering::Equal
   }else if a.lt(b) {
-    Less
+    Ordering::Less
   }else{
-    Greater
+    Ordering::Greater
   }
 }
 

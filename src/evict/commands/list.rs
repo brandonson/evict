@@ -18,32 +18,36 @@
  */
 use file_manager;
 use issue;
-use issue::{Issue,TimelineComment};
+use issue::{Issue};
+use issue::IssueTimelineEvent::{TimelineComment};
 
-use std::io::process;
+use std::process;
 
 use file_util;
 use libc;
-use fsm;
+use fsm::*;
+use fsm::NextState::*;
 use selection;
 use date_sort;
+
+use std::borrow::Borrow;
 
 static TMP_OUTPUT_FILE:&'static str = ".evict/LIST_TEMP_FILE";
 
 trait LinePushingString{
-  fn push_strln<S:Str>(&mut self, rhs:S);
+  fn push_strln<S:Borrow<str>>(&mut self, rhs:S);
 }
 
 impl LinePushingString for String{
-  fn push_strln<S:Str>(&mut self, rhs:S){
-    self.push_str(rhs.as_slice());
+  fn push_strln<S:Borrow<str>>(&mut self, rhs:S){
+    self.push_str(rhs.borrow());
     self.push_str("\n");
   }
 }
 
 
-pub fn list_issues(args:Vec<String>) -> int{
-  let mut stateMachine = fsm::StateMachine::new(std_handler,
+pub fn list_issues(args:Vec<String>) -> isize{
+  let mut stateMachine = StateMachine::new(std_handler,
                                                 Flags{short:false,
                                                       statuses:vec!(),
                                                       noComments:false,
@@ -80,8 +84,8 @@ pub fn list_issues(args:Vec<String>) -> int{
   }
   let mut paginate_command = process::Command::new("less");
   paginate_command.arg("-RXF").arg(TMP_OUTPUT_FILE);
-  paginate_command.stdout(process::InheritFd(libc::STDOUT_FILENO));
-  paginate_command.stderr(process::InheritFd(libc::STDERR_FILENO));
+  paginate_command.stdout(process::Stdio::inherit());
+  paginate_command.stderr(process::Stdio::inherit());
   
   let paginate_proc = paginate_command.spawn();
 
@@ -105,31 +109,31 @@ struct Flags{
   tags:Vec<String>
 }
 
-fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags,String> {
+fn std_handler(flags:Flags, input:String) -> NextState<Flags,String> {
   match input.as_slice() {
-    "--short" => fsm::Continue(Flags{short:true, .. flags}),
-    "-s" => fsm::Continue(Flags{short:true, .. flags}),
-    "--status" => fsm::ChangeState(get_status, flags),
-    "--nocomment" => fsm::Continue(Flags{noComments:true, .. flags}),
-    "--id" => fsm::ChangeState(get_id, flags),
-    "--tag" => fsm::ChangeState(get_tag, flags),
-    _ => fsm::Continue(flags)
+    "--short" => Continue(Flags{short:true, .. flags}),
+    "-s" => Continue(Flags{short:true, .. flags}),
+    "--status" => ChangeState(get_status, flags),
+    "--nocomment" => Continue(Flags{noComments:true, .. flags}),
+    "--id" => ChangeState(get_id, flags),
+    "--tag" => ChangeState(get_tag, flags),
+    _ => Continue(flags)
   }
 }
 
-fn get_status(mut flags:Flags, input:String) -> fsm::NextState<Flags, String> {
+fn get_status(mut flags:Flags, input:String) -> NextState<Flags, String> {
   flags.statuses.push(input);
-  fsm::ChangeState(std_handler, flags)
+  ChangeState(std_handler, flags)
 }
 
-fn get_id(mut flags:Flags, input:String) -> fsm::NextState<Flags, String> {
+fn get_id(mut flags:Flags, input:String) -> NextState<Flags, String> {
   flags.id = Some(input);
-  fsm::ChangeState(std_handler, flags)
+  ChangeState(std_handler, flags)
 }
 
-fn get_tag(mut flags:Flags, input:String) -> fsm::NextState<Flags, String> {
+fn get_tag(mut flags:Flags, input:String) -> NextState<Flags, String> {
   flags.tags.push(input);
-  fsm::ChangeState(std_handler, flags)
+  ChangeState(std_handler, flags)
 }
 
 fn print_issue_vec(issues:Vec<Issue>, flags:&Flags) -> String{

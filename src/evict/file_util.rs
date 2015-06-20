@@ -17,10 +17,10 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std::path::Path;
-use std::io::fs::PathExtensions;
-use std::io;
-use std::io::Reader;
-use std::io::Writer;
+use std::io::Result as IoResult;
+use std::io::Read;
+use std::io::Write;
+use std::fs;
 
 pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool {
   if !overwrite && file_exists(filename) {
@@ -28,7 +28,7 @@ pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool
   }else{
     //successful by default, then set to false
     //if an error is encountered
-    io_to_success(||io::File::create(&Path::new(filename))
+    io_to_success(||fs::File::create(&Path::new(filename))
                            .write(content.to_string().into_bytes().as_slice()))
 
   }
@@ -38,7 +38,7 @@ pub fn read_string_from_file(filename:&str) -> Option<String> {
 }
 
 pub fn read_string_from_path(path:&Path) -> Option<String> {
-  match io::File::open(path).read_to_end() {
+  match fs::File::open(path).read_to_end() {
     Err(_) => None,
     Ok(u8bytes) => String::from_utf8(u8bytes).ok()
   }
@@ -58,17 +58,17 @@ pub fn create_directory(name:&str) -> bool {
 
 pub fn create_directory_path(p:&Path) -> bool {
   io_to_success (
-    || io::fs::mkdir(p, io::UserDir)
+    || fs::create_dir(p)
   )
 }
 
 pub fn delete_file(name:&str) -> bool{
   io_to_success( ||
-    io::fs::unlink(&Path::new(name))
+    fs::remove_file(&Path::new(name))
   )
 }
 
-pub fn io_to_success(ioCall:| | -> io::IoResult<()>) -> bool {
+pub fn io_to_success(ioCall:Fn() -> IoResult<()>) -> bool {
   let mut success = true;
   match ioCall() {
     Err(_) => success = false,

@@ -20,9 +20,9 @@ use std;
 use libc;
 use config;
 use std::io::stdin;
-use std::io::BufferedReader;
+use std::io::BufReader;
 use std::collections::hash_map::HashMap;
-use std::io::process;
+use std::process;
 
 use file_util;
 use file_manager;
@@ -38,13 +38,13 @@ mod default_author;
 mod set_status;
 mod default_status;
 mod tag;
-mod parse;
+//mod parse;
 
 /* A command takes a list of argument strings,
  * performs some action, then returns an
  * exit code.
  */
-pub type Command = fn (Vec<String>) -> int;
+pub type Command = fn (Vec<String>) -> isize;
 
 pub fn execute_command(command:&String, 
                       commandList:&HashMap<String, Command>, 
@@ -53,14 +53,14 @@ pub fn execute_command(command:&String,
   if command != &"init".to_string() && 
      !file_util::file_exists(file_manager::EVICT_DIRECTORY) {
     println!("There is no evict directory.  Run evict init.");
-    std::os::set_exit_status(2);
+    std::env::set_exit_status(2);
     return false;
   }
   match commandList.find(command) {
-    Some(cmd) => {let exit = (*cmd)(argList); std::os::set_exit_status(exit); true}
+    Some(cmd) => {let exit = (*cmd)(argList); std::env::set_exit_status(exit); true}
     None => {
      println!("Command {} not found", command); 
-     std::os::set_exit_status(1); 
+     std::env::set_exit_status(1); 
      false
     } 
   }
@@ -80,7 +80,7 @@ pub fn standard_commands() -> HashMap<String, Command> {
   hmap.insert("default-status".into_string(), default_status::default_status);
   hmap.insert("tag".into_string(), tag::tag);
   hmap.insert("untag".into_string(), tag::untag);
-  hmap.insert("parse".into_string(), parse::parse_issues);
+  //hmap.insert("parse".into_string(), parse::parse_issues);
   
   hmap
 }
@@ -88,7 +88,7 @@ pub fn standard_commands() -> HashMap<String, Command> {
 pub fn prompt(prompt:&str) -> String{
   print!("{}", prompt);
   //TODO do we need to check this?
-  let withNewline = BufferedReader::new(stdin()).read_line().unwrap();
+  let withNewline = BufReader::new(stdin()).read_line().unwrap();
   withNewline.replace("\n", "").replace("\r", "")
 }
 
@@ -101,13 +101,13 @@ pub fn get_author() -> String {
 }
 
 pub fn edit_file(filename:&str) -> bool{
-  match std::os::getenv("EDITOR") {
-    Some(editorName) => {
+  match std::env::var("EDITOR") {
+    Ok(editorName) => {
       let mut editor_command = process::Command::new(editorName.clone());
       editor_command.arg(filename);
-      editor_command.stdin(process::InheritFd(libc::STDIN_FILENO));
-      editor_command.stdout(process::InheritFd(libc::STDOUT_FILENO));
-      editor_command.stderr(process::InheritFd(libc::STDERR_FILENO));
+      editor_command.stdin(process::Stdio::inherit());
+      editor_command.stdout(process::Stdio::inherit());
+      editor_command.stderr(process::Stdio::inherit());
 
       let editor = editor_command.spawn();
 
@@ -124,6 +124,6 @@ pub fn edit_file(filename:&str) -> bool{
         }
       }
     }
-    None => false
+    _ => false
   }
 }

@@ -18,7 +18,7 @@
  */
 use config;
 
-pub fn default_author(mut args:Vec<String>) -> int {
+pub fn default_author(mut args:Vec<String>) -> isize {
   if args.len() > 1 {
     println!("default-author usage: evict default-author [new-author]");
     1

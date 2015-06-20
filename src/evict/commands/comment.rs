@@ -17,25 +17,26 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use fsm;
-use issue::{Issue,IssueComment,TimelineComment};
+use issue::{Issue,IssueComment};
+use issue::IssueTimelineEvent::{TimelineComment};
 use file_manager;
 use file_util;
 use commands;
 use selection;
 
 
-#[deriving(Clone)]
+#[derive(Clone)]
 struct Flags{
   issueIdPart:Option<String>
 }
 
 fn std_handler(flags:Flags, arg:String) -> fsm::NextState<Flags, String> {
   match arg {
-    idPart => fsm::Continue(Flags{issueIdPart:Some(idPart), .. flags})
+    idPart => fsm::NextState::Continue(Flags{issueIdPart:Some(idPart), .. flags})
   }
 }
 
-pub fn new_comment(args:Vec<String>) -> int{
+pub fn new_comment(args:Vec<String>) -> isize{
   let mut stateMachine = fsm::StateMachine::new(std_handler, Flags{issueIdPart:None});
   for a in args.into_iter(){
     stateMachine.process(a);

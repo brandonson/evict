@@ -22,7 +22,7 @@ use file_manager;
 use status_storage;
 use issue::IssueStatus;
 
-pub fn set_status(args:Vec<String>) -> int {
+pub fn set_status(args:Vec<String>) -> isize {
   if args.len() != 2 {
     println!("set-status usage: evict set-status <issue-id> <status>");
     println!("    Where <status> is either the full name of a status");
@@ -46,14 +46,14 @@ pub fn set_status(args:Vec<String>) -> int {
 
 fn resolve_new_status(statusIdent:&str) -> Option<IssueStatus> {
   let search = status_storage::read_status_options();
-  match from_str::<uint>(statusIdent) {
-    Some(index) =>
+  match usize::from_str_radix(statusIdent, 10) {
+    Ok(index) =>
       if search.len() > index {
         Some(search[index].clone())
       } else {
         None
       },
-    None => search.into_iter().find(|x| x.name.as_slice() == statusIdent)
+    _ => search.into_iter().find(|x| x.name.as_slice() == statusIdent)
   }.map(|x| x.make_status())
 }
 

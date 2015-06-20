@@ -21,18 +21,22 @@ use commands;
 use file_manager;
 
 
-pub fn clear_data(_:Vec<String>) -> int {
-  let evictPath = &std::path::Path::new(file_manager::EVICT_DIRECTORY);
-  let absolute = std::os::make_absolute(evictPath);
+pub fn clear_data(_:Vec<String>) -> isize {
+  let evictPath = std::path::Path::new(file_manager::EVICT_DIRECTORY);
+  let absolute = evictPath.canonicalize();
+  if absolute.is_err() {
+    println!("Evict directory does not exist");
+    return 2;
+  }
   let res = commands::prompt(
              format!("Really clear everything from {}? [y/n]", 
-                     absolute.display()).as_slice());
+                     absolute.unwrap().display()).as_slice());
   if res.as_slice() == "y" {
     let mut success = true;
     //try to delete, if we fail the just set success to false
     //(no point in retries or anything else, user can just
     // rerun the command)
-    match std::io::fs::rmdir_recursive(evictPath) {
+    match std::fs::remove_dir_all(evictPath) {
         Err(_)  => success = false,
         Ok(_) => {}
     }

@@ -29,7 +29,7 @@ pub fn find_matching_issues(idPart:&str, searchIn:&[Issue]) -> Vec<Issue> {
   matching
 }
 
-pub fn update_issue(idEndPart:&str, searchIn:Vec<Issue>, update:|Issue| -> Issue)
+pub fn update_issue(idEndPart:&str, searchIn:Vec<Issue>, update:Fn(Issue) -> Issue)
   -> Vec<Issue> {
   let mut matching  = find_matching_issues(idEndPart, searchIn.as_slice());
   if matching.len() != 1 {

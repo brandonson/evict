@@ -1,4 +1,4 @@
-extern crate fsm;
+extern crate genfsm as fsm;
 extern crate collections;
 extern crate time;
 extern crate serialize;
@@ -6,7 +6,6 @@ extern crate libc;
 
 pub mod issue;
 pub mod file_manager;
-#[path="commands/mod.rs"]
 pub mod commands;
 pub mod file_util;
 pub mod vcs_status;
@@ -16,19 +15,21 @@ pub mod config;
 pub mod status_storage;
 pub mod date_sort;
 
+/*
 pub mod source{
   pub mod parse;
   pub mod file_parser;
   pub mod recursive_parser;
 }
+*/
 
 pub mod evict{
-  pub static CURRENT_VERSION:uint = 1;
+  pub static CURRENT_VERSION:usize = 1;
 }
 
 #[cfg(not(test))]
 fn main(){
-  let args = std::os::args();
+  let args = std::env::args();
   if args.len() < 2 {
     // < 2 because the first arg is the name of the binary
     println!("No command given");

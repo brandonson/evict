@@ -18,14 +18,13 @@
  */
 use file_util;
 use file_manager;
-use std::str::StrVector;
 use issue::IssueStatus;
 
 static STATUS_FILE:&'static str = "status_types";
 static DEF_STATUS_FILE:&'static str = "default_status";
 pub static DEFAULT_STATUS_NAME:&'static str = "<unknown>";
 
-#[deriving(Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct StatusOption{
   pub name:String
 }
