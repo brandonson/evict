@@ -1,9 +1,2 @@
-before_install:
-  - sudo add-apt-repository --yes ppa:hansjorg/rust 
-  - sudo apt-get update -qq
-install:
-  - sudo apt-get install -qq rust-nightly
-before_script:
-  - export LD_LIBRARY_PATH=/usr/lib/rust/rust-nightly/lib:${LD_LIBRARY_PATH}
-script:
-  - make test
+language: rust
+rust: nightly
