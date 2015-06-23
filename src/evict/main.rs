@@ -7,10 +7,14 @@
 #![feature(exit_status)]
 #![feature(collections)]
 #![feature(core)]
+#![feature(custom_derive, plugin)]
+
+#![plugin(serde_macros)]
 
 extern crate genfsm as fsm;
 extern crate collections;
 extern crate time;
+extern crate serde;
 extern crate serialize;
 extern crate libc;
 
