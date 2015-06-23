@@ -42,7 +42,7 @@ pub static NAME_KEY:&'static str = "name";
 pub static ENABLED_KEY:&'static str = "enabled";
 pub static TIMELINE_EVT_KEY:&'static str = "t-evt-type";
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct IssueComment{
   pub creation_time: time::Tm,
   pub author:String,
@@ -51,7 +51,7 @@ pub struct IssueComment{
   pub id:String
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct IssueTag{
   pub time: time::Tm,
   pub tag_name: String,
@@ -60,19 +60,19 @@ pub struct IssueTag{
   pub change_id: String
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum IssueTimelineEvent{
   TimelineComment(IssueComment),
   TimelineTag(IssueTag)
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct IssueStatus{
   pub name:String,
   pub last_change_time: time::Tm
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Issue{
   pub title:String,
   pub creation_time: time::Tm,
@@ -165,38 +165,14 @@ impl Issue{
     tag_list
   }
 
-  pub fn to_json(&self) -> json::Json {
-    let mut map:json::Object = BTreeMap::new();
-    map.insert(VERSION_KEY.to_string(), json::Json::String(evict::CURRENT_VERSION.to_string()));
-    map.insert(TITLE_KEY.to_string(), json::Json::String(self.title.to_string()));
-    map.insert(BODY_KEY.to_string(), json::Json::String(self.body_text.to_string()));
-    map.insert(TIME_KEY.to_string(), 
-               json::Json::String(time::strftime(TIME_FORMAT, &self.creation_time).unwrap().to_string()));
-    map.insert(AUTHOR_KEY.to_string(), json::Json::String(self.author.to_string()));
-    map.insert(ID_KEY.to_string(), json::Json::String(self.id.to_string()));
-
-
-    let mut event_json = self.events.iter().map(|c| c.to_json());
-
-    map.insert(I_EVENT_KEY.to_string(), json::Json::Array(event_json.collect()));
-    map.insert(BRANCH_KEY.to_string(), json::Json::String(self.branch.to_string()));
-    map.insert(STATE_KEY.to_string(), self.status.to_json());
-    json::Json::Object(map)
-  }
-
   pub fn no_comment_json(&self) -> json::Json {
     let mut map:json::Object = BTreeMap::new();
     map.insert(VERSION_KEY.to_string(), json::Json::String(evict::CURRENT_VERSION.to_string()));
     map.insert(TITLE_KEY.to_string(), json::Json::String(self.title.to_string()));
-    map.insert(BODY_KEY.to_string(), json::Json::String(self.body_text.to_string()));
     map.insert(TIME_KEY.to_string(), 
                json::Json::String(time::strftime(TIME_FORMAT, &self.creation_time).unwrap().to_string()));
     map.insert(AUTHOR_KEY.to_string(), json::Json::String(self.author.to_string()));
     map.insert(ID_KEY.to_string(), json::Json::String(self.id.to_string()));
-    
-    let mut event_json = self.events.iter().map(|c| c.to_json());
-
-    map.insert(I_EVENT_KEY.to_string(), json::Json::Array(event_json.collect()));
     
     map.insert(BRANCH_KEY.to_string(), json::Json::String(self.branch.to_string()));
     map.insert(STATE_KEY.to_string(), self.status.to_json());
@@ -226,35 +202,30 @@ impl Issue{
     if version == 1 {
       let title_opt = get_string_for_key(map, TITLE_KEY);
       title_opt.and_then (|title| {
-        let body_opt = get_string_for_key(map, BODY_KEY);
-        body_opt.and_then (|body| {
-          let author_opt = get_string_for_key(map, AUTHOR_KEY);
-          author_opt.and_then (|author| {
-            let branch_opt = get_string_for_key(map, BRANCH_KEY);
-            branch_opt.and_then (|branch| {
-              let id_opt = get_string_for_key(map, ID_KEY);
-              id_opt.and_then (|id| {
-                let events = map.get(&I_EVENT_KEY.to_string()).map_or(vec!(),
-                                                                      Issue::load_events);
+        let author_opt = get_string_for_key(map, AUTHOR_KEY);
+        author_opt.and_then (|author| {
+          let branch_opt = get_string_for_key(map, BRANCH_KEY);
+          branch_opt.and_then (|branch| {
+            let id_opt = get_string_for_key(map, ID_KEY);
+            id_opt.and_then (|id| {
 		let status = map.get(&STATE_KEY.to_string())
-                                  .map_or(IssueStatus::default(), |json| {
+                                .map_or(IssueStatus::default(), |json| {
 		  IssueStatus::from_json(json)
-                });
-                let time_opt = get_string_for_key(map, TIME_KEY);
-                time_opt.and_then (|time| {
-                  let timeResult = time::strptime(time.as_str(),TIME_FORMAT);
-                  match timeResult {
-                    Ok(tm) => Some(Issue{title:title.clone(), body_text:body.clone(), 
-                                        author:author.clone(), 
-                                        creation_time:tm, id:id.clone(),
-                                        events:events.clone(),
-                                        branch:branch.clone(), status:status.clone()}),
-                    Err(_) => None
-                  }
-                })
+              });
+              let time_opt = get_string_for_key(map, TIME_KEY);
+              time_opt.and_then (|time| {
+                let timeResult = time::strptime(time.as_str(),TIME_FORMAT);
+                match timeResult {
+                  Ok(tm) => Some(Issue{title:title.clone(), body_text:"".to_string(),
+                                      author:author.clone(), 
+                                      creation_time:tm, id:id.clone(),
+                                      events:vec!(),
+                                      branch:branch.clone(), status:status.clone()}),
+                  Err(_) => None
+                }
               })
-    	    })
-          })
+            })
+  	  })
         })
       })
     }else{
@@ -526,7 +497,7 @@ pub fn write_and_read_issue_json(){
                          body.to_string(),
                          author.to_string());
 
-  let json = issue.to_json();
+  let json = issue.no_comment_json();
   println!("{}", json);
   let read_result = Issue::from_json(&json);
 
@@ -537,7 +508,6 @@ pub fn write_and_read_issue_json(){
   assert!(read_issue == issue);
   assert!(read_issue.title == title);
   assert!(read_issue.author == author);
-  assert!(read_issue.body_text == body);
   assert!(read_issue.id == issue.id);
   assert!(time::strftime(TIME_FORMAT, &read_issue.creation_time) == 
           time::strftime(TIME_FORMAT, &issue.creation_time));
