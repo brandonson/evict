@@ -42,14 +42,14 @@ pub fn new_comment(args:Vec<String>) -> isize{
     stateMachine.process(a);
   }
 
-  let finalFlags = stateMachine.move_state();
+  let finalFlags = stateMachine.extract_state();
   if finalFlags.issueIdPart.is_none() {
     println!("The id for the issue, or an end section of it must be provided.");
     1
   }else{
     let issues = file_manager::read_issues();
 
-    let updated = selection::update_issue(finalFlags.issueIdPart.unwrap().as_slice(), 
+    let updated = selection::update_issue(finalFlags.issueIdPart.unwrap().as_str(), 
                                           issues,
                                           comment_on_matching);
     if file_manager::write_issues(updated.as_slice()) {
@@ -63,13 +63,13 @@ pub fn new_comment(args:Vec<String>) -> isize{
 fn comment_on_matching(matching:Issue) -> Issue {
   let author = commands::get_author();
   let filename = format!("COMMENT_ON_{}",matching.id);
-  let edited = commands::edit_file(filename.as_slice());
+  let edited = commands::edit_file(filename.as_str());
   if !edited {
     println!("No comment body provided");
     matching 
   }else{
-    let text = file_util::read_string_from_file(filename.as_slice());
-    file_util::delete_file(filename.as_slice());
+    let text = file_util::read_string_from_file(filename.as_str());
+    file_util::delete_file(filename.as_str());
     if text.is_none() {
       println!("Could not read comment body from file");
       matching

@@ -44,30 +44,30 @@ fn full_default_status_filename() -> String {
 }
 
 pub fn read_status_options() -> Vec<StatusOption> {
-  let fullString = file_util::read_string_from_file(full_status_filename().as_slice())
-                             .unwrap_or("".into_string());
-  fullString.as_slice().lines_any().map(
-    |x| StatusOption{name:x.into_string()}
+  let fullString = file_util::read_string_from_file(full_status_filename().as_str())
+                             .unwrap_or("".to_string());
+  fullString.as_str().lines_any().map(
+    |x| StatusOption{name:x.to_string()}
   ).collect()
 }
 
 pub fn write_status_options(statuses:Vec<StatusOption>) -> bool {
   let stringVec:Vec<String> = statuses.into_iter().map(|x| x.name).collect();
   let fullString = stringVec.connect("\n");
-  file_util::write_string_to_file(fullString.as_slice(),
-                                  full_status_filename().as_slice(),
+  file_util::write_string_to_file(fullString.as_str(),
+                                  full_status_filename().as_str(),
                                   true)
 }
 
 pub fn read_default_status() -> StatusOption {
-  let fullFile = file_util::read_string_from_file(full_default_status_filename().as_slice())
-                           .unwrap_or(DEFAULT_STATUS_NAME.into_string());
-  let lineVec:Vec<&str> = fullFile.as_slice().lines_any().collect();
-  let firstLine = lineVec.as_slice().head().unwrap_or(&DEFAULT_STATUS_NAME);
+  let fullFile = file_util::read_string_from_file(full_default_status_filename().as_str())
+                           .unwrap_or(DEFAULT_STATUS_NAME.to_string());
+  let lineVec:Vec<&str> = fullFile.as_str().lines_any().collect();
+  let firstLine = lineVec.as_slice().get(0).unwrap_or(&DEFAULT_STATUS_NAME);
   
-  let statusOption = StatusOption{name:firstLine.into_string()};
+  let statusOption = StatusOption{name:firstLine.to_string()};
   if !read_status_options().contains(&statusOption) {
-    StatusOption{name:DEFAULT_STATUS_NAME.into_string()}
+    StatusOption{name:DEFAULT_STATUS_NAME.to_string()}
   }else{
     statusOption
   }
@@ -78,8 +78,8 @@ pub fn write_default_status(status:&StatusOption) -> Result<bool, String> {
   if !isOption {
     Err(format!("{} is not a status option", status.name))
   }else{
-    Ok(file_util::write_string_to_file(status.name.as_slice(),
-                                       full_default_status_filename().as_slice(),
+    Ok(file_util::write_string_to_file(status.name.as_str(),
+                                       full_default_status_filename().as_str(),
                                        true))
   }
 }

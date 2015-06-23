@@ -19,7 +19,7 @@
 use std;
 use commands;
 use file_manager;
-
+use std::fs::PathExt;
 
 pub fn clear_data(_:Vec<String>) -> isize {
   let evictPath = std::path::Path::new(file_manager::EVICT_DIRECTORY);
@@ -30,8 +30,8 @@ pub fn clear_data(_:Vec<String>) -> isize {
   }
   let res = commands::prompt(
              format!("Really clear everything from {}? [y/n]", 
-                     absolute.unwrap().display()).as_slice());
-  if res.as_slice() == "y" {
+                     absolute.unwrap().display()).as_str());
+  if res.as_str() == "y" {
     let mut success = true;
     //try to delete, if we fail the just set success to false
     //(no point in retries or anything else, user can just

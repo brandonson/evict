@@ -37,7 +37,7 @@ struct Flags{
 }
 
 fn std_handler(flags:Flags, input:String) -> NextState<Flags,String> {
-  match input.as_slice() {
+  match input.as_str() {
     "--no-body" => Continue(Flags{hasBody:false, 
                                          .. flags}),
     "--body-file" => ChangeState(get_body_file, flags),
@@ -65,7 +65,7 @@ pub fn create_issue(args:Vec<String>) -> isize {
   for argVal in args.into_iter() {
     stateMachine.process(argVal);
   };
-  let finalFlags = stateMachine.move_state();
+  let finalFlags = stateMachine.extract_state();
   let title = match finalFlags.title {
     Some(ref titleVal) => titleVal.to_string(),
     None => commands::prompt("Title: ")
@@ -80,7 +80,7 @@ pub fn create_issue(args:Vec<String>) -> isize {
     if !editedBodyFile {
       return 2;
     }
-    Some(DEFAULT_ISSUE_BODY_FILE.into_string())
+    Some(DEFAULT_ISSUE_BODY_FILE.to_string())
   }else if !finalFlags.hasBody {
     None
   }else{
@@ -98,9 +98,9 @@ pub fn create_issue(args:Vec<String>) -> isize {
 
 fn do_issue_creation(title:String, author:String, bodyFile:Option<String>) -> Option<Issue>{
   let issueOpt = if bodyFile.is_none() {
-                   Some(Issue::new(title, "".into_string(), author))
+                   Some(Issue::new(title, "".to_string(), author))
                  }else{
-                   let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap().as_slice());
+                   let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap().as_str());
                    bodyTextOpt.map(
                      |text| Issue::new(title.clone(), text, author.clone())
                    )

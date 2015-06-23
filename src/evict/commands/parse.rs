@@ -42,8 +42,8 @@ pub fn parse_issues(args:Vec<String>) -> isize{
 
   let author = commands::get_author();
   let result = parse_directory(&SourceSearcher::new_default_searcher(author),
-                               Path::new(flags.source_dir.unwrap_or("".into_string())));
-  file_manager::write_issues(result.new_issues.as_slice());
+                               Path::new(flags.source_dir.unwrap_or("".to_string())));
+  file_manager::write_issues(result.new_issues.as_str());
   for errstr in result.failures.iter(){
     println!("Parser error: {}", errstr);
   }
@@ -51,7 +51,7 @@ pub fn parse_issues(args:Vec<String>) -> isize{
 }
 
 fn std_handler(flags:Flags, input:String) -> fsm::NextState<Flags, String> {
-  match input.as_slice() {
+  match input.as_str() {
     "--src-dir" => ChangeState(get_source_dir, flags),
     _ => Continue(flags)
   }

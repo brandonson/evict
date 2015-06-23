@@ -38,7 +38,7 @@ pub fn delete_issue(args:Vec<String>) -> isize {
   for arg in args.into_iter() {
     stateMachine.process(arg);
   }
-  let finalFlags = stateMachine.move_state();
+  let finalFlags = stateMachine.extract_state();
 
   if finalFlags.issue.is_none() {
     println!("The id of the issue to delete or an end segment of the id must be provided.");
@@ -50,7 +50,7 @@ pub fn delete_issue(args:Vec<String>) -> isize {
 }
 fn exec_delete(idPart:String) -> isize{
   let issues = file_manager::read_issues();
-  let matching = selection::find_matching_issues(idPart.as_slice(), issues.as_slice());
+  let matching = selection::find_matching_issues(idPart.as_str(), issues.as_slice());
   if matching.len() == 0 {
     println!("No issue matching {} found.", idPart);
     4

@@ -45,7 +45,7 @@ pub fn parse_directory(searcher:&SourceSearcher, file_path:Path)
     let file_result = recvr.recv();
     match file_result {
       Ok(issues) => {
-        result.new_issues.push_all(issues.as_slice());
+        result.new_issues.push_all(issues.as_str());
       }
       Err(msg) => result.failures.push(msg)
     }

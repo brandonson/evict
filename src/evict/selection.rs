@@ -21,15 +21,15 @@ use issue::Issue;
 pub fn find_matching_issues(idPart:&str, searchIn:&[Issue]) -> Vec<Issue> {
   let mut matching:Vec<Issue> = vec!();
   for issue in searchIn.iter() {
-    if issue.id.as_slice().ends_with(idPart)
-       || issue.id.as_slice().starts_with(idPart) {
+    if issue.id.as_str().ends_with(idPart)
+       || issue.id.as_str().starts_with(idPart) {
       matching.push(issue.clone());
     }
   }
   matching
 }
 
-pub fn update_issue(idEndPart:&str, searchIn:Vec<Issue>, update:Fn(Issue) -> Issue)
+pub fn update_issue<UF:Fn(Issue) -> Issue>(idEndPart:&str, searchIn:Vec<Issue>, update: UF)
   -> Vec<Issue> {
   let mut matching  = find_matching_issues(idEndPart, searchIn.as_slice());
   if matching.len() != 1 {

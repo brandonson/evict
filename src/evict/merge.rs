@@ -26,7 +26,7 @@ pub fn merge_issues(incoming:Vec<Issue>,merge_into:Vec<Issue>) -> Vec<Issue> {
     ident_map.insert(issue.id.to_string(), (Some(issue), None));
   }
   for issue in merge_into.into_iter() {
-    match ident_map.pop(&issue.id) {
+    match ident_map.remove(&issue.id) {
       Some((i, _)) => ident_map.insert(issue.id.to_string(), (i, Some(issue))),
       None => ident_map.insert(issue.id.to_string(), (None, Some(issue)))
     };
@@ -72,7 +72,7 @@ fn merge_events(mut incoming:Vec<IssueTimelineEvent>,
                          .and_then(|minimum| incoming.iter().position(|x| x == minimum)) {
       Some(pos) => {
         //unwrap here is fine, we know pos is within index range.
-        merged.push(incoming.swap_remove(pos).unwrap());
+        merged.push(incoming.swap_remove(pos));
       }
       None => {}
     }

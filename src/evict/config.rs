@@ -19,7 +19,7 @@
 use file_util;
 use serialize::json;
 use serialize::json::ToJson;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 static CONFIG_FILE:&'static str = ".evict/config";
 static AUTHOR_KEY:&'static str = "author";
@@ -30,7 +30,7 @@ pub struct Config{
 
 impl ToJson for Config{
   fn to_json(&self) -> json::Json {
-    let mut map:HashMap<String, json::Json> = HashMap::new();
+    let mut map:BTreeMap<String, json::Json> = BTreeMap::new();
     match self.author {
       Some(ref auth) => {
         map.insert(AUTHOR_KEY.to_string(),json::Json::String(auth.to_string()));
@@ -57,7 +57,7 @@ impl Config{
   fn read_repo_config() -> Config {
     let json_str = file_util::read_string_from_file(CONFIG_FILE);
     let json_opt = json_str.and_then (|string| {
-                    match json::from_str(string.as_slice()){
+                    match json::from_str(string.as_str()){
                       Ok(json) => Some(json),
                       Err(_) => None
                     }
@@ -67,7 +67,7 @@ impl Config{
   
   fn from_json(json:json::Json) -> Config {
     match json {
-      json::Json::Object(map) => Config{author:map.find(&AUTHOR_KEY.into_string())
+      json::Json::Object(map) => Config{author:map.get(&AUTHOR_KEY.to_string())
                                             .and_then(|x| extract_string(x)),
                            },
       _ => Config::default()
@@ -75,8 +75,8 @@ impl Config{
   }
 
   pub fn save(&self){
-    let json_str = self.to_json().to_pretty_str();
-    file_util::write_string_to_file(json_str.as_slice(), CONFIG_FILE, true);
+    let json_str = format!("{}", self.to_json().pretty());
+    file_util::write_string_to_file(json_str.as_str(), CONFIG_FILE, true);
   }
 }
 

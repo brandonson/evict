@@ -32,7 +32,7 @@ pub fn default_author(mut args:Vec<String>) -> isize {
       0
     }else{
       //how do we get values out of a Vec nicely?  Can't move when indexing...
-      config::Config{author:Some(args.swap_remove(0).unwrap()), .. config}.save();
+      config::Config{author:Some(args.swap_remove(0)), .. config}.save();
       0
     }
   }

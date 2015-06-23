@@ -30,7 +30,7 @@ impl VCS {
         gitcmd.arg("rev-parse").arg("--abbrev-ref").arg("HEAD");
         let output = gitcmd.output();
         match output {
-          Ok(out) => String::from_utf8(out.output).ok(),
+          Ok(out) => String::from_utf8(out.stdout).ok(),
           Err(_) => None
         }
       }
@@ -44,13 +44,13 @@ impl VCS {
 
 pub fn current_branch() -> Option<String> {
   let output = VCS::current().current_branch_cmd_output(); 
-  output.and_then(grab_first_line).map(|x| x.into_string())
+  output.and_then(grab_first_line).map(|x| x.to_string())
 }
 
 fn grab_first_line(grab_from:String) -> Option<String> {
   //'loop' through the lines but just return
   //the first line we get
-  for first in grab_from.as_slice().lines_any() {
+  for first in grab_from.as_str().lines_any() {
     return Some(first.to_string());
   }
   //there were no lines, return None

@@ -57,12 +57,12 @@ pub fn list_issues(args:Vec<String>) -> isize{
   for arg in args.into_iter(){
     stateMachine.process(arg);
   }
-  let final_flags = stateMachine.move_state();
+  let final_flags = stateMachine.extract_state();
   
   let mut issues = file_manager::read_issues();
 
   for id in final_flags.id.iter() {
-    issues = selection::find_matching_issues(id.as_slice(), issues.as_slice());
+    issues = selection::find_matching_issues(id.as_str(), issues.as_slice());
   }
 
   issues = issues.into_iter().filter(|check| {
@@ -78,7 +78,7 @@ pub fn list_issues(args:Vec<String>) -> isize{
 
   let to_print = print_issue_vec(issues, &final_flags);
 
-  let written = file_util::write_string_to_file(to_print.as_slice(), TMP_OUTPUT_FILE, true);
+  let written = file_util::write_string_to_file(to_print.as_str(), TMP_OUTPUT_FILE, true);
   if !written {
     println!("File write failure.");
   }
@@ -110,7 +110,7 @@ struct Flags{
 }
 
 fn std_handler(flags:Flags, input:String) -> NextState<Flags,String> {
-  match input.as_slice() {
+  match input.as_str() {
     "--short" => Continue(Flags{short:true, .. flags}),
     "-s" => Continue(Flags{short:true, .. flags}),
     "--status" => ChangeState(get_status, flags),
@@ -159,10 +159,10 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:String)
     to_print.push_strln(format!("Current status: {}", issue.status.name));
     to_print.push_strln(format!("\x1b[34mReported by {} on {}\x1b[0m",
                        issue.author, 
-                       issue.creation_time.strftime(issue::TIME_FORMAT)));
+                       issue.creation_time.strftime(issue::TIME_FORMAT).unwrap()));
     to_print.push_strln(format!("Originated on branch {}\n", issue.branch)); 
     if issue.body_text.len() > 0 {
-      to_print.push_strln(issue.body_text.as_slice());
+      to_print.push_strln(issue.body_text.as_str());
     }
     if !flags.noComments {
       if issue.events.len() == 0 {
@@ -175,9 +175,9 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:String)
             &TimelineComment(ref comment) => {
               comment_output.push_strln(format!("  \x1b[32m{} on {}\x1b[0m",
                                comment.author, 
-                               comment.creation_time.strftime(issue::TIME_FORMAT)));
+                               comment.creation_time.strftime(issue::TIME_FORMAT).unwrap()));
               comment_output.push_strln(format!("  For branch {}", comment.branch));
-              for line in comment.body_text.as_slice().lines() {
+              for line in comment.body_text.as_str().lines() {
                 comment_output.push_strln(format!("    {}", line));
               }
               comment_output.push_strln("");
@@ -198,7 +198,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:String)
               tag_output.push_str(", "); 
             }
             isStart = false;
-            tag_output.push_str(tagname.as_slice());
+            tag_output.push_str(tagname.as_str());
           }
         }
 

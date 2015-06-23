@@ -27,7 +27,7 @@ pub fn new_status(mut args:Vec<String>) -> isize {
     let mut newStatuses = status_storage::read_status_options();
 
     //need a better way to move a value out of a vec
-    newStatuses.push(status_storage::StatusOption{name:args.swap_remove(0).unwrap()});
+    newStatuses.push(status_storage::StatusOption{name:args.swap_remove(0)});
     status_storage::write_status_options(newStatuses);
     0
   }

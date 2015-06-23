@@ -21,6 +21,7 @@ use libc;
 use config;
 use std::io::stdin;
 use std::io::BufReader;
+use std::io::BufRead;
 use std::collections::hash_map::HashMap;
 use std::process;
 
@@ -56,8 +57,8 @@ pub fn execute_command(command:&String,
     std::env::set_exit_status(2);
     return false;
   }
-  match commandList.find(command) {
-    Some(cmd) => {let exit = (*cmd)(argList); std::env::set_exit_status(exit); true}
+  match commandList.get(command) {
+    Some(cmd) => {let exit = (*cmd)(argList); std::env::set_exit_status(exit as i32); true}
     None => {
      println!("Command {} not found", command); 
      std::env::set_exit_status(1); 
@@ -68,19 +69,19 @@ pub fn execute_command(command:&String,
 
 pub fn standard_commands() -> HashMap<String, Command> {
   let mut hmap:HashMap<String, Command> = HashMap::new();
-  hmap.insert("create".into_string(), create::create_issue);
-  hmap.insert("clear".into_string(), clear::clear_data);
-  hmap.insert("init".into_string(), init::initialize);
-  hmap.insert("list".into_string(), list::list_issues); 
-  hmap.insert("delete".into_string(), delete::delete_issue);
-  hmap.insert("comment".into_string(), comment::new_comment); 
-  hmap.insert("new-status".into_string(), new_status::new_status);
-  hmap.insert("default-author".into_string(), default_author::default_author);
-  hmap.insert("set-status".into_string(), set_status::set_status);
-  hmap.insert("default-status".into_string(), default_status::default_status);
-  hmap.insert("tag".into_string(), tag::tag);
-  hmap.insert("untag".into_string(), tag::untag);
-  //hmap.insert("parse".into_string(), parse::parse_issues);
+  hmap.insert("create".to_string(), create::create_issue);
+  hmap.insert("clear".to_string(), clear::clear_data);
+  hmap.insert("init".to_string(), init::initialize);
+  hmap.insert("list".to_string(), list::list_issues); 
+  hmap.insert("delete".to_string(), delete::delete_issue);
+  hmap.insert("comment".to_string(), comment::new_comment); 
+  hmap.insert("new-status".to_string(), new_status::new_status);
+  hmap.insert("default-author".to_string(), default_author::default_author);
+  hmap.insert("set-status".to_string(), set_status::set_status);
+  hmap.insert("default-status".to_string(), default_status::default_status);
+  hmap.insert("tag".to_string(), tag::tag);
+  hmap.insert("untag".to_string(), tag::untag);
+  //hmap.insert("parse".to_string(), parse::parse_issues);
   
   hmap
 }
@@ -88,7 +89,8 @@ pub fn standard_commands() -> HashMap<String, Command> {
 pub fn prompt(prompt:&str) -> String{
   print!("{}", prompt);
   //TODO do we need to check this?
-  let withNewline = BufReader::new(stdin()).read_line().unwrap();
+  let mut withNewline = String::new();
+  let _ = BufReader::new(stdin()).read_line(&mut withNewline);
   withNewline.replace("\n", "").replace("\r", "")
 }
 

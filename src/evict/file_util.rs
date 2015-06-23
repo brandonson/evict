@@ -17,6 +17,7 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std::path::Path;
+use std::fs::PathExt;
 use std::io::Result as IoResult;
 use std::io::Read;
 use std::io::Write;
@@ -28,8 +29,8 @@ pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool
   }else{
     //successful by default, then set to false
     //if an error is encountered
-    io_to_success(||fs::File::create(&Path::new(filename))
-                           .write(content.to_string().into_bytes().as_slice()))
+    io_to_success(||fs::File::create(&Path::new(filename)).and_then(
+                    |mut f| f.write(content.to_string().into_bytes().as_slice()).map(|_| ())))
 
   }
 }
@@ -38,9 +39,10 @@ pub fn read_string_from_file(filename:&str) -> Option<String> {
 }
 
 pub fn read_string_from_path(path:&Path) -> Option<String> {
-  match fs::File::open(path).read_to_end() {
+  let mut buffer = vec!();
+  match fs::File::open(path).and_then(|mut f| f.read_to_end(&mut buffer)) {
     Err(_) => None,
-    Ok(u8bytes) => String::from_utf8(u8bytes).ok()
+    Ok(_) => String::from_utf8(buffer).ok()
   }
 }
 
@@ -68,7 +70,7 @@ pub fn delete_file(name:&str) -> bool{
   )
 }
 
-pub fn io_to_success(ioCall:Fn() -> IoResult<()>) -> bool {
+pub fn io_to_success<IOC:Fn() -> IoResult<()>>(ioCall:IOC) -> bool {
   let mut success = true;
   match ioCall() {
     Err(_) => success = false,
@@ -92,16 +94,16 @@ pub fn create_empty_is_empty(){
   let testname = "file_util_testCEIE";
   
   assert!(create_empty(testname));
-  assert!(read_string_from_file(testname) == Some("".into_string()));
+  assert!(read_string_from_file(testname) == Some("".to_string()));
   assert!(delete_file(testname));
 }
 
 #[test]
 pub fn write_read_str(){
   let testname = "file_util_testWRS";
-  let testString = "This is a test string".into_string();
+  let testString = "This is a test string".to_string();
 
-  assert!(write_string_to_file(testString.as_slice(), testname, false));
+  assert!(write_string_to_file(testString.as_str(), testname, false));
   assert!(read_string_from_file(testname) == Some(testString));
   assert!(delete_file(testname));
 }

@@ -1,3 +1,13 @@
+#![allow(non_snake_case)]
+
+#![feature(convert)]
+#![feature(rustc_private)]
+#![feature(path_ext)]
+#![feature(libc)]
+#![feature(exit_status)]
+#![feature(collections)]
+#![feature(core)]
+
 extern crate genfsm as fsm;
 extern crate collections;
 extern crate time;
@@ -29,7 +39,7 @@ pub mod evict{
 
 #[cfg(not(test))]
 fn main(){
-  let args = std::env::args();
+  let args = std::env::args().collect::<Vec<String>>();
   if args.len() < 2 {
     // < 2 because the first arg is the name of the binary
     println!("No command given");
