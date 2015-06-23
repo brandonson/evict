@@ -152,8 +152,8 @@ pub fn write_read_issue_file(){
   file_util::create_directory_path(&Path::new(EVICT_DIRECTORY));
   file_util::create_directory_path(&issue_directory_path());
   let issues = vec!(Issue::new("A".to_string(), "B".to_string(), "C".to_string()));
-  write_issues(issues.as_str());
+  write_issues(issues.as_slice());
   let read = read_issues();
   assert!(issues == read);
-  let _ = fs::rmdir_recursive(&Path::new(EVICT_DIRECTORY));
+  let _ = fs::remove_dir_all(&Path::new(EVICT_DIRECTORY));
 }
