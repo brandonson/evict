@@ -16,19 +16,36 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use issue::{Issue, IssueTimelineEvent};
+use issue::{Issue, IssueTimelineEvent, IssueJsonParseError};
 use file_util;
 use std::io;
+use std::io::Result as IoResult;
+use std::io::Error as IoError;
+use serde;
 use serialize::json;
 use serialize::json::ToJson;
 use std::fs;
+use std::fs::File;
 
 use std::path::{Path, PathBuf};
+
 
 #[cfg(not(test))]
 pub static EVICT_DIRECTORY:&'static str = ".evict";
 #[cfg(test)]
 pub static EVICT_DIRECTORY:&'static str = ".evict-test";
+
+error_type! {
+  #[derive(Debug)]
+  pub enum DataReadError {
+    ParseError(IssueJsonParseError) {
+      cause;
+    },
+    IoReadError(IoError) {
+      cause;
+    }
+  }
+}
 
 static ISSUE_DIRECTORY:&'static str = "issue-dirs";
 
@@ -41,44 +58,48 @@ pub fn issue_directory() -> String {format!("{}/{}",
 pub fn issue_directory_path() -> PathBuf {PathBuf::from(issue_directory())}
 
 pub fn single_issue_filename(issue:&Issue) -> String {
-  format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id)
+  format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id())
 }
 
-pub fn write_issues(issues:&[Issue]) -> bool {
+pub fn write_issues(issues:&[Issue]) -> IoResult<()> {
   write_issues_to_file(issues)
 }
 
-pub fn write_issues_to_file(issues:&[Issue]) -> bool {
-  let mut allSuccess = true;
+pub fn write_issues_to_file(issues:&[Issue]) -> IoResult<()> {
+  let mut result = Ok(());
   for i in issues.iter() {
-    allSuccess = allSuccess && write_single_issue(i);
+    if let e@Err(_) = write_single_issue(i) {
+      result = e;
+    }
   }
-  allSuccess
+  result
 }
 
-fn write_single_issue(issue:&Issue) -> bool {
+fn write_single_issue(issue:&Issue) -> IoResult<()> {
   file_util::create_directory(single_issue_filename(issue).as_str());
-  let mut allSuccess = write_issue_body(issue);
+  let mut result = write_issue_body(issue);
   for event in issue.events.iter() {
-    allSuccess = allSuccess && write_issue_event(issue.id.as_str(), event);
+    if let e@Err(_) = write_issue_event(issue.id(), event) {
+      result = e;
+    }
   }
-  allSuccess
+  result
 }
 
-fn write_issue_body(issue:&Issue) -> bool {
+fn write_issue_body(issue:&Issue) -> IoResult<()> {
   let filename = issue_body_filename(issue);
-  let output = format!("{}",issue.no_comment_json().pretty());
-  file_util::write_string_to_file(output.as_str(), filename.as_str(), true)
+  let mut file_out = try!(File::create(filename));
+  serde::json::to_writer_pretty(&mut file_out, &issue.no_comment_json()).map_err(Into::into)
 }
 
 fn issue_body_filename(issue:&Issue) -> String {
-  format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id, BODY_FILENAME)
+  format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id(), BODY_FILENAME)
 }
 
-fn write_issue_event(issueId:&str, event:&IssueTimelineEvent) -> bool{
+fn write_issue_event(issueId:&str, event:&IssueTimelineEvent) -> IoResult<()>{
   let filename = issue_event_filename(issueId, event);
-  let jsonStr = format!("{}", event.to_json().pretty());
-  file_util::write_string_to_file(jsonStr.as_str(), filename.as_str(), true)
+  let mut output_file = try!(File::create(filename.as_str()));
+  serde::json::to_writer_pretty(&mut output_file, event)
 }
 
 fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> String {
@@ -100,12 +121,12 @@ fn read_issues_from_folders() -> Vec<Issue> {
   let issueDirs = issueDirResult.ok().unwrap();
   
   issueDirs.into_iter().filter_map (
-    |path| read_issue_from_dir(path.unwrap().path())
+    |path| read_issue_from_dir(path.unwrap().path()).ok()
   ).collect()
 }
 
 
-fn read_issue_from_dir(basePath:PathBuf) -> Option<Issue> {
+fn read_issue_from_dir(basePath:PathBuf) -> Result<Issue, DataReadError> {
   let files = fs::read_dir(&basePath);
   let bodyPath = Path::new(BODY_FILENAME);
   let issueBodyPath = basePath.join(bodyPath);
@@ -122,38 +143,38 @@ fn read_issue_from_dir(basePath:PathBuf) -> Option<Issue> {
   })
 }
 
-fn read_issue_body(bodyPath:PathBuf) -> Option<Issue> {
+fn read_issue_body(bodyPath:PathBuf) -> Result<Issue, DataReadError> {
   /*! Reads an issue from a file, except for the comments, which are stored
    *  separately from other data.
    */
-  let dataStrOpt = file_util::read_string_from_path(&bodyPath);
-  dataStrOpt.and_then(|dataStr| {
-     json::from_str(dataStr.as_str()).ok()
-  }).and_then(|jsonVal| {
-    Issue::from_json(&jsonVal)
-  })
+  let data = try!(file_util::read_string_from_path(&bodyPath));
+  Issue::from_str(&data).map_err(Into::into)
 }
 
 fn read_issue_events(bodyFiles:&[PathBuf]) -> Vec<IssueTimelineEvent> {
-  bodyFiles.iter().filter_map(read_comment).collect()
+  bodyFiles.iter().filter_map(|pbuf| read_comment(pbuf).ok()).collect()
 }
 
-fn read_comment(commentFile:&PathBuf) -> Option<IssueTimelineEvent> {
-  let dataStrOpt = file_util::read_string_from_path(commentFile);
-  dataStrOpt.and_then(|dataStr| {
-    json::from_str(dataStr.as_str()).ok()
-  }).and_then(|jsonVal| {
-    IssueTimelineEvent::from_json(&jsonVal)
-  })
+fn read_comment(commentFile:&PathBuf) -> Result<IssueTimelineEvent, serde::json::error::Error> {
+  let data = try!(file_util::read_string_from_path(commentFile));
+  serde::json::from_str(&data)
 }
 
 #[test]
 pub fn write_read_issue_file(){
+  use std::error::Error;
+
   file_util::create_directory_path(&Path::new(EVICT_DIRECTORY));
   file_util::create_directory_path(&issue_directory_path());
   let issues = vec!(Issue::new("A".to_string(), "B".to_string(), "C".to_string()));
-  write_issues(issues.as_slice());
+  let write_res = write_issues(issues.as_slice());
+  assert!(
+    write_res.is_ok(),
+    "Assert failed - result not ok, {}: {:?}",
+    write_res.as_ref().unwrap_err().description(),
+    write_res);
   let read = read_issues();
+  println!("{:?}", read);
   assert!(issues == read);
   let _ = fs::remove_dir_all(&Path::new(EVICT_DIRECTORY));
 }

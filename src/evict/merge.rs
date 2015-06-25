@@ -23,12 +23,12 @@ use std::vec::Vec;
 pub fn merge_issues(incoming:Vec<Issue>,merge_into:Vec<Issue>) -> Vec<Issue> {
   let mut ident_map:HashMap<String, (Option<Issue>, Option<Issue>)> = HashMap::new();
   for issue in incoming.into_iter() {
-    ident_map.insert(issue.id.to_string(), (Some(issue), None));
+    ident_map.insert(issue.id().to_string(), (Some(issue), None));
   }
   for issue in merge_into.into_iter() {
-    match ident_map.remove(&issue.id) {
-      Some((i, _)) => ident_map.insert(issue.id.to_string(), (i, Some(issue))),
-      None => ident_map.insert(issue.id.to_string(), (None, Some(issue)))
+    match ident_map.remove(issue.id()) {
+      Some((i, _)) => ident_map.insert(issue.id().to_string(), (i, Some(issue))),
+      None => ident_map.insert(issue.id().to_string(), (None, Some(issue)))
     };
   }
   let mut merged:Vec<Issue> = vec!();
@@ -48,8 +48,8 @@ fn merge_pair(issues:(Option<Issue>, Option<Issue>)) -> Issue {
     let new_events = merge_events(incoming.events.clone(), 
                                   merge_into.events.clone());
     
-    let incomingTime = incoming.status.last_change_time.to_timespec();
-    let intoTime = incoming.status.last_change_time.to_timespec();
+    let incomingTime = incoming.status.last_change_time.0.to_timespec();
+    let intoTime = incoming.status.last_change_time.0.to_timespec();
     let status = if incomingTime > intoTime {
                       incoming.status.clone()
                  } else {

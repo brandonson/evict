@@ -34,9 +34,8 @@ pub fn default_status(mut args:Vec<String>) -> isize {
       let status = status_storage::StatusOption{name:args.swap_remove(0)};
       
       match status_storage::write_default_status(&status) {
-        Ok(true) => {0}
-        Ok(false) => {println!("Could not write to file"); 3}
-        Err(s) => {println!("{}", s); 4}
+        Ok(_) => 0,
+        Err(e) => {println!("{}", e); 4}
       }
     }
   }

@@ -25,6 +25,8 @@ use commands;
 
 use status_storage;
 
+use std::io::Result as IoResult;
+
 // EVICT-BT-ID: 1399720517980750949
 // [conventions] bodyFile in Flags should be body_file
 
@@ -88,39 +90,29 @@ pub fn create_issue(args:Vec<String>) -> isize {
   };
   let created = do_issue_creation(title, author, bodyFile);
   if editedBodyFile { file_util::delete_file(DEFAULT_ISSUE_BODY_FILE); };
-  if created.is_some() {
-    println!("Issue {} created.", created.unwrap().id); 
+  if created.is_ok() {
+    println!("Issue {} created.", created.unwrap().id()); 
     0
   }else{
+    println!("Issue creation failed.");
     1
   }
 }
 
-fn do_issue_creation(title:String, author:String, bodyFile:Option<String>) -> Option<Issue>{
-  let issueOpt = if bodyFile.is_none() {
-                   Some(Issue::new(title, "".to_string(), author))
+fn do_issue_creation(title:String, author:String, bodyFile:Option<String>) -> IoResult<Issue>{
+  let mut issue = try!(if bodyFile.is_none() {
+                   Ok(Issue::new(title, "".to_string(), author))
                  }else{
                    let bodyTextOpt = file_util::read_string_from_file(bodyFile.unwrap().as_str());
                    bodyTextOpt.map(
                      |text| Issue::new(title.clone(), text, author.clone())
                    )
-                 };
-  if issueOpt.is_none() {
-    println!("Could not open body file.");
-    None
-  }else{
-    let mut issue = issueOpt.unwrap();
-    issue.status = status_storage::read_default_status().make_status();
-    if write_issue(issue.clone()) {
-      Some(issue)
-    }else{
-      println!("Could not write issue to file.");
-      None
-    }
-  }
+                 });
+  issue.status = status_storage::read_default_status().make_status();
+  write_issue(issue.clone()).map(|_| issue)
 }
 
-fn write_issue(issue:Issue) -> bool{
+fn write_issue(issue:Issue) -> IoResult<()> {
   let mut committable = file_manager::read_issues();
   committable.push(issue);
   file_manager::write_issues(committable.as_slice())

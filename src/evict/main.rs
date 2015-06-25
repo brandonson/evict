@@ -17,6 +17,8 @@ extern crate time;
 extern crate serde;
 extern crate serialize;
 extern crate libc;
+#[macro_use]
+extern crate error_type;
 
 pub mod issue;
 pub mod file_manager;
@@ -28,6 +30,7 @@ pub mod selection;
 pub mod config;
 pub mod status_storage;
 pub mod date_sort;
+pub mod serdetime;
 
 /*
 pub mod source{

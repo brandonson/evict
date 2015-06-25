@@ -19,38 +19,36 @@
 use std::path::Path;
 use std::fs::PathExt;
 use std::io::Result as IoResult;
+use std::io::Error as IoError;
+use std::io::ErrorKind;
 use std::io::Read;
 use std::io::Write;
 use std::fs;
 
-pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> bool {
+pub fn write_string_to_file(content:&str, filename:&str, overwrite:bool) -> IoResult<()> {
   if !overwrite && file_exists(filename) {
-    false
+    Err(IoError::new(ErrorKind::AlreadyExists, "File already exists and should not be overwritten"))
   }else{
     //successful by default, then set to false
     //if an error is encountered
-    io_to_success(||fs::File::create(&Path::new(filename)).and_then(
-                    |mut f| f.write(content.to_string().into_bytes().as_slice()).map(|_| ())))
-
+    fs::File::create(&Path::new(filename)).and_then(
+                    |mut f| f.write(content.to_string().into_bytes().as_slice()).map(|_| ()))
   }
 }
-pub fn read_string_from_file(filename:&str) -> Option<String> {
+pub fn read_string_from_file(filename:&str) -> IoResult<String> {
   read_string_from_path(&Path::new(filename)) 
 }
 
-pub fn read_string_from_path(path:&Path) -> Option<String> {
-  let mut buffer = vec!();
-  match fs::File::open(path).and_then(|mut f| f.read_to_end(&mut buffer)) {
-    Err(_) => None,
-    Ok(_) => String::from_utf8(buffer).ok()
-  }
+pub fn read_string_from_path(path:&Path) -> IoResult<String> {
+  let mut string = String::new();
+  fs::File::open(path).and_then(|mut f| f.read_to_string(&mut string)).map(|_| string)
 }
 
 pub fn file_exists(name:&str) -> bool {
   Path::new(name).exists()
 }
 
-pub fn create_empty(name:&str) -> bool{
+pub fn create_empty(name:&str) -> IoResult<()>{
   write_string_to_file("", name, false)
 }
 
@@ -83,7 +81,7 @@ pub fn io_to_success<IOC:Fn() -> IoResult<()>>(ioCall:IOC) -> bool {
 pub fn create_delete_and_existence(){
   let testname = "file_util_testCDAE";
 
-  assert!(create_empty(testname));
+  assert!(create_empty(testname).is_ok());
   assert!(file_exists(testname));
   assert!(delete_file(testname));
   assert!(!file_exists(testname));
@@ -93,8 +91,10 @@ pub fn create_delete_and_existence(){
 pub fn create_empty_is_empty(){
   let testname = "file_util_testCEIE";
   
-  assert!(create_empty(testname));
-  assert!(read_string_from_file(testname) == Some("".to_string()));
+  assert!(create_empty(testname).is_ok());
+  let file_string = read_string_from_file(testname);
+  assert!(file_string.is_ok());
+  assert_eq!(file_string.unwrap(), "".to_string());
   assert!(delete_file(testname));
 }
 
@@ -103,7 +103,9 @@ pub fn write_read_str(){
   let testname = "file_util_testWRS";
   let testString = "This is a test string".to_string();
 
-  assert!(write_string_to_file(testString.as_str(), testname, false));
-  assert!(read_string_from_file(testname) == Some(testString));
+  assert!(write_string_to_file(testString.as_str(), testname, false).is_ok());
+  let file_string = read_string_from_file(testname);
+  assert!(file_string.is_ok());
+  assert_eq!(file_string.unwrap(), testString);
   assert!(delete_file(testname));
 }

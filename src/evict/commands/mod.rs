@@ -19,9 +19,11 @@
 use std;
 use libc;
 use config;
+use std::io::stdout;
 use std::io::stdin;
 use std::io::BufReader;
 use std::io::BufRead;
+use std::io::Write;
 use std::collections::hash_map::HashMap;
 use std::process;
 
@@ -88,6 +90,7 @@ pub fn standard_commands() -> HashMap<String, Command> {
 
 pub fn prompt(prompt:&str) -> String{
   print!("{}", prompt);
+  let _ = stdout().flush();
   //TODO do we need to check this?
   let mut withNewline = String::new();
   let _ = BufReader::new(stdin()).read_line(&mut withNewline);

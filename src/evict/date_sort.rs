@@ -31,12 +31,12 @@ enum TimeSorted{
 }
 
 impl TimeSorted{
-  fn creation<'x>(&'x self) -> &'x time::Tm {
+  fn creation(&self) -> time::Tm {
     match self {
-      &TimeSortedIssue(ref issue) => &issue.creation_time,
+      &TimeSortedIssue(ref issue) => issue.creation_time(),
       &TimeSortedEvent(ref evt) => match evt {
-        &TimelineComment(ref comment) => &comment.creation_time,
-        &TimelineTag(ref tag) => &tag.time
+        &TimelineComment(ref comment) => comment.creation_time.0,
+        &TimelineTag(ref tag) => tag.time.0
       }
     }
   }

@@ -77,27 +77,7 @@ pub fn list_issues(args:Vec<String>) -> isize{
   }).collect(); 
 
   let to_print = print_issue_vec(issues, &final_flags);
-
-  let written = file_util::write_string_to_file(to_print.as_str(), TMP_OUTPUT_FILE, true);
-  if !written {
-    println!("File write failure.");
-  }
-  let mut paginate_command = process::Command::new("less");
-  paginate_command.arg("-RXF").arg(TMP_OUTPUT_FILE);
-  paginate_command.stdout(process::Stdio::inherit());
-  paginate_command.stderr(process::Stdio::inherit());
-  
-  let paginate_proc = paginate_command.spawn();
-
-  if paginate_proc.is_err() {
-    println!("Couldn't paginate output.  Printing straight to terminal");
-    println!("{}", to_print);
-  }
-  let exit_code = paginate_proc.ok().unwrap().wait();
-  if !exit_code.is_ok() || !exit_code.ok().unwrap().success() {
-    println!("Something went wrong in pagination.");
-  }
-  file_util::delete_file(TMP_OUTPUT_FILE);
+  println!("{}", to_print);
   0
 }
 
@@ -154,15 +134,15 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:String)
   -> String {
   to_print.push_strln("");
   to_print.push_strln(format!("\x1b[33m{} (Issue ID: {})\x1b[0m",
-                              issue.title, issue.id));
+                              issue.title(), issue.id()));
   if !flags.short {
     to_print.push_strln(format!("Current status: {}", issue.status.name));
     to_print.push_strln(format!("\x1b[34mReported by {} on {}\x1b[0m",
-                       issue.author, 
-                       issue.creation_time.strftime(issue::TIME_FORMAT).unwrap()));
-    to_print.push_strln(format!("Originated on branch {}\n", issue.branch)); 
-    if issue.body_text.len() > 0 {
-      to_print.push_strln(issue.body_text.as_str());
+                       issue.author(), 
+                       issue.creation_time().strftime(issue::TIME_FORMAT).unwrap()));
+    to_print.push_strln(format!("Originated on branch {}\n", issue.branch())); 
+    if issue.body_text().len() > 0 {
+      to_print.push_strln(issue.body_text());
     }
     if !flags.noComments {
       if issue.events.len() == 0 {
@@ -175,7 +155,7 @@ fn print_issue(issue:&Issue, flags:&Flags, mut to_print:String)
             &TimelineComment(ref comment) => {
               comment_output.push_strln(format!("  \x1b[32m{} on {}\x1b[0m",
                                comment.author, 
-                               comment.creation_time.strftime(issue::TIME_FORMAT).unwrap()));
+                               comment.creation_time.0.strftime(issue::TIME_FORMAT).unwrap()));
               comment_output.push_strln(format!("  For branch {}", comment.branch));
               for line in comment.body_text.as_str().lines() {
                 comment_output.push_strln(format!("    {}", line));

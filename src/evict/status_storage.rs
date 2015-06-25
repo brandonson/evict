@@ -19,10 +19,51 @@
 use file_util;
 use file_manager;
 use issue::IssueStatus;
+use std::io::Error as IoError;
+use std::io::Result as IoResult;
+use std::error::Error;
+use std::fmt::{Display, Formatter};
+use std::fmt::Result as FmtResult;
 
 static STATUS_FILE:&'static str = "status_types";
 static DEF_STATUS_FILE:&'static str = "default_status";
 pub static DEFAULT_STATUS_NAME:&'static str = "<unknown>";
+
+#[derive(Debug)]
+pub enum StatusWriteError{
+  IoWriteFailure(IoError),
+  InvalidStatus(String)
+}
+
+impl Display for StatusWriteError {
+  fn fmt(&self, f: &mut Formatter) -> FmtResult {
+    write!(f, "{}", self.description())
+  }
+}
+
+impl ::std::error::Error for StatusWriteError {
+  fn description(&self) -> &str {
+    use self::StatusWriteError::*;
+    match *self {
+      IoWriteFailure(_) => "I/O to the file failed",
+      InvalidStatus(ref strval) => strval.as_str()
+    }
+  }
+
+  fn cause(&self) -> Option<&Error> {
+    use self::StatusWriteError::*;
+    match *self {
+      IoWriteFailure(ref err) => Some(err),
+      _ => None
+    }
+  }
+}
+
+impl From<IoError> for StatusWriteError {
+  fn from(err:IoError) -> StatusWriteError {
+    StatusWriteError::IoWriteFailure(err)
+  }
+}
 
 #[derive(Clone, PartialEq)]
 pub struct StatusOption{
@@ -51,7 +92,7 @@ pub fn read_status_options() -> Vec<StatusOption> {
   ).collect()
 }
 
-pub fn write_status_options(statuses:Vec<StatusOption>) -> bool {
+pub fn write_status_options(statuses:Vec<StatusOption>) -> IoResult<()> {
   let stringVec:Vec<String> = statuses.into_iter().map(|x| x.name).collect();
   let fullString = stringVec.connect("\n");
   file_util::write_string_to_file(fullString.as_str(),
@@ -73,13 +114,15 @@ pub fn read_default_status() -> StatusOption {
   }
 }
 
-pub fn write_default_status(status:&StatusOption) -> Result<bool, String> {
+pub fn write_default_status(status:&StatusOption) -> Result<(), StatusWriteError> {
+  use self::StatusWriteError::*;
   let isOption = read_status_options().contains(status);
   if !isOption {
-    Err(format!("{} is not a status option", status.name))
+    Err(InvalidStatus(format!("{} is not a valid status option", status.name.to_string())))
   }else{
-    Ok(file_util::write_string_to_file(status.name.as_str(),
-                                       full_default_status_filename().as_str(),
-                                       true))
+    file_util::write_string_to_file(
+      status.name.as_str(),
+      full_default_status_filename().as_str(),
+      true).map_err(Into::into)
   }
 }
