@@ -16,15 +16,12 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use serialize::json;
-use serialize::json::ToJson;
 use serde;
 use serde::json::value::Value as JsonValue;
 use serde::json::Error as JsonError;
 use serde::json::value::from_value as from_json_value;
 
 use time;
-use evict;
 use vcs_status;
 use status_storage::DEFAULT_STATUS_NAME;
 use self::IssueTimelineEvent::{TimelineComment, TimelineTag};
@@ -149,16 +146,6 @@ impl IssueStatus{
   pub fn new(name:String) -> IssueStatus {
     IssueStatus{name:name, last_change_time:SerdeTime(time::now())}
   }
-}
-
-fn get_string_for_key(map:&json::Object, key:&str) -> Option<String>{
-  let value_opt = map.get(&key.to_string());
-  value_opt.and_then (|value| {
-    match value {
-      &json::Json::String(ref strVal) => Some(strVal.to_string()),
-      _ => None
-    }
-  })
 }
 
 //Delegates
@@ -357,10 +344,6 @@ pub fn generate_id() -> String {
   // [id, todo] Make this generate a proper unique id
   let ctime = time::get_time();
   format!("{}{}", ctime.sec, ctime.nsec)
-}
-
-fn json_time(time:&time::Tm) -> json::Json {
-  json::Json::String(time::strftime(TIME_FORMAT, time).unwrap().to_string())
 }
 
 #[test]

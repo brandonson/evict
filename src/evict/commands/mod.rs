@@ -17,7 +17,6 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std;
-use libc;
 use config;
 use std::io::stdout;
 use std::io::stdin;

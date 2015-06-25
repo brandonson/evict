@@ -18,12 +18,9 @@
  */
 use issue::{Issue, IssueTimelineEvent, IssueJsonParseError};
 use file_util;
-use std::io;
 use std::io::Result as IoResult;
 use std::io::Error as IoError;
 use serde;
-use serialize::json;
-use serialize::json::ToJson;
 use std::fs;
 use std::fs::File;
 

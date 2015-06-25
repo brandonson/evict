@@ -65,7 +65,8 @@ fn exec_delete(idPart:String) -> isize{
     }
     //We really, REALLY don't want to be deleting issues we don't expect to be
     assert!(issueCount - 1 == remaining.len());
-    file_manager::write_issues(remaining.as_slice());
+    //TODO handle this
+    let _ = file_manager::write_issues(remaining.as_slice());
     println!("Issue {} ({}) deleted.", matching[0].id(), matching[0].title());
     0
   }else{

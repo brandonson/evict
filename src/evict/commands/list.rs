@@ -21,18 +21,12 @@ use issue;
 use issue::{Issue};
 use issue::IssueTimelineEvent::{TimelineComment};
 
-use std::process;
-
-use file_util;
-use libc;
 use fsm::*;
 use fsm::NextState::*;
 use selection;
 use date_sort;
 
 use std::borrow::Borrow;
-
-static TMP_OUTPUT_FILE:&'static str = ".evict/LIST_TEMP_FILE";
 
 trait LinePushingString{
   fn push_strln<S:Borrow<str>>(&mut self, rhs:S);

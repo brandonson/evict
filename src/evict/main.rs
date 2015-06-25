@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 
 #![feature(convert)]
-#![feature(rustc_private)]
 #![feature(path_ext)]
 #![feature(libc)]
 #![feature(exit_status)]
@@ -15,7 +14,6 @@ extern crate genfsm as fsm;
 extern crate collections;
 extern crate time;
 extern crate serde;
-extern crate serialize;
 extern crate libc;
 #[macro_use]
 extern crate error_type;
