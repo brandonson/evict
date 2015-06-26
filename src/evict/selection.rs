@@ -21,8 +21,8 @@ use issue::Issue;
 pub fn find_matching_issues(idPart:&str, searchIn:&[Issue]) -> Vec<Issue> {
   let mut matching:Vec<Issue> = vec!();
   for issue in searchIn.iter() {
-    if issue.id.as_str().ends_with(idPart)
-       || issue.id.as_str().starts_with(idPart) {
+    if issue.id().ends_with(idPart)
+       || issue.id().starts_with(idPart) {
       matching.push(issue.clone());
     }
   }
@@ -35,12 +35,12 @@ pub fn update_issue<UF:Fn(Issue) -> Issue>(idEndPart:&str, searchIn:Vec<Issue>, 
   if matching.len() != 1 {
     println!("Found 0 or >1 matching issues:");
     for issue in matching.iter() {
-      println!("{} ({})", issue.id, issue.title);
+      println!("{} ({})", issue.id(), issue.title());
     }
     searchIn
   }else{
     let mut filtered:Vec<Issue> = searchIn.into_iter()
-                                          .filter(|x| x.id != matching[0].id)
+                                          .filter(|x| x.id() != matching[0].id())
                                           .collect();
     filtered.push(update(matching.pop().unwrap()));
     filtered

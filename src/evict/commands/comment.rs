@@ -52,17 +52,19 @@ pub fn new_comment(args:Vec<String>) -> isize{
     let updated = selection::update_issue(finalFlags.issueIdPart.unwrap().as_str(), 
                                           issues,
                                           comment_on_matching);
-    if file_manager::write_issues(updated.as_slice()) {
-      0
-    }else{
-      1
+    match file_manager::write_issues(updated.as_slice()) {
+      Ok(_) => 0,
+      Err(e) => {
+        println!("{}", e);
+        1
+      }
     }
   }
 }
 
 fn comment_on_matching(matching:Issue) -> Issue {
   let author = commands::get_author();
-  let filename = format!("COMMENT_ON_{}",matching.id);
+  let filename = format!("COMMENT_ON_{}",matching.id());
   let edited = commands::edit_file(filename.as_str());
   if !edited {
     println!("No comment body provided");
@@ -70,7 +72,7 @@ fn comment_on_matching(matching:Issue) -> Issue {
   }else{
     let text = file_util::read_string_from_file(filename.as_str());
     file_util::delete_file(filename.as_str());
-    if text.is_none() {
+    if text.is_err() {
       println!("Could not read comment body from file");
       matching
     }else{

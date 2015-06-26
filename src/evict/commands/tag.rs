@@ -38,10 +38,9 @@ pub fn tag_cmd(args:Vec<String>, cmdName:&str, enabledAfter:bool) -> isize {
     let updated = selection::update_issue(args[0].as_str(),
                                           issues,
                                           |issue| modify_tag(issue, args[1].as_str(), enabledAfter));
-    if file_manager::write_issues(updated.as_slice()) { 
-      0
-    }else{
-      2
+    match file_manager::write_issues(updated.as_slice()) { 
+      Ok(_) => 0,
+      Err(_) => 2
     }
   }
 }

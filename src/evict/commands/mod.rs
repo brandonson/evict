@@ -17,11 +17,12 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std;
-use libc;
 use config;
+use std::io::stdout;
 use std::io::stdin;
 use std::io::BufReader;
 use std::io::BufRead;
+use std::io::Write;
 use std::collections::hash_map::HashMap;
 use std::process;
 
@@ -49,20 +50,18 @@ pub type Command = fn (Vec<String>) -> isize;
 
 pub fn execute_command(command:&String, 
                       commandList:&HashMap<String, Command>, 
-                      argList: Vec<String>) -> bool{
+                      argList: Vec<String>) -> ! {
   // [quality] This should be done without hardcoding init as the exception
   if command != &"init".to_string() && 
      !file_util::file_exists(file_manager::EVICT_DIRECTORY) {
     println!("There is no evict directory.  Run evict init.");
-    std::env::set_exit_status(2);
-    return false;
+    process::exit(2);
   }
   match commandList.get(command) {
-    Some(cmd) => {let exit = (*cmd)(argList); std::env::set_exit_status(exit as i32); true}
+    Some(cmd) => {let exit = (*cmd)(argList); process::exit(exit as i32)}
     None => {
      println!("Command {} not found", command); 
-     std::env::set_exit_status(1); 
-     false
+     process::exit(1);
     } 
   }
 }
@@ -88,6 +87,7 @@ pub fn standard_commands() -> HashMap<String, Command> {
 
 pub fn prompt(prompt:&str) -> String{
   print!("{}", prompt);
+  let _ = stdout().flush();
   //TODO do we need to check this?
   let mut withNewline = String::new();
   let _ = BufReader::new(stdin()).read_line(&mut withNewline);

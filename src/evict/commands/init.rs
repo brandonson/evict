@@ -28,7 +28,7 @@ pub fn initialize(_:Vec<String>) -> isize {
     let defaultStatus = StatusOption{name:"open".to_string()};
     let statusOpts = vec!(defaultStatus.clone(), StatusOption{name:"closed".to_string()});
     let optionSuccess = write_status_options(statusOpts);
-    if optionSuccess {
+    if optionSuccess.is_ok() {
       let defaultResult = write_default_status(&defaultStatus);
       if defaultResult.is_ok() {
         let idirSuccess = file_util::create_directory(

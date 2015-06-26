@@ -1,7 +1,7 @@
 [package]
 
 name = "evict"
-version = "0.0.2"
+version = "0.1.0"
 authors = ["Brandon Sanderson <bas.bsanders@gmail.com>"]
 
 [[bin]]
@@ -11,4 +11,10 @@ test = true
 
 [dependencies]
 genfsm = "*"
-time = "*"
+serde = "*"
+serde_macros = "*"
+error-type = "*"
+
+[dependencies.time]
+git = "https://github.com/brandonson/time"
+branch = "hashable-times"

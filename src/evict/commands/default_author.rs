@@ -17,6 +17,7 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use config;
+use std::error::Error;
 
 pub fn default_author(mut args:Vec<String>) -> isize {
   if args.len() > 1 {
@@ -31,8 +32,12 @@ pub fn default_author(mut args:Vec<String>) -> isize {
       };
       0
     }else{
-      //how do we get values out of a Vec nicely?  Can't move when indexing...
-      config::Config{author:Some(args.swap_remove(0)), .. config}.save();
+      //How do we get values out of a Vec nicely?  Can't move when indexing...
+      let save_result = config::Config{author:Some(args.swap_remove(0)), .. config}.save();
+      match save_result {
+        Err(e) => println!("Failed to save config: {}", e.description()),
+        _ => {}
+      }
       0
     }
   }

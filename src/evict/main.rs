@@ -1,18 +1,21 @@
 #![allow(non_snake_case)]
 
 #![feature(convert)]
-#![feature(rustc_private)]
 #![feature(path_ext)]
 #![feature(libc)]
-#![feature(exit_status)]
 #![feature(collections)]
-#![feature(core)]
+#![feature(iter_cmp)]
+#![feature(custom_derive, plugin)]
+
+#![plugin(serde_macros)]
 
 extern crate genfsm as fsm;
 extern crate collections;
 extern crate time;
-extern crate serialize;
+extern crate serde;
 extern crate libc;
+#[macro_use]
+extern crate error_type;
 
 pub mod issue;
 pub mod file_manager;
@@ -24,6 +27,7 @@ pub mod selection;
 pub mod config;
 pub mod status_storage;
 pub mod date_sort;
+pub mod serdetime;
 
 /*
 pub mod source{
