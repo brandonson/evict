@@ -65,7 +65,7 @@ fn merge_pair(issues:(Option<Issue>, Option<Issue>)) -> Issue {
 
 fn merge_events(mut incoming:Vec<IssueTimelineEvent>,
                 merge_into:Vec<IssueTimelineEvent>) -> Vec<IssueTimelineEvent> {
-  incoming.push_all(merge_into.as_slice());
+  incoming.extend(merge_into.into_iter());
   let mut merged:Vec<IssueTimelineEvent> = vec!();
   while incoming.len() > 0 {
     match incoming.iter().min_by(|ievt| ievt.time().to_timespec())

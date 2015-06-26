@@ -3,9 +3,8 @@
 #![feature(convert)]
 #![feature(path_ext)]
 #![feature(libc)]
-#![feature(exit_status)]
 #![feature(collections)]
-#![feature(core)]
+#![feature(iter_cmp)]
 #![feature(custom_derive, plugin)]
 
 #![plugin(serde_macros)]
