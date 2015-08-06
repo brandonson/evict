@@ -111,10 +111,17 @@ fn read_issues_from_folders() -> Vec<Issue> {
   /*! Reads all issues from the folders located in the
    *  folder returned by full_issue_directory.
    *  If a folder/file in the issue directory does not parse
-   *  isizeo an issue, it is ignored.
+   *  as an issue, it is ignored.
    */
   let dirPath = issue_directory_path();
   let issueDirResult = fs::read_dir(&dirPath);
+
+  //There aren't any issue directories to deal with
+  //so just return an empty list
+  if issueDirResult.is_err() {
+    return vec![];
+  }
+
   let issueDirs = issueDirResult.ok().unwrap();
   
   issueDirs.into_iter().filter_map (

@@ -14,7 +14,5 @@ genfsm = "*"
 serde = "*"
 serde_macros = "*"
 error-type = "*"
+time = "*"
 
-[dependencies.time]
-git = "https://github.com/brandonson/time"
-branch = "hashable-times"
