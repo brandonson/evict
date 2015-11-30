@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 
 #![feature(convert)]
-#![feature(path_ext)]
 #![feature(libc)]
 #![feature(collections)]
 #![feature(iter_cmp)]
@@ -13,6 +12,7 @@ extern crate genfsm as fsm;
 extern crate collections;
 extern crate time;
 extern crate serde;
+extern crate serde_json;
 extern crate libc;
 #[macro_use]
 extern crate error_type;

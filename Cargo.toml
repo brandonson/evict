@@ -13,6 +13,7 @@ test = true
 genfsm = "*"
 serde = "*"
 serde_macros = "*"
+serde_json = "*"
 error-type = "*"
 time = "*"
 

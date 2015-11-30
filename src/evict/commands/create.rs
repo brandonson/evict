@@ -25,7 +25,7 @@ use commands;
 
 use status_storage;
 
-use std::io::Result as IoResult;
+use serde_json::Result as SerdeResult;
 
 // EVICT-BT-ID: 1399720517980750949
 // [conventions] bodyFile in Flags should be body_file
@@ -99,7 +99,7 @@ pub fn create_issue(args:Vec<String>) -> isize {
   }
 }
 
-fn do_issue_creation(title:String, author:String, bodyFile:Option<String>) -> IoResult<Issue>{
+fn do_issue_creation(title:String, author:String, bodyFile:Option<String>) -> SerdeResult<Issue>{
   let mut issue = try!(if bodyFile.is_none() {
                    Ok(Issue::new(title, "".to_string(), author))
                  }else{
@@ -112,7 +112,7 @@ fn do_issue_creation(title:String, author:String, bodyFile:Option<String>) -> Io
   write_issue(issue.clone()).map(|_| issue)
 }
 
-fn write_issue(issue:Issue) -> IoResult<()> {
+fn write_issue(issue:Issue) -> SerdeResult<()> {
   let mut committable = file_manager::read_issues();
   committable.push(issue);
   file_manager::write_issues(committable.as_slice())

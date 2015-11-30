@@ -16,10 +16,10 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
-use serde;
-use serde::json::value::Value as JsonValue;
-use serde::json::Error as JsonError;
-use serde::json::value::from_value as from_json_value;
+use serde_json;
+use serde_json::value::Value as JsonValue;
+use serde_json::Error as JsonError;
+use serde_json::value::from_value as from_json_value;
 
 use time;
 use vcs_status;
@@ -234,8 +234,8 @@ impl Issue{
 
   pub fn no_comment_json(&self) -> JsonValue {
     let mut map:JsonObjectMap = BTreeMap::new();
-    let base_json = serde::json::value::to_value(&self.base);
-    let state_json = serde::json::value::to_value(&self.status);
+    let base_json = serde_json::value::to_value(&self.base);
+    let state_json = serde_json::value::to_value(&self.status);
 
     map.insert(STATE_KEY.to_string(), state_json);
     map.insert("base".to_string(), base_json);
@@ -243,7 +243,7 @@ impl Issue{
   }
 
   pub fn from_str(string:&str) -> Result<Issue, IssueJsonParseError> {
-    let json = try!(serde::json::from_str(string));
+    let json = try!(serde_json::from_str(string));
     Issue::from_json(json)
   }
 

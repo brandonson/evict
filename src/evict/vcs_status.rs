@@ -50,7 +50,7 @@ pub fn current_branch() -> Option<String> {
 fn grab_first_line(grab_from:String) -> Option<String> {
   //'loop' through the lines but just return
   //the first line we get
-  for first in grab_from.as_str().lines_any() {
+  for first in grab_from.as_str().lines() {
     return Some(first.to_string());
   }
   //there were no lines, return None

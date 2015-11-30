@@ -17,7 +17,6 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use std::path::Path;
-use std::fs::PathExt;
 use std::io::Result as IoResult;
 use std::io::Error as IoError;
 use std::io::ErrorKind;

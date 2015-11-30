@@ -87,14 +87,14 @@ fn full_default_status_filename() -> String {
 pub fn read_status_options() -> Vec<StatusOption> {
   let fullString = file_util::read_string_from_file(full_status_filename().as_str())
                              .unwrap_or("".to_string());
-  fullString.as_str().lines_any().map(
+  fullString.as_str().lines().map(
     |x| StatusOption{name:x.to_string()}
   ).collect()
 }
 
 pub fn write_status_options(statuses:Vec<StatusOption>) -> IoResult<()> {
   let stringVec:Vec<String> = statuses.into_iter().map(|x| x.name).collect();
-  let fullString = stringVec.connect("\n");
+  let fullString = stringVec.join("\n");
   file_util::write_string_to_file(fullString.as_str(),
                                   full_status_filename().as_str(),
                                   true)
@@ -103,7 +103,7 @@ pub fn write_status_options(statuses:Vec<StatusOption>) -> IoResult<()> {
 pub fn read_default_status() -> StatusOption {
   let fullFile = file_util::read_string_from_file(full_default_status_filename().as_str())
                            .unwrap_or(DEFAULT_STATUS_NAME.to_string());
-  let lineVec:Vec<&str> = fullFile.as_str().lines_any().collect();
+  let lineVec:Vec<&str> = fullFile.as_str().lines().collect();
   let firstLine = lineVec.as_slice().get(0).unwrap_or(&DEFAULT_STATUS_NAME);
   
   let statusOption = StatusOption{name:firstLine.to_string()};

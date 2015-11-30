@@ -19,7 +19,6 @@
 use std;
 use commands;
 use file_manager;
-use std::fs::PathExt;
 
 pub fn clear_data(_:Vec<String>) -> isize {
   let evictPath = std::path::Path::new(file_manager::EVICT_DIRECTORY);

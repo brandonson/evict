@@ -18,9 +18,9 @@
  */
 use issue::{Issue, IssueTimelineEvent, IssueJsonParseError};
 use file_util;
-use std::io::Result as IoResult;
 use std::io::Error as IoError;
-use serde;
+use serde_json::Result as SerdeResult;
+use serde_json;
 use std::fs;
 use std::fs::File;
 
@@ -58,11 +58,14 @@ pub fn single_issue_filename(issue:&Issue) -> String {
   format!("{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id())
 }
 
-pub fn write_issues(issues:&[Issue]) -> IoResult<()> {
+pub fn write_issues(issues:&[Issue]) -> SerdeResult<()> {
+  if !issue_directory_path().is_dir() {
+    fs::create_dir(issue_directory_path());
+  }
   write_issues_to_file(issues)
 }
 
-pub fn write_issues_to_file(issues:&[Issue]) -> IoResult<()> {
+pub fn write_issues_to_file(issues:&[Issue]) -> SerdeResult<()> {
   let mut result = Ok(());
   for i in issues.iter() {
     if let e@Err(_) = write_single_issue(i) {
@@ -72,7 +75,7 @@ pub fn write_issues_to_file(issues:&[Issue]) -> IoResult<()> {
   result
 }
 
-fn write_single_issue(issue:&Issue) -> IoResult<()> {
+fn write_single_issue(issue:&Issue) -> SerdeResult<()> {
   file_util::create_directory(single_issue_filename(issue).as_str());
   let mut result = write_issue_body(issue);
   for event in issue.events.iter() {
@@ -83,20 +86,20 @@ fn write_single_issue(issue:&Issue) -> IoResult<()> {
   result
 }
 
-fn write_issue_body(issue:&Issue) -> IoResult<()> {
+fn write_issue_body(issue:&Issue) -> SerdeResult<()> {
   let filename = issue_body_filename(issue);
   let mut file_out = try!(File::create(filename));
-  serde::json::to_writer_pretty(&mut file_out, &issue.no_comment_json()).map_err(Into::into)
+  serde_json::to_writer_pretty(&mut file_out, &issue.no_comment_json())
 }
 
 fn issue_body_filename(issue:&Issue) -> String {
   format!("{}/{}/{}/{}", EVICT_DIRECTORY, ISSUE_DIRECTORY, issue.id(), BODY_FILENAME)
 }
 
-fn write_issue_event(issueId:&str, event:&IssueTimelineEvent) -> IoResult<()>{
+fn write_issue_event(issueId:&str, event:&IssueTimelineEvent) -> SerdeResult<()>{
   let filename = issue_event_filename(issueId, event);
   let mut output_file = try!(File::create(filename.as_str()));
-  serde::json::to_writer_pretty(&mut output_file, event)
+  serde_json::to_writer_pretty(&mut output_file, event)
 }
 
 fn issue_event_filename(issueId:&str, event:&IssueTimelineEvent) -> String {
@@ -159,9 +162,9 @@ fn read_issue_events(bodyFiles:&[PathBuf]) -> Vec<IssueTimelineEvent> {
   bodyFiles.iter().filter_map(|pbuf| read_comment(pbuf).ok()).collect()
 }
 
-fn read_comment(commentFile:&PathBuf) -> Result<IssueTimelineEvent, serde::json::error::Error> {
+fn read_comment(commentFile:&PathBuf) -> Result<IssueTimelineEvent, serde_json::error::Error> {
   let data = try!(file_util::read_string_from_path(commentFile));
-  serde::json::from_str(&data)
+  serde_json::from_str(&data)
 }
 
 #[test]

@@ -17,11 +17,11 @@
  *   along with Evict-BT.  If not, see <http://www.gnu.org/licenses/>.
  */
 use file_util;
-use serde::json::Serializer as JsonSerializer;
-use serde::json::Deserializer as JsonDeserializer;
-use serde::json::Error as JsonDeserializationError;
+use serde_json::Serializer as JsonSerializer;
+use serde_json::Deserializer as JsonDeserializer;
+use serde_json::Error as JsonDeserializationError;
+use serde_json::Result as SerdeResult;
 use serde::{Serialize, Serializer, Deserialize, Deserializer};
-use std::io::Result as IoResult;
 use std::io::Read;
 
 use std::fs::File;
@@ -51,11 +51,11 @@ impl Config{
   
   fn read_repo_config() -> Result<Config, JsonDeserializationError> {
     let file = try!(File::open(CONFIG_FILE));
-    let mut deser = try!(JsonDeserializer::new(file.bytes()));
+    let mut deser = JsonDeserializer::new(file.bytes());
     Config::deserialize(&mut deser)
   }
   
-  pub fn save(&self) -> IoResult<()> {
+  pub fn save(&self) -> SerdeResult<()> {
     let file = try!(File::create(CONFIG_FILE));
     let mut writer = JsonSerializer::pretty(file);
     self.serialize(&mut writer)
