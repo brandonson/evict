@@ -60,7 +60,7 @@ pub fn single_issue_filename(issue:&Issue) -> String {
 
 pub fn write_issues(issues:&[Issue]) -> SerdeResult<()> {
   if !issue_directory_path().is_dir() {
-    fs::create_dir(issue_directory_path());
+    try!(fs::create_dir(issue_directory_path()));
   }
   write_issues_to_file(issues)
 }

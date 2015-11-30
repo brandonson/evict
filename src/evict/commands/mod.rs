@@ -33,7 +33,6 @@ mod init;
 mod create;
 mod clear;
 mod list;
-mod delete;
 mod comment;
 mod new_status;
 mod default_author;
@@ -48,11 +47,11 @@ mod tag;
  */
 pub type Command = fn (Vec<String>) -> isize;
 
-pub fn execute_command(command:&String, 
-                      commandList:&HashMap<String, Command>, 
+pub fn execute_command(command:&String,
+                      commandList:&HashMap<String, Command>,
                       argList: Vec<String>) -> ! {
   // [quality] This should be done without hardcoding init as the exception
-  if command != &"init".to_string() && 
+  if command != &"init".to_string() &&
      !file_util::file_exists(file_manager::EVICT_DIRECTORY) {
     println!("There is no evict directory.  Run evict init.");
     process::exit(2);
@@ -60,9 +59,9 @@ pub fn execute_command(command:&String,
   match commandList.get(command) {
     Some(cmd) => {let exit = (*cmd)(argList); process::exit(exit as i32)}
     None => {
-     println!("Command {} not found", command); 
+     println!("Command {} not found", command);
      process::exit(1);
-    } 
+    }
   }
 }
 
@@ -71,9 +70,8 @@ pub fn standard_commands() -> HashMap<String, Command> {
   hmap.insert("create".to_string(), create::create_issue);
   hmap.insert("clear".to_string(), clear::clear_data);
   hmap.insert("init".to_string(), init::initialize);
-  hmap.insert("list".to_string(), list::list_issues); 
-  hmap.insert("delete".to_string(), delete::delete_issue);
-  hmap.insert("comment".to_string(), comment::new_comment); 
+  hmap.insert("list".to_string(), list::list_issues);
+  hmap.insert("comment".to_string(), comment::new_comment);
   hmap.insert("new-status".to_string(), new_status::new_status);
   hmap.insert("default-author".to_string(), default_author::default_author);
   hmap.insert("set-status".to_string(), set_status::set_status);
@@ -81,7 +79,7 @@ pub fn standard_commands() -> HashMap<String, Command> {
   hmap.insert("tag".to_string(), tag::tag);
   hmap.insert("untag".to_string(), tag::untag);
   //hmap.insert("parse".to_string(), parse::parse_issues);
-  
+
   hmap
 }
 
