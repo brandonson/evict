@@ -39,7 +39,6 @@ mod default_author;
 mod set_status;
 mod default_status;
 mod tag;
-//mod parse;
 
 /* A command takes a list of argument strings,
  * performs some action, then returns an
