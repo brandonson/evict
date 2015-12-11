@@ -45,9 +45,9 @@ fn merge_pair(issues:(Option<Issue>, Option<Issue>)) -> Issue {
   if incoming_opt.is_some() && merge_into_opt.is_some() {
     let incoming = incoming_opt.unwrap();
     let merge_into = merge_into_opt.unwrap();
-    let new_events = merge_events(incoming.events.clone(), 
+    let new_events = merge_events(incoming.events.clone(),
                                   merge_into.events.clone());
-    
+
     let incomingTime = incoming.status.last_change_time.0.to_timespec();
     let intoTime = incoming.status.last_change_time.0.to_timespec();
     let status = if incomingTime > intoTime {
@@ -68,7 +68,7 @@ fn merge_events(mut incoming:Vec<IssueTimelineEvent>,
   incoming.extend(merge_into.into_iter());
   let mut merged:Vec<IssueTimelineEvent> = vec!();
   while incoming.len() > 0 {
-    match incoming.iter().min_by(|ievt| ievt.time().to_timespec())
+    match incoming.iter().min_by_key(|ievt| ievt.time().to_timespec())
                          .and_then(|minimum| incoming.iter().position(|x| x == minimum)) {
       Some(pos) => {
         //unwrap here is fine, we know pos is within index range.

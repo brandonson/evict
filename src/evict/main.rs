@@ -3,7 +3,6 @@
 #![feature(convert)]
 #![feature(libc)]
 #![feature(collections)]
-#![feature(iter_cmp)]
 #![feature(custom_derive, plugin)]
 
 #![plugin(serde_macros)]
@@ -49,7 +48,7 @@ fn main(){
     println!("No command given");
   }else{
     let cmd_args = args.iter().skip(2).map(|s_ref| s_ref.to_string()).collect();
-    
+
     let cmd = &args[1];
     commands::execute_command(cmd, &commands::standard_commands(), cmd_args);
   }
