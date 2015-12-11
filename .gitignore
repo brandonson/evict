@@ -10,5 +10,4 @@ rustpkg_db.json
 .evict-test
 .DS_Store
 target
-Cargo.lock
 rusty-tags.vi
