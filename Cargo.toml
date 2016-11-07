@@ -12,7 +12,7 @@ test = true
 [dependencies]
 genfsm = "*"
 serde = "*"
-serde_macros = "*"
+serde_derive = "*"
 serde_json = "*"
 error-type = "*"
 time = "*"

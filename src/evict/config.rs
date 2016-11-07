@@ -21,7 +21,7 @@ use serde_json::Serializer as JsonSerializer;
 use serde_json::Deserializer as JsonDeserializer;
 use serde_json::Error as JsonDeserializationError;
 use serde_json::Result as SerdeResult;
-use serde::{Serialize, Serializer, Deserialize, Deserializer};
+use serde::{Serialize, Deserialize};
 use std::io::Read;
 
 use std::fs::File;

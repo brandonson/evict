@@ -1,11 +1,14 @@
 #![allow(non_snake_case)]
 
-#![feature(convert)]
 #![feature(libc)]
 #![feature(collections)]
 #![feature(custom_derive, plugin)]
 
-#![plugin(serde_macros)]
+#![feature(proc_macro)]
+
+
+#[macro_use]
+extern crate serde_derive;
 
 extern crate genfsm as fsm;
 extern crate collections;
